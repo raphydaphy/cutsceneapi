@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "com.raphydaphy.cutsceneapi.mixin.client",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "ClientPlayerEntityMixin",
+    "ClientPlayerInteractionManagerMixin",
+    "GameRendererHooks",
+    "GameRendererMixin",
+    "InGameHudMixin",
+    "MinecraftClientMixin",
+    "WorldRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

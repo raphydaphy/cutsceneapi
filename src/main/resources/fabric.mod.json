@@ -1,0 +1,18 @@
+{
+  "id": "cutsceneapi",
+  "name": "Cutscene API",
+  "description": "Tools to help developers add Cutscenes to their mods.",
+  "version": "${version}",
+  "side": "universal",
+  "initializers": [
+    "com.raphydaphy.cutsceneapi.CutsceneAPI",
+    "com.raphydaphy.cutsceneapi.CutsceneAPIClient"
+  ],
+  "requires": {
+    "fabric": "*"
+  },
+  "mixins": {
+    "client": "modid.client.json",
+    "common": "modid.common.json"
+  }
+}
