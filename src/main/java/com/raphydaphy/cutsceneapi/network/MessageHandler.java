@@ -16,5 +16,5 @@ public abstract class MessageHandler<T extends IPacket> implements PacketConsume
 
 	abstract protected T create();
 
-	abstract void handle(PacketContext ctx, T message);
+	abstract protected void handle(PacketContext ctx, T message);
 }
