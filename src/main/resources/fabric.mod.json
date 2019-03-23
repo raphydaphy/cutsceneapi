@@ -12,7 +12,7 @@
     "fabric": "*"
   },
   "mixins": {
-    "client": "modid.client.json",
-    "common": "modid.common.json"
+    "client": "cutsceneapi.client.json",
+    "common": "cutsceneapi.common.json"
   }
 }

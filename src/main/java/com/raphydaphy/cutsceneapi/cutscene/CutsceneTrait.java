@@ -1,23 +1,22 @@
 package com.raphydaphy.cutsceneapi.cutscene;
 
 import me.elucent.earlgray.api.Trait;
-import me.elucent.earlgray.api.TraitHolder;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Identifier;
 
 public class CutsceneTrait extends Trait
 {
 	private boolean watchingCutscene;
-	private int length;
-	private int time;
+	private Identifier cutscene;
 
 	@Override
 	public CompoundTag write(CompoundTag tag)
 	{
-		tag.putBoolean("watchingCutscene", watchingCutscene);
-		tag.putInt("length", length);
-		tag.putInt("time", time);
+		tag.putBoolean("Watching", watchingCutscene);
+		if (watchingCutscene && cutscene != null)
+		{
+			tag.putString("Cutscene", cutscene.toString());
+		}
 		return tag;
 	}
 
@@ -25,10 +24,19 @@ public class CutsceneTrait extends Trait
 	public Trait read(CompoundTag tag)
 	{
 		CutsceneTrait trait = new CutsceneTrait();
-		trait.watchingCutscene = tag.getBoolean("watchingCutscene");
-		trait.length = tag.getInt("length");
-		trait.time = tag.getInt("time");
+		trait.watchingCutscene = tag.getBoolean("Watching");
+		if (trait.watchingCutscene && tag.containsKey("Cutscene"))
+		{
+			trait.cutscene = Identifier.create(tag.getString("Cutscene"));
+		}
 		return trait;
+	}
+
+	public void start(Identifier cutscene)
+	{
+		this.watchingCutscene = true;
+		this.cutscene = cutscene;
+		markDirty();
 	}
 
 	public boolean isWatching()
@@ -36,37 +44,9 @@ public class CutsceneTrait extends Trait
 		return watchingCutscene;
 	}
 
-	public int getLength()
+	public Identifier getCutscene()
 	{
-		return length;
-	}
-
-	public int getTime()
-	{
-		return time;
-	}
-
-	public void update(Entity entity)
-	{
-		if (isWatching())
-		{
-			if (getTime() >= getLength())
-			{
-				setWatching(false);
-			} else
-			{
-				this.time--;
-				markDirty();
-			}
-		}
-	}
-
-	public void startWatching(int length)
-	{
-		this.watchingCutscene = true;
-		this.length = length;
-		this.time = length;
-		markDirty();
+		return cutscene;
 	}
 
 	public void setWatching(boolean watching)
@@ -75,15 +55,9 @@ public class CutsceneTrait extends Trait
 		markDirty();
 	}
 
-	public void setLength(int length)
+	public void setCutscene(Identifier cutscene)
 	{
-		this.length = length;
-		markDirty();
-	}
-
-	public void setTime(int time)
-	{
-		this.time = time;
+		this.cutscene = cutscene;
 		markDirty();
 	}
 }

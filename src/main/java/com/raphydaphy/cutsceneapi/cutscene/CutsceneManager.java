@@ -9,7 +9,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 
@@ -46,16 +45,12 @@ public class CutsceneManager
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static void startClient()
+	public static void startClient(Identifier cutscene)
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
-		client.player.playSound(SoundEvents.UI_BUTTON_CLICK, 1, 1);
-		float pX = (float)client.player.getBlockPos().getX();
-		float pY = (float)client.player.getBlockPos().getY();
-		float pZ = (float)client.player.getBlockPos().getZ();
 
-		currentCutscene = new Cutscene(client.player, new Path().withPoint(pX + 0, pY + 20, pZ + 0).withPoint(pX + 30, pY + 30, pZ + 10).withPoint(pX + 50, pY + 10, pZ + 10))
-				.withDipTo(20, 255, 255, 255);
+		currentCutscene = CutsceneRegistry.get(cutscene, client.player);
+		currentCutscene.start(client.player);
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -68,11 +63,11 @@ public class CutsceneManager
 		}
 	}
 
-	public static void startServer(ServerPlayerEntity player, int duration)
+	public static void startServer(ServerPlayerEntity player, Identifier id)
 	{
 		player.stopRiding();
-		Traits.get(player, CutsceneAPI.CUTSCENE_TRAIT).startWatching(duration);
-		PacketHandler.sendToClient(new CutsceneStartPacket(), player);
+		Traits.get(player, CutsceneAPI.CUTSCENE_TRAIT).start(id);
+		PacketHandler.sendToClient(new CutsceneStartPacket(id), player);
 	}
 
 	public static void finishServer(PlayerEntity player)

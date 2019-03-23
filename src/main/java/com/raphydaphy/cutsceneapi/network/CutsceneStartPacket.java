@@ -10,19 +10,30 @@ public class CutsceneStartPacket implements IPacket
 {
 	public static final Identifier ID = new Identifier(CutsceneAPI.DOMAIN, "cutscene_start");
 
-	public CutsceneStartPacket()
+	private Identifier cutscene;
+
+	private CutsceneStartPacket()
 	{
 
+	}
+
+	public CutsceneStartPacket(Identifier cutscene)
+	{
+		this.cutscene = cutscene;
 	}
 
 	@Override
 	public void read(PacketByteBuf buf)
 	{
+		this.cutscene = Identifier.create(buf.readString(buf.readInt()));
 	}
 
 	@Override
 	public void write(PacketByteBuf buf)
 	{
+		String id = this.cutscene.toString();
+		buf.writeInt(id.length());
+		buf.writeString(id);
 	}
 
 	@Override
@@ -42,7 +53,7 @@ public class CutsceneStartPacket implements IPacket
 		@Override
 		public void handle(PacketContext ctx, CutsceneStartPacket message)
 		{
-			CutsceneManager.startClient();
+			CutsceneManager.startClient(message.cutscene);
 		}
 	}
 }

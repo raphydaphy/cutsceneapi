@@ -1,16 +1,15 @@
 package com.raphydaphy.cutsceneapi.cutscene;
 
 import com.mojang.blaze3d.platform.GLX;
-import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.mixin.client.GameRendererHooks;
 import com.raphydaphy.cutsceneapi.network.CutsceneFinishPacket;
 import com.raphydaphy.cutsceneapi.network.PacketHandler;
-import me.elucent.earlgray.api.Traits;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -25,32 +24,53 @@ public class Cutscene
 	private boolean setCamera = false;
 	private Identifier shader;
 	private Path cameraPath;
+	private SoundEvent startSound;
 
-	Cutscene(PlayerEntity player, Path cameraPath)
+	public Cutscene(PlayerEntity player, Path cameraPath)
 	{
-		this.duration = Traits.get(player, CutsceneAPI.CUTSCENE_TRAIT).getLength();
 		this.ticks = 0;
 		this.cameraPath = cameraPath.build();
 		this.camera = new CutsceneCameraEntity(player.world).withPos(this.cameraPath.getPoint(0));
 	}
 
-	Cutscene withDipTo(float length, int red, int green, int blue)
+	public Cutscene withDuration(int duration)
+	{
+		this.duration = duration;
+		return this;
+	}
+
+	public Cutscene withStartSound(SoundEvent startSound)
+	{
+		this.startSound = startSound;
+		return this;
+	}
+
+	public Cutscene withDipTo(float length, int red, int green, int blue)
 	{
 		withTransition(new Transition.DipTo(0, length, red, green, blue).setIntro());
 		withTransition(new Transition.DipTo(duration - length, length, red, green, blue).setOutro());
 		return this;
 	}
 
-	Cutscene withTransition(Transition transition)
+	public Cutscene withTransition(Transition transition)
 	{
 		transitionList.add(transition);
 		return this;
 	}
 
-	Cutscene withShader(Identifier shader)
+	public Cutscene withShader(Identifier shader)
 	{
 		this.shader = shader;
 		return this;
+	}
+
+	@Environment(EnvType.CLIENT)
+	public void start(PlayerEntity player)
+	{
+		if (startSound != null)
+		{
+			player.playSound(startSound, 1, 1);
+		}
 	}
 
 	@Environment(EnvType.CLIENT)
