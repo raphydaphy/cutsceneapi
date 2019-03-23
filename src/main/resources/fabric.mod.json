@@ -9,7 +9,8 @@
     "com.raphydaphy.cutsceneapi.CutsceneAPIClient"
   ],
   "requires": {
-    "fabric": "*"
+    "fabric": "*",
+    "earlgray": "*"
   },
   "mixins": {
     "client": "cutsceneapi.client.json",
