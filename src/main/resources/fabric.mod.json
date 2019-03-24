@@ -10,7 +10,7 @@
   ],
   "requires": {
     "fabric": "*",
-    "earlgray": "*"
+    "crochet": "*"
   },
   "mixins": {
     "client": "cutsceneapi.client.json",

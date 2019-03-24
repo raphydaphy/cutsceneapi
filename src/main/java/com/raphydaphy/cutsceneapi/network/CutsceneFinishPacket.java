@@ -1,5 +1,7 @@
 package com.raphydaphy.cutsceneapi.network;
 
+import com.raphydaphy.crochet.network.IPacket;
+import com.raphydaphy.crochet.network.MessageHandler;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
 import net.fabricmc.fabric.api.network.PacketContext;

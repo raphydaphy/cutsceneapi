@@ -1,15 +1,14 @@
 package com.raphydaphy.cutsceneapi.cutscene;
 
+import com.raphydaphy.crochet.data.PlayerData;
+import com.raphydaphy.crochet.network.PacketHandler;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.network.CutsceneStartPacket;
-import com.raphydaphy.cutsceneapi.network.PacketHandler;
-import me.elucent.earlgray.api.Traits;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 
 public class CutsceneManager
@@ -23,7 +22,7 @@ public class CutsceneManager
 
 	public static boolean isActive(PlayerEntity player)
 	{
-		return player != null && Traits.has(player, CutsceneAPI.CUTSCENE_TRAIT) && Traits.get(player, CutsceneAPI.CUTSCENE_TRAIT).isWatching();
+		return player != null && PlayerData.get(player).getBoolean(CutsceneAPI.WATCHING_CUTSCENE_KEY);
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -57,21 +56,25 @@ public class CutsceneManager
 	public static void updateClient()
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
-		if (isActive(client.player) && currentCutscene != null)
+		if (isActive(client.player))
 		{
-			currentCutscene.updateClient();
+			if (currentCutscene == null) currentCutscene = CutsceneRegistry.get(Identifier.create(PlayerData.get(client.player).getString(CutsceneAPI.CUTSCENE_ID_KEY)), client.player);
+			if (currentCutscene != null) currentCutscene.updateClient();
 		}
 	}
 
 	public static void startServer(ServerPlayerEntity player, Identifier id)
 	{
 		player.stopRiding();
-		Traits.get(player, CutsceneAPI.CUTSCENE_TRAIT).start(id);
+		PlayerData.get(player).putBoolean(CutsceneAPI.WATCHING_CUTSCENE_KEY, true);
+		PlayerData.get(player).putString(CutsceneAPI.CUTSCENE_ID_KEY, id.toString());
+		PlayerData.markDirty(player);
 		PacketHandler.sendToClient(new CutsceneStartPacket(id), player);
 	}
 
 	public static void finishServer(PlayerEntity player)
 	{
-		Traits.get(player, CutsceneAPI.CUTSCENE_TRAIT).setWatching(false);
+		PlayerData.get(player).putBoolean(CutsceneAPI.WATCHING_CUTSCENE_KEY, false);
+		PlayerData.markDirty(player);
 	}
 }

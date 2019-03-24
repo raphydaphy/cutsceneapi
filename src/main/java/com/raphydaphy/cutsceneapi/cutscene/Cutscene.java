@@ -1,9 +1,9 @@
 package com.raphydaphy.cutsceneapi.cutscene;
 
 import com.mojang.blaze3d.platform.GLX;
+import com.raphydaphy.crochet.network.PacketHandler;
 import com.raphydaphy.cutsceneapi.mixin.client.GameRendererHooks;
 import com.raphydaphy.cutsceneapi.network.CutsceneFinishPacket;
-import com.raphydaphy.cutsceneapi.network.PacketHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
