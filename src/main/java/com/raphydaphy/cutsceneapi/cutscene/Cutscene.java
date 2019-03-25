@@ -2,15 +2,19 @@ package com.raphydaphy.cutsceneapi.cutscene;
 
 import com.mojang.blaze3d.platform.GLX;
 import com.raphydaphy.crochet.network.PacketHandler;
+import com.raphydaphy.cutsceneapi.mixin.client.ClientWorldHooks;
 import com.raphydaphy.cutsceneapi.mixin.client.GameRendererHooks;
+import com.raphydaphy.cutsceneapi.mixin.client.MinecraftClientHooks;
 import com.raphydaphy.cutsceneapi.network.CutsceneFinishPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.level.LevelInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +30,7 @@ public class Cutscene
 	private Identifier shader;
 	private Path cameraPath;
 	private SoundEvent startSound;
-	private CutsceneWorldRenderer renderer;
+	private ClientWorld realWorld;
 
 	public Cutscene(PlayerEntity player, Path cameraPath)
 	{
@@ -79,15 +83,6 @@ public class Cutscene
 		{
 			player.playSound(startSound, 1, 1);
 		}
-		if (usesFakeWorld())
-		{
-			renderer = new CutsceneWorldRenderer(MinecraftClient.getInstance());
-		}
-	}
-
-	public CutsceneWorldRenderer getRenderer()
-	{
-		return renderer;
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -112,12 +107,23 @@ public class Cutscene
 				}
 				setCamera = true;
 			}
+			if (realWorld == null && usesFakeWorld)
+			{
+				realWorld = client.world;
+				((MinecraftClientHooks) client).setCutsceneWorld(new CutsceneWorld(((ClientWorldHooks)client.world).getCutsceneNetworkHandler(), new LevelInfo(client.world.getLevelProperties()), client.world.getProfiler(), client.worldRenderer));
+			}
 		} else
 		{
+			if (realWorld != null && usesFakeWorld)
+			{
+				((MinecraftClientHooks) client).setCutsceneWorld(realWorld);
+				realWorld = null;
+			}
+
 			client.gameRenderer.disableShader();
 			setCamera = false;
 			client.setCameraEntity(client.player);
-			client.worldRenderer.method_3292();
+			//client.worldRenderer.method_3292();
 		}
 
 		if (ticks >= duration)

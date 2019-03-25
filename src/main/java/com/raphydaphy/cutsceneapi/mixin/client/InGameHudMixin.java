@@ -23,7 +23,7 @@ public class InGameHudMixin
 		if (CutsceneManager.hideHud(client.player))
 		{
 			CutsceneManager.renderHud();
-			info.cancel();
+			//info.cancel();
 		}
 	}
 
