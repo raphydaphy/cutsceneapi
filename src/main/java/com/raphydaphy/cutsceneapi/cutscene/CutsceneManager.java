@@ -3,12 +3,14 @@ package com.raphydaphy.cutsceneapi.cutscene;
 import com.raphydaphy.crochet.data.PlayerData;
 import com.raphydaphy.crochet.network.PacketHandler;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
+import com.raphydaphy.cutsceneapi.network.CutsceneFinishPacket;
 import com.raphydaphy.cutsceneapi.network.CutsceneStartPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.audio.SoundManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -93,10 +95,29 @@ public class CutsceneManager
 	@Environment(EnvType.CLIENT)
 	public static void startClient(Identifier cutscene)
 	{
+		System.out.println("STARTED");
 		MinecraftClient client = MinecraftClient.getInstance();
-
+		client.getSoundManager().stopAll();
 		currentCutscene = CutsceneRegistry.get(cutscene, client.player);
 		currentCutscene.start(client.player);
+
+	}
+
+	@Environment(EnvType.CLIENT)
+	public static void finishClient()
+	{
+		boolean reload = false;
+		if (currentCutscene != null)
+		{
+			reload = currentCutscene.usesFakeWorld();
+			currentCutscene = null;
+		}
+		PacketHandler.sendToServer(new CutsceneFinishPacket());
+
+		if (reload)
+		{
+			MinecraftClient.getInstance().worldRenderer.reload();
+		}
 	}
 
 	@Environment(EnvType.CLIENT)

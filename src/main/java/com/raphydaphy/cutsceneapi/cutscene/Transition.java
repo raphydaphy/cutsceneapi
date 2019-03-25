@@ -13,7 +13,7 @@ public abstract class Transition
 	boolean showHud = false;
 	boolean fixedCamera = false;
 
-	Transition(float startTime, float length)
+	public Transition(float startTime, float length)
 	{
 		this.startTime = startTime;
 		this.length = length;
@@ -42,7 +42,7 @@ public abstract class Transition
 		protected float green;
 		protected float blue;
 
-		FadeTo(float startTime, float length, int red, int green, int blue)
+		public FadeTo(float startTime, float length, int red, int green, int blue)
 		{
 			super(startTime, length);
 			this.red = red / 255f;
@@ -59,13 +59,29 @@ public abstract class Transition
 		}
 	}
 
+	public static class FadeFrom extends FadeTo
+	{
+		public FadeFrom(float startTime, float length, int red, int green, int blue)
+		{
+			super(startTime, length, red, green, blue);
+		}
+
+		@Override
+		public void render(MinecraftClient client, float cutsceneTime)
+		{
+			float transitionTime = cutsceneTime - startTime;
+			float percent = transitionTime / length;
+			drawRect(0, 0, client.window.getScaledWidth(), client.window.getScaledHeight(), percent, red, green, blue);
+		}
+	}
+
 	public static class DipTo extends FadeTo
 	{
 		private boolean isIntro = false;
 		private boolean isOutro = false;
 		private float hold;
 
-		DipTo(float startTime, float length, float hold, int red, int green, int blue)
+		public DipTo(float startTime, float length, float hold, int red, int green, int blue)
 		{
 			super(startTime, length + hold, red, green, blue);
 			this.hold = hold;

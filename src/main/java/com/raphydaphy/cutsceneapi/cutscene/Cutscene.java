@@ -24,21 +24,27 @@ import java.util.function.Function;
 
 public class Cutscene
 {
+	// Settings
 	private List<Transition> transitionList = new ArrayList<>();
 	private CutsceneCameraEntity camera;
-	private int ticks;
-	private int duration;
-	private boolean setCamera = false;
 	private Identifier shader;
 	private Path cameraPath;
 	private SoundEvent startSound;
-	boolean setFakeWorld = false;
-	private boolean usesFakeWorld = false;
 	private BiFunction<BlockPos, BlockState, BlockState> blockRemapper;
 	private Function<BlockPos, FluidState> fluidRemapper;
+	private Cutscene nextCutscene;
+	private boolean usesFakeWorld = false;
+	private int duration;
 	private int introLength = 0;
 	private int outroLength = 0;
+
+	// Data
+	private boolean setFakeWorld = false;
+	private boolean setCamera = false;
+	private int ticks;
 	private int startPerspective;
+	private float startPitch;
+	private float startYaw;
 
 	public Cutscene(PlayerEntity player, Path cameraPath)
 	{
@@ -49,9 +55,9 @@ public class Cutscene
 		blockRemapper = (pos, state) -> Blocks.AIR.getDefaultState();
 	}
 
-	public Cutscene withDuration(int duration)
+	public Cutscene withDuration(int ticks)
 	{
-		this.duration = duration;
+		this.duration = ticks;
 		return this;
 	}
 
@@ -94,6 +100,12 @@ public class Cutscene
 		return this;
 	}
 
+	public Cutscene withCutscene(Cutscene next)
+	{
+		this.nextCutscene = next;
+		return this;
+	}
+
 	public BiFunction<BlockPos, BlockState, BlockState> getBlockRemapper()
 	{
 		return blockRemapper;
@@ -118,6 +130,8 @@ public class Cutscene
 			player.playSound(startSound, 1, 1);
 		}
 		startPerspective = MinecraftClient.getInstance().options.perspective;
+		this.startPitch = player.pitch;
+		this.startYaw = player.yaw;
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -177,7 +191,28 @@ public class Cutscene
 
 		if (ticks >= duration)
 		{
-			PacketHandler.sendToServer(new CutsceneFinishPacket());
+			if (nextCutscene != null)
+			{
+				this.transitionList = nextCutscene.transitionList;
+				this.shader = nextCutscene.shader;
+				this.cameraPath = nextCutscene.cameraPath;
+				this.startSound = nextCutscene.startSound;
+				this.blockRemapper = nextCutscene.blockRemapper;
+				this.fluidRemapper = nextCutscene.fluidRemapper;
+				this.usesFakeWorld = nextCutscene.usesFakeWorld;
+				this.duration = nextCutscene.duration;
+				this.outroLength = nextCutscene.outroLength;
+				this.introLength = nextCutscene.introLength;
+
+				this.setCamera = true;
+				this.setFakeWorld = false;
+				this.ticks = 10;
+
+				this.nextCutscene = nextCutscene.nextCutscene;
+			} else
+			{
+				CutsceneManager.finishClient();
+			}
 		} else
 		{
 			ticks++;
@@ -189,6 +224,9 @@ public class Cutscene
 		MinecraftClient client = MinecraftClient.getInstance();
 
 		float interpCutsceneTime = lerp(ticks, ticks + 1, client.getTickDelta());
+
+		client.player.pitch = startPitch;
+		client.player.yaw = startYaw;
 
 		for (Transition transition : transitionList)
 		{
