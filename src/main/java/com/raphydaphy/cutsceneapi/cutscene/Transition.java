@@ -63,10 +63,12 @@ public abstract class Transition
 	{
 		private boolean isIntro = false;
 		private boolean isOutro = false;
+		private float hold;
 
-		DipTo(float startTime, float length, int red, int green, int blue)
+		DipTo(float startTime, float length, float hold, int red, int green, int blue)
 		{
-			super(startTime, length, red, green, blue);
+			super(startTime, length + hold, red, green, blue);
+			this.hold = hold;
 		}
 
 		public DipTo setIntro()
@@ -98,7 +100,7 @@ public abstract class Transition
 		public void render(MinecraftClient client, float cutsceneTime)
 		{
 			float transitionTime = cutsceneTime - startTime;
-			float halfTime = length / 2f;
+			float halfTime = (length - hold) / 2f;
 			GlStateManager.disableDepthTest();
 			if (transitionTime < halfTime)
 			{
@@ -106,9 +108,14 @@ public abstract class Transition
 				fixedCamera = isIntro;
 				float percent = transitionTime / halfTime;
 				drawRect(0, 0, client.window.getScaledWidth(), client.window.getScaledHeight(), percent, red, green, blue);
+			} else if (transitionTime < halfTime + hold)
+			{
+				showHud = isOutro;
+				fixedCamera = isIntro;
+				drawRect(0, 0, client.window.getScaledWidth(), client.window.getScaledHeight(), 1, red, green, blue);
 			} else
 			{
-				transitionTime = transitionTime - halfTime;
+				transitionTime = transitionTime - halfTime - hold;
 				showHud = isOutro;
 				fixedCamera = isOutro;
 				float percent = 1 - transitionTime / halfTime;

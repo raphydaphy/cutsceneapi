@@ -6,20 +6,26 @@ import com.raphydaphy.cutsceneapi.mixin.client.GameRendererHooks;
 import com.raphydaphy.cutsceneapi.network.CutsceneFinishPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class Cutscene
 {
 	private List<Transition> transitionList = new ArrayList<>();
 	private CutsceneCameraEntity camera;
-	private boolean usesFakeWorld = false;
 	private int ticks;
 	private int duration;
 	private boolean setCamera = false;
@@ -27,12 +33,19 @@ public class Cutscene
 	private Path cameraPath;
 	private SoundEvent startSound;
 	private boolean setFakeWorld = false;
+	private boolean usesFakeWorld = false;
+	private BiFunction<BlockPos, BlockState, BlockState> blockRemapper;
+	private Function<BlockPos, FluidState> fluidRemapper;
+	private int introLength = 0;
+	private int startPerspective;
 
 	public Cutscene(PlayerEntity player, Path cameraPath)
 	{
 		this.ticks = 0;
 		this.cameraPath = cameraPath.build();
 		this.camera = new CutsceneCameraEntity(player.world).withPos(this.cameraPath.getPoint(0));
+		fluidRemapper = (pos) -> Fluids.EMPTY.getDefaultState();
+		blockRemapper = (pos, state) -> Blocks.AIR.getDefaultState();
 	}
 
 	public Cutscene withDuration(int duration)
@@ -41,9 +54,21 @@ public class Cutscene
 		return this;
 	}
 
-	public Cutscene setFakeWorld()
+	public Cutscene withFakeWorld()
 	{
 		this.usesFakeWorld = true;
+		return this;
+	}
+
+	public Cutscene withBlockRemapper(BiFunction<BlockPos, BlockState, BlockState> remapFunction)
+	{
+		this.blockRemapper = remapFunction;
+		return this;
+	}
+
+	public Cutscene withFluidRemapper(Function<BlockPos, FluidState> remapFunction)
+	{
+		this.fluidRemapper = remapFunction;
 		return this;
 	}
 
@@ -53,10 +78,11 @@ public class Cutscene
 		return this;
 	}
 
-	public Cutscene withDipTo(float length, int red, int green, int blue)
+	public Cutscene withDipTo(float length, float hold, int red, int green, int blue)
 	{
-		withTransition(new Transition.DipTo(0, length, red, green, blue).setIntro());
-		withTransition(new Transition.DipTo(duration - length, length, red, green, blue).setOutro());
+		this.introLength = (int)Math.floor((length - hold) / 2f);
+		withTransition(new Transition.DipTo(0, length, hold, red, green, blue).setIntro());
+		withTransition(new Transition.DipTo(duration - length - hold, length, hold, red, green, blue).setOutro());
 		return this;
 	}
 
@@ -64,6 +90,16 @@ public class Cutscene
 	{
 		transitionList.add(transition);
 		return this;
+	}
+
+	public BiFunction<BlockPos, BlockState, BlockState> getBlockRemapper()
+	{
+		return blockRemapper;
+	}
+
+	public Function<BlockPos, FluidState> getFluidRemapper()
+	{
+		return fluidRemapper;
 	}
 
 	public Cutscene withShader(Identifier shader)
@@ -79,16 +115,24 @@ public class Cutscene
 		{
 			player.playSound(startSound, 1, 1);
 		}
+		startPerspective = MinecraftClient.getInstance().options.perspective;
 	}
 
 	@Environment(EnvType.CLIENT)
 	void updateClient()
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
-		if (hideHud())
+		if (hideHud() && ticks > introLength)
 		{
 			camera.update();
 			camera.moveTo(cameraPath.getPoint(ticks / (float) duration));
+
+			if (client.options.perspective != 0)
+			{
+				client.options.perspective = 0;
+				client.worldRenderer.method_3292();
+			}
+
 			if (!setCamera)
 			{
 				client.cameraEntity = camera;
@@ -103,7 +147,7 @@ public class Cutscene
 				}
 				setCamera = true;
 
-				if (usesFakeWorld && !setFakeWorld)
+				if (usesFakeWorld && !setFakeWorld && ticks >= introLength)
 				{
 					setFakeWorld = true;
 					MinecraftClient.getInstance().worldRenderer.reload();
@@ -119,6 +163,12 @@ public class Cutscene
 			{
 				setFakeWorld = false;
 				MinecraftClient.getInstance().worldRenderer.reload();
+			}
+
+			if (client.options.perspective != startPerspective)
+			{
+				client.options.perspective = startPerspective;
+				client.worldRenderer.method_3292();
 			}
 		}
 

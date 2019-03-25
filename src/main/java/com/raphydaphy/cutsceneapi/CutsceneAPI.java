@@ -7,6 +7,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.fabricmc.fabric.api.registry.CommandRegistry;
+import net.minecraft.block.Blocks;
 import net.minecraft.command.arguments.EntityArgumentType;
 import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntitySize;
@@ -38,7 +39,20 @@ public class CutsceneAPI implements ModInitializer
 			float pY = (float) player.y;
 			float pZ = (float) player.z;
 			return new Cutscene(player, new Path().withPoint(pX + 0, pY + 20, pZ + 0).withPoint(pX + 30, pY + 30, pZ + 10).withPoint(pX + 50, pY + 10, pZ + 10))
-					.withDuration(150).setFakeWorld().withStartSound(SoundEvents.UI_BUTTON_CLICK).withDipTo(20, 0, 0, 0);
+					.withDuration(250).withFakeWorld().withBlockRemapper((pos, existing) ->
+					{
+						if (!existing.isAir())
+						{
+							if (!existing.getFluidState().isEmpty())
+							{
+								return Blocks.AIR.getDefaultState();
+							} else
+							{
+								return Blocks.GRAVEL.getDefaultState();
+							}
+						}
+						return null;
+					}).withStartSound(SoundEvents.UI_BUTTON_CLICK).withDipTo(40, 20, 0, 0, 0);
 		});
 
 		CUTSCENE_CAMERA_ENTITY = Registry.register(Registry.ENTITY_TYPE, new Identifier(DOMAIN, "cutscene_camera"), FabricEntityTypeBuilder.create(EntityCategory.MISC, CutsceneCameraEntity::new).size(new EntitySize(1, 1, true)).build());

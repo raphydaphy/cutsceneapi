@@ -36,16 +36,7 @@ public class CutsceneManager
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (existing != null && hideHud(client.player) && showFakeWorld())
 		{
-			if (!existing.isAir())
-			{
-				if (!existing.getFluidState().isEmpty())
-				{
-					return Blocks.AIR.getDefaultState();
-				} else
-				{
-					return Blocks.NETHERRACK.getDefaultState();
-				}
-			}
+			return currentCutscene.getBlockRemapper().apply(pos, existing);
 		}
 		return null;
 	}
@@ -56,7 +47,7 @@ public class CutsceneManager
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (CutsceneManager.hideHud(client.player) && CutsceneManager.showFakeWorld())
 		{
-			return Fluids.EMPTY.getDefaultState();
+			return currentCutscene.getFluidRemapper().apply(pos);
 		}
 		return null;
 	}
