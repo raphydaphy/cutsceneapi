@@ -19,12 +19,14 @@ public class Cutscene
 {
 	private List<Transition> transitionList = new ArrayList<>();
 	private CutsceneCameraEntity camera;
+	private boolean usesFakeWorld = false;
 	private int ticks;
 	private int duration;
 	private boolean setCamera = false;
 	private Identifier shader;
 	private Path cameraPath;
 	private SoundEvent startSound;
+	private CutsceneWorldRenderer renderer;
 
 	public Cutscene(PlayerEntity player, Path cameraPath)
 	{
@@ -36,6 +38,12 @@ public class Cutscene
 	public Cutscene withDuration(int duration)
 	{
 		this.duration = duration;
+		return this;
+	}
+
+	public Cutscene setFakeWorld()
+	{
+		this.usesFakeWorld = true;
 		return this;
 	}
 
@@ -71,6 +79,15 @@ public class Cutscene
 		{
 			player.playSound(startSound, 1, 1);
 		}
+		if (usesFakeWorld())
+		{
+			renderer = new CutsceneWorldRenderer(MinecraftClient.getInstance());
+		}
+	}
+
+	public CutsceneWorldRenderer getRenderer()
+	{
+		return renderer;
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -172,6 +189,11 @@ public class Cutscene
 		}
 
 		return true;
+	}
+
+	boolean usesFakeWorld()
+	{
+		return usesFakeWorld;
 	}
 
 	private static float lerp(float previous, float current, float delta)

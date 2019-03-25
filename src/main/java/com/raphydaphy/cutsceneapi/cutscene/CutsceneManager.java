@@ -20,6 +20,11 @@ public class CutsceneManager
 		return isActive(player) && currentCutscene != null && currentCutscene.hideHud();
 	}
 
+	public static boolean showFakeWorld(PlayerEntity player)
+	{
+		return hideHud(player) && currentCutscene.usesFakeWorld();
+	}
+
 	public static boolean isActive(PlayerEntity player)
 	{
 		return player != null && PlayerData.get(player).getBoolean(CutsceneAPI.WATCHING_CUTSCENE_KEY);
@@ -50,6 +55,11 @@ public class CutsceneManager
 
 		currentCutscene = CutsceneRegistry.get(cutscene, client.player);
 		currentCutscene.start(client.player);
+	}
+
+	public static CutsceneWorldRenderer getRenderer()
+	{
+		return currentCutscene != null ? currentCutscene.getRenderer() : null;
 	}
 
 	@Environment(EnvType.CLIENT)
