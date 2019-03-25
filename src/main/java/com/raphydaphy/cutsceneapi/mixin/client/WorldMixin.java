@@ -1,9 +1,8 @@
-package com.raphydaphy.cutsceneapi.mixin.common;
+package com.raphydaphy.cutsceneapi.mixin.client;
 
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
@@ -26,17 +25,12 @@ public class WorldMixin
 	{
 		if (this.isClient)
 		{
-			BlockState state = getCutsceneBlockStateClient(pos, info.getReturnValue());
+			BlockState state = CutsceneManager.getFakeWorldState(pos, info.getReturnValue());
 			if (state != null)
 			{
 				info.setReturnValue(state);
 			}
 		}
-	}
-
-	private BlockState getCutsceneBlockStateClient(BlockPos pos, BlockState existing)
-	{
-		return CutsceneManager.getFakeWorldState(pos, existing);
 	}
 
 	@Inject(at = @At("HEAD"), method = "getFluidState", cancellable = true)
@@ -44,17 +38,12 @@ public class WorldMixin
 	{
 		if (this.isClient)
 		{
-			FluidState state = getCutsceneFluidStateClient(pos);
+			FluidState state = CutsceneManager.getFakeWorldFluid(pos);
 			if (state != null)
 			{
 				info.setReturnValue(state);
 			}
 		}
-	}
-
-	private FluidState getCutsceneFluidStateClient(BlockPos pos)
-	{
-		return CutsceneManager.getFakeWorldFluid(pos);
 	}
 
 	@Inject(at = @At("RETURN"), method = "getLightLevel(Lnet/minecraft/world/LightType;Lnet/minecraft/util/math/BlockPos;)I", cancellable = true)
