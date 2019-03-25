@@ -34,7 +34,7 @@ public class CutsceneManager
 	public static BlockState getFakeWorldState(BlockPos pos, BlockState existing)
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
-		if (existing != null && CutsceneManager.hideHud(client.player) && CutsceneManager.showFakeWorld())
+		if (existing != null && hideHud(client.player) && showFakeWorld())
 		{
 			if (!existing.isAir())
 			{

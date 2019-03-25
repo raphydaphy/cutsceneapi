@@ -26,6 +26,7 @@ public class Cutscene
 	private Identifier shader;
 	private Path cameraPath;
 	private SoundEvent startSound;
+	private boolean setFakeWorld = false;
 
 	public Cutscene(PlayerEntity player, Path cameraPath)
 	{
@@ -102,8 +103,9 @@ public class Cutscene
 				}
 				setCamera = true;
 
-				if (usesFakeWorld)
+				if (usesFakeWorld && !setFakeWorld)
 				{
+					setFakeWorld = true;
 					MinecraftClient.getInstance().worldRenderer.reload();
 				}
 			}
@@ -113,9 +115,9 @@ public class Cutscene
 			setCamera = false;
 			client.setCameraEntity(client.player);
 			client.worldRenderer.method_3292();
-
-			if (usesFakeWorld)
+			if (usesFakeWorld && setFakeWorld)
 			{
+				setFakeWorld = false;
 				MinecraftClient.getInstance().worldRenderer.reload();
 			}
 		}

@@ -21,7 +21,7 @@ import java.util.Random;
 @Mixin(SafeWorldView.class)
 public abstract class SafeWorldViewMixin
 {
-	@Inject(at = @At("HEAD"), method="getBlockState", cancellable = true)
+	@Inject(at = @At("RETURN"), method="getBlockState", cancellable = true)
 	private void getBlockState(BlockPos pos, CallbackInfoReturnable<BlockState> info)
 	{
 		BlockState state = CutsceneManager.getFakeWorldState(pos, info.getReturnValue());
