@@ -2,19 +2,15 @@ package com.raphydaphy.cutsceneapi.cutscene;
 
 import com.mojang.blaze3d.platform.GLX;
 import com.raphydaphy.crochet.network.PacketHandler;
-import com.raphydaphy.cutsceneapi.mixin.client.ClientWorldHooks;
 import com.raphydaphy.cutsceneapi.mixin.client.GameRendererHooks;
-import com.raphydaphy.cutsceneapi.mixin.client.MinecraftClientHooks;
 import com.raphydaphy.cutsceneapi.network.CutsceneFinishPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.Vector3f;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.level.LevelInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,14 +101,23 @@ public class Cutscene
 					}
 				}
 				setCamera = true;
+
+				if (usesFakeWorld)
+				{
+					MinecraftClient.getInstance().worldRenderer.reload();
+				}
 			}
 		} else
 		{
-
 			client.gameRenderer.disableShader();
 			setCamera = false;
 			client.setCameraEntity(client.player);
 			client.worldRenderer.method_3292();
+
+			if (usesFakeWorld)
+			{
+				MinecraftClient.getInstance().worldRenderer.reload();
+			}
 		}
 
 		if (ticks >= duration)

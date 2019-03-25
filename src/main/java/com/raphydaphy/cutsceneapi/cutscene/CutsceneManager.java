@@ -6,11 +6,15 @@ import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.network.CutsceneStartPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.util.math.BlockPos;
 
 public class CutsceneManager
 {
@@ -27,12 +31,52 @@ public class CutsceneManager
 	}
 
 	@Environment(EnvType.CLIENT)
+	public static BlockState getFakeWorldState(BlockPos pos, BlockState existing)
+	{
+		MinecraftClient client = MinecraftClient.getInstance();
+		if (existing != null && CutsceneManager.hideHud(client.player) && CutsceneManager.showFakeWorld())
+		{
+			if (!existing.isAir())
+			{
+				if (!existing.getFluidState().isEmpty())
+				{
+					return Blocks.AIR.getDefaultState();
+				} else
+				{
+					return Blocks.NETHERRACK.getDefaultState();
+				}
+			}
+		}
+		return null;
+	}
+
+	@Environment(EnvType.CLIENT)
+	public static FluidState getFakeWorldFluid(BlockPos pos)
+	{
+		MinecraftClient client = MinecraftClient.getInstance();
+		if (CutsceneManager.hideHud(client.player) && CutsceneManager.showFakeWorld())
+		{
+			return Fluids.EMPTY.getDefaultState();
+		}
+		return null;
+	}
+
+	@Environment(EnvType.CLIENT)
 	public static void updateLook()
 	{
 		if (currentCutscene != null)
 		{
 			currentCutscene.updateLook();
 		}
+	}
+
+	public static boolean showFakeWorld()
+	{
+		if (currentCutscene != null)
+		{
+			return currentCutscene.usesFakeWorld();
+		}
+		return false;
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -67,7 +111,6 @@ public class CutsceneManager
 	public static void startServer(ServerPlayerEntity player, Identifier id)
 	{
 		player.stopRiding();
-		player.changeDimension(CutsceneAPI.CUTSCENE_DIMENSION);
 		PlayerData.get(player).putBoolean(CutsceneAPI.WATCHING_CUTSCENE_KEY, true);
 		PlayerData.get(player).putString(CutsceneAPI.CUTSCENE_ID_KEY, id.toString());
 		PlayerData.markDirty(player);
@@ -76,7 +119,6 @@ public class CutsceneManager
 
 	public static void finishServer(PlayerEntity player)
 	{
-		player.changeDimension(DimensionType.OVERWORLD);
 		PlayerData.get(player).putBoolean(CutsceneAPI.WATCHING_CUTSCENE_KEY, false);
 		PlayerData.markDirty(player);
 	}
