@@ -44,5 +44,10 @@ public abstract class SafeWorldViewMixin
 	@Inject(at = @At("HEAD"), method="getLightLevel", cancellable = true)
 	private void getLightLevel(LightType type, BlockPos pos, CallbackInfoReturnable<Integer> info)
 	{
+		int light = CutsceneManager.getFakeWorldLight(type, pos);
+		if (light != -1)
+		{
+			info.setReturnValue(light);
+		}
 	}
 }

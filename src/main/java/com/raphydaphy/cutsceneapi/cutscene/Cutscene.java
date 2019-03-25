@@ -32,11 +32,12 @@ public class Cutscene
 	private Identifier shader;
 	private Path cameraPath;
 	private SoundEvent startSound;
-	private boolean setFakeWorld = false;
+	boolean setFakeWorld = false;
 	private boolean usesFakeWorld = false;
 	private BiFunction<BlockPos, BlockState, BlockState> blockRemapper;
 	private Function<BlockPos, FluidState> fluidRemapper;
 	private int introLength = 0;
+	private int outroLength = 0;
 	private int startPerspective;
 
 	public Cutscene(PlayerEntity player, Path cameraPath)
@@ -81,6 +82,7 @@ public class Cutscene
 	public Cutscene withDipTo(float length, float hold, int red, int green, int blue)
 	{
 		this.introLength = (int)Math.floor((length - hold) / 2f);
+		this.outroLength = introLength + (int)hold;
 		withTransition(new Transition.DipTo(0, length, hold, red, green, blue).setIntro());
 		withTransition(new Transition.DipTo(duration - length - hold, length, hold, red, green, blue).setOutro());
 		return this;
@@ -147,6 +149,7 @@ public class Cutscene
 				}
 				setCamera = true;
 
+
 				if (usesFakeWorld && !setFakeWorld && ticks >= introLength)
 				{
 					setFakeWorld = true;
@@ -159,7 +162,7 @@ public class Cutscene
 			setCamera = false;
 			client.setCameraEntity(client.player);
 			client.worldRenderer.method_3292();
-			if (usesFakeWorld && setFakeWorld)
+			if (usesFakeWorld && setFakeWorld && ticks >= duration - outroLength)
 			{
 				setFakeWorld = false;
 				MinecraftClient.getInstance().worldRenderer.reload();
@@ -245,7 +248,7 @@ public class Cutscene
 
 	boolean usesFakeWorld()
 	{
-		return usesFakeWorld;
+		return usesFakeWorld && ticks >= introLength;
 	}
 
 	private static float lerp(float previous, float current, float delta)

@@ -47,10 +47,15 @@ public class WorldMixin
 	}
 
 	@Inject(at = @At("RETURN"), method = "getLightLevel(Lnet/minecraft/world/LightType;Lnet/minecraft/util/math/BlockPos;)I", cancellable = true)
-	private void getLightLevel(LightType lightType_1, BlockPos blockPos_1, CallbackInfoReturnable<Integer> info)
+	private void getLightLevel(LightType type, BlockPos pos, CallbackInfoReturnable<Integer> info)
 	{
 		if (this.isClient)
 		{
+			int light = CutsceneManager.getFakeWorldLight(type, pos);
+			if (light != -1)
+			{
+				info.setReturnValue(light);
+			}
 		}
 	}
 }

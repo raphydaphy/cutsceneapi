@@ -24,4 +24,13 @@ public class WorldRendererMixin
 			info.cancel();
 		}
 	}
+
+	@Inject(at = @At("HEAD"), method="renderEntities", cancellable = true)
+	private void renderEntities(Camera camera_1, VisibleRegion visibleRegion_1, float float_1, CallbackInfo info)
+	{
+		if (CutsceneManager.hideHud(MinecraftClient.getInstance().player) && CutsceneManager.showFakeWorld())
+		{
+			info.cancel();
+		}
+	}
 }

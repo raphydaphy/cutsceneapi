@@ -41,17 +41,11 @@ public class CutsceneAPI implements ModInitializer
 			return new Cutscene(player, new Path().withPoint(pX + 0, pY + 20, pZ + 0).withPoint(pX + 30, pY + 30, pZ + 10).withPoint(pX + 50, pY + 10, pZ + 10))
 					.withDuration(250).withFakeWorld().withBlockRemapper((pos, existing) ->
 					{
-						if (!existing.isAir())
+						if (pos.getY() < 30)
 						{
-							if (!existing.getFluidState().isEmpty())
-							{
-								return Blocks.AIR.getDefaultState();
-							} else
-							{
-								return Blocks.GRAVEL.getDefaultState();
-							}
+							return Blocks.GRAVEL.getDefaultState();
 						}
-						return null;
+						return Blocks.AIR.getDefaultState();
 					}).withStartSound(SoundEvents.UI_BUTTON_CLICK).withDipTo(40, 20, 0, 0, 0);
 		});
 

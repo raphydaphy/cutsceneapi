@@ -15,6 +15,7 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.LightType;
 
 public class CutsceneManager
 {
@@ -45,13 +46,23 @@ public class CutsceneManager
 	public static FluidState getFakeWorldFluid(BlockPos pos)
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
-		if (CutsceneManager.hideHud(client.player) && CutsceneManager.showFakeWorld())
+		if (hideHud(client.player) && showFakeWorld())
 		{
 			return currentCutscene.getFluidRemapper().apply(pos);
 		}
 		return null;
 	}
 
+	@Environment(EnvType.CLIENT)
+	public static int getFakeWorldLight(LightType type, BlockPos pos)
+	{
+		MinecraftClient client = MinecraftClient.getInstance();
+		if (hideHud(client.player) && showFakeWorld())
+		{
+			return 15;
+		}
+		return -1;
+	}
 	@Environment(EnvType.CLIENT)
 	public static void updateLook()
 	{
