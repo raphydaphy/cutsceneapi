@@ -10,6 +10,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.dimension.DimensionType;
 
 public class CutsceneManager
 {
@@ -66,6 +67,7 @@ public class CutsceneManager
 	public static void startServer(ServerPlayerEntity player, Identifier id)
 	{
 		player.stopRiding();
+		player.changeDimension(CutsceneAPI.CUTSCENE_DIMENSION);
 		PlayerData.get(player).putBoolean(CutsceneAPI.WATCHING_CUTSCENE_KEY, true);
 		PlayerData.get(player).putString(CutsceneAPI.CUTSCENE_ID_KEY, id.toString());
 		PlayerData.markDirty(player);
@@ -74,6 +76,7 @@ public class CutsceneManager
 
 	public static void finishServer(PlayerEntity player)
 	{
+		player.changeDimension(DimensionType.OVERWORLD);
 		PlayerData.get(player).putBoolean(CutsceneAPI.WATCHING_CUTSCENE_KEY, false);
 		PlayerData.markDirty(player);
 	}

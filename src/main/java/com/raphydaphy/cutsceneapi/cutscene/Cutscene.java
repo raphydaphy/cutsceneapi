@@ -30,7 +30,6 @@ public class Cutscene
 	private Identifier shader;
 	private Path cameraPath;
 	private SoundEvent startSound;
-	private ClientWorld realWorld;
 
 	public Cutscene(PlayerEntity player, Path cameraPath)
 	{
@@ -107,23 +106,13 @@ public class Cutscene
 				}
 				setCamera = true;
 			}
-			if (realWorld == null && usesFakeWorld)
-			{
-				realWorld = client.world;
-				((MinecraftClientHooks) client).setCutsceneWorld(new CutsceneWorld(((ClientWorldHooks)client.world).getCutsceneNetworkHandler(), new LevelInfo(client.world.getLevelProperties()), client.world.getProfiler(), client.worldRenderer));
-			}
 		} else
 		{
-			if (realWorld != null && usesFakeWorld)
-			{
-				((MinecraftClientHooks) client).setCutsceneWorld(realWorld);
-				realWorld = null;
-			}
 
 			client.gameRenderer.disableShader();
 			setCamera = false;
 			client.setCameraEntity(client.player);
-			//client.worldRenderer.method_3292();
+			client.worldRenderer.method_3292();
 		}
 
 		if (ticks >= duration)
