@@ -127,6 +127,12 @@ public class CutsceneManager
 	}
 
 	@Environment(EnvType.CLIENT)
+	public static ClientWorld getRealWorld()
+	{
+		return realWorld;
+	}
+
+	@Environment(EnvType.CLIENT)
 	public static void stopFakeWorld()
 	{
 		MinecraftClient client = MinecraftClient.getInstance();

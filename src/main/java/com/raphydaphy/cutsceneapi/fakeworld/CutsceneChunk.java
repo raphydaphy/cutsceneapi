@@ -107,25 +107,28 @@ public class CutsceneChunk extends WorldChunk
 	public BlockState getBlockState(BlockPos pos)
 	{
 		int index = getIndex(pos);
-		if (index < blockStates.length)
+		if (index < blockStates.length && index >= 0)
 		{
 			return blockStates[index];
 		}
-		CutsceneAPI.getLogger().warn("Tried to get BlockState out of chunk with position " + pos.toString());
+		CutsceneAPI.getLogger().warn("Tried to get BlockState out of chunk with world position " + pos.toString() + " and index " + index);
 		return Blocks.VOID_AIR.getDefaultState();
 	}
 
 	@Override
 	public BlockState setBlockState(BlockPos pos, BlockState state, boolean boolean_1)
 	{
-		int index = getIndex(pos);
-		if (index < blockStates.length)
+		if (pos.getY() >= 0 && pos.getY() <= getWorld().getHeight())
 		{
-			blockStates[index] = state;
-			return state;
+			int index = getIndex(pos);
+			if (index < blockStates.length)
+			{
+				blockStates[index] = state;
+				return state;
+			}
+			CutsceneAPI.getLogger().warn("Tried to set BlockState out of chunk with position " + pos.toString());
 		}
-		CutsceneAPI.getLogger().warn("Tried to set BlockState out of chunk with position " + pos.toString());
-		return null;
+		return Blocks.VOID_AIR.getDefaultState();
 	}
 
 	@Override

@@ -2,6 +2,8 @@ package com.raphydaphy.cutsceneapi.mixin.client;
 
 
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
+import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
+import com.raphydaphy.cutsceneapi.fakeworld.FakeWorldInteractionManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
@@ -13,6 +15,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,11 +26,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ClientPlayerInteractionManager.class)
-public class ClientPlayerInteractionManagerMixin
+public abstract class ClientPlayerInteractionManagerMixin
 {
 	@Shadow
 	@Final
 	private MinecraftClient client;
+
+	@Shadow
+	private GameMode gameMode;
+
+	@Shadow
+	protected abstract void syncSelectedSlot();
 
 	@Inject(at = @At("HEAD"), method = "attackEntity", cancellable = true)
 	private void attackEntity(PlayerEntity player, Entity entity, CallbackInfo info)
@@ -57,9 +66,12 @@ public class ClientPlayerInteractionManagerMixin
 	}
 
 	@Inject(at = @At("HEAD"), method = "interactBlock", cancellable = true)
-	private void interactBlock(ClientPlayerEntity clientPlayerEntity_1, ClientWorld clientWorld_1, Hand hand_1, BlockHitResult blockHitResult_1, CallbackInfoReturnable<ActionResult> info)
+	private void interactBlock(ClientPlayerEntity player, ClientWorld world, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> info)
 	{
-		if (CutsceneManager.isActive(client.player))
+		if (world instanceof CutsceneWorld)
+		{
+			info.setReturnValue(FakeWorldInteractionManager.interactBlock(player, (CutsceneWorld) world, hand, hitResult));
+		} else if (CutsceneManager.isActive(client.player))
 		{
 			info.setReturnValue(ActionResult.PASS);
 		}
