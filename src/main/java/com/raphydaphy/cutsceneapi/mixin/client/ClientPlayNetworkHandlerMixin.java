@@ -6,6 +6,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.packet.*;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.network.NetworkThreadUtils;
+import net.minecraft.util.ThreadTaskQueue;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,10 +39,24 @@ public class ClientPlayNetworkHandlerMixin
 		}
 	}
 
-	@Inject(at = @At("HEAD"), method = "onBlockAction")
-	private void onBlockAction(BlockActionS2CPacket packet, CallbackInfo info)
+	@Inject(at = @At("HEAD"), method = "onChunkDeltaUpdate", cancellable = true)
+	private void onChunkDeltaUpdate(ChunkDeltaUpdateS2CPacket packet, CallbackInfo info)
 	{
-		System.out.println("BLOCK ACTION AT " + packet.getPos());
+		if (world instanceof CutsceneWorld)
+		{
+			ClientWorld realWorld = CutsceneManager.getRealWorld();
+			if (realWorld != null)
+			{
+				NetworkThreadUtils.forceMainThread(packet, (ClientPlayNetworkHandler) (Object) this, this.client);
+				ChunkDeltaUpdateS2CPacket.ChunkDeltaRecord[] deltaRecords = packet.getRecords();
+
+				for (ChunkDeltaUpdateS2CPacket.ChunkDeltaRecord deltaRecord : deltaRecords)
+				{
+					realWorld.method_2937(deltaRecord.getBlockPos(), deltaRecord.getState());
+				}
+			}
+			info.cancel();
+		}
 	}
 
 	// ********* REDIRECT *********** //

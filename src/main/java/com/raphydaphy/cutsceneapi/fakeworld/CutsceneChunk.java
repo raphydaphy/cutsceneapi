@@ -1,17 +1,16 @@
 package com.raphydaphy.cutsceneapi.fakeworld;
 
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
+import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPos;
 import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.chunk.light.LightingProvider;
 
 import java.util.Arrays;
 
@@ -19,11 +18,35 @@ public class CutsceneChunk extends WorldChunk
 {
 	private BlockState[] blockStates;
 
-	public CutsceneChunk(World world, ChunkPos pos, Biome[] biomes)
+	public CutsceneChunk(CutsceneWorld world, ChunkPos pos, Biome[] biomes)
 	{
 		super(world, pos, biomes);
+
 		blockStates = new BlockState[16 * world.getHeight() * 16];
 		Arrays.fill(blockStates, Blocks.AIR.getDefaultState());
+
+		if (world.cloneExisting)
+		{
+			ClientWorld realWorld = CutsceneManager.getRealWorld();
+			if (realWorld != null)
+			{
+				WorldChunk realChunk = realWorld.getWorldChunk(new BlockPos(this.getPos().x * 16, 0, this.getPos().z * 16));
+				BlockPos curPos;
+				int index, x, y, z;
+				for (x = 0; x < 16; x++)
+				{
+					for (y = 0; y < world.getHeight(); y++)
+					{
+						for (z = 0; z < 16; z++)
+						{
+							index = z * 16 * this.getHeight() + y * 16 + x;
+							curPos = new BlockPos(getPos().getStartX() + x, y, getPos().getStartZ() + z);
+							blockStates[index] = realChunk.getBlockState(curPos);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -39,7 +62,7 @@ public class CutsceneChunk extends WorldChunk
 			maxY = 255;
 		}
 
-		for (int y = minY; y <= maxY; y += 16)
+		for (int y = minY; y < maxY; y += 16)
 		{
 			if (!isSubChunkEmpty(y))
 			{
@@ -121,6 +144,15 @@ public class CutsceneChunk extends WorldChunk
 	@Override
 	public FluidState getFluidState(int x, int y, int z)
 	{
+		if (y >= 0)
+		{
+			int index = getIndex(x, y, z);
+			if (index < blockStates.length && index >= 0)
+			{
+				return blockStates[index].getFluidState();
+			}
+			CutsceneAPI.getLogger().warn("Tried to get FluidState out of chunk with world position (" + x + ", " + y + ", " + z + ") and index " + index);
+		}
 		return Fluids.EMPTY.getDefaultState();
 	}
 }

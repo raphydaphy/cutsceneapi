@@ -74,13 +74,16 @@ public class CutsceneAPI implements ModInitializer
 				return 1;
 			}
 			return -1;
-		})))).then(ServerCommandManager.literal("world").then(ServerCommandManager.literal("join").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) ->
+		})))).then(ServerCommandManager.literal("world").then(ServerCommandManager.literal("join").then(ServerCommandManager.literal("copy").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) ->
 		{
-			PacketHandler.sendToClient(new WorldTestPacket(true), EntityArgumentType.getServerPlayerArgument(command, "target"));
+			PacketHandler.sendToClient(new WorldTestPacket(true, true), EntityArgumentType.getServerPlayerArgument(command, "target"));
 			return 1;
-		}))).then(ServerCommandManager.literal("leave").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) ->
+		}))).then(ServerCommandManager.literal("empty").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) -> {
+			PacketHandler.sendToClient(new WorldTestPacket(true, false), EntityArgumentType.getServerPlayerArgument(command, "target"));
+			return 1;
+		})))).then(ServerCommandManager.literal("leave").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) ->
 		{
-			PacketHandler.sendToClient(new WorldTestPacket(false), EntityArgumentType.getServerPlayerArgument(command, "target"));
+			PacketHandler.sendToClient(new WorldTestPacket(false, false), EntityArgumentType.getServerPlayerArgument(command, "target"));
 			return 1;
 		}))))));
 	}

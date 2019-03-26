@@ -5,23 +5,20 @@ import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.network.packet.BlockUpdateS2CPacket;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.container.NameableContainerProvider;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.network.NetworkThreadUtils;
 import net.minecraft.text.TextFormat;
 import net.minecraft.text.TranslatableTextComponent;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ThreadTaskQueue;
+import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 
 @Environment(EnvType.CLIENT)
@@ -131,6 +128,32 @@ public class FakeWorldInteractionManager
 			} else
 			{
 				return ActionResult.PASS;
+			}
+		}
+	}
+
+	public static ActionResult interactItem(PlayerEntity player, World world_1, Hand hand_1)
+	{
+		if (player.isSpectator())
+		{
+			return ActionResult.PASS;
+		} else
+		{
+			ItemStack itemStack_1 = player.getStackInHand(hand_1);
+			if (player.getItemCooldownManager().isCooldown(itemStack_1.getItem()))
+			{
+				return ActionResult.PASS;
+			} else
+			{
+				int int_1 = itemStack_1.getAmount();
+				TypedActionResult<ItemStack> typedActionResult_1 = itemStack_1.use(world_1, player, hand_1);
+				ItemStack itemStack_2 = typedActionResult_1.getValue();
+				if (itemStack_2 != itemStack_1 || itemStack_2.getAmount() != int_1)
+				{
+					player.setStackInHand(hand_1, itemStack_2);
+				}
+
+				return typedActionResult_1.getResult();
 			}
 		}
 	}

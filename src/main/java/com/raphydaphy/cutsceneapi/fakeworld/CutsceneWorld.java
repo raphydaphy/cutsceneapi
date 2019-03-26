@@ -18,10 +18,12 @@ import java.util.Map;
 public class CutsceneWorld extends ClientWorld
 {
 	private Map<ChunkPos, CutsceneChunk> chunkMap = new HashMap<>();
+	public boolean cloneExisting;
 
-	public CutsceneWorld(MinecraftClient client, ClientWorld realWorld)
+	public CutsceneWorld(MinecraftClient client, ClientWorld realWorld, boolean cloneExisting)
 	{
 		super(((ClientWorldHooks) realWorld).getCutsceneNetHandler(), new LevelInfo(realWorld.getLevelProperties()), DimensionType.OVERWORLD, client.getProfiler(), client.worldRenderer);
+		this.cloneExisting = cloneExisting;
 	}
 
 	@Override

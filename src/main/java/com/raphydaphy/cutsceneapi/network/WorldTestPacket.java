@@ -13,27 +13,31 @@ public class WorldTestPacket implements IPacket
 	public static final Identifier ID = new Identifier(CutsceneAPI.DOMAIN, "world_test");
 
 	private boolean joining;
+	private boolean copy;
 
 	private WorldTestPacket()
 	{
 
 	}
 
-	public WorldTestPacket(boolean joining)
+	public WorldTestPacket(boolean joining, boolean copy)
 	{
 		this.joining = joining;
+		this.copy = copy;
 	}
 
 	@Override
 	public void read(PacketByteBuf buf)
 	{
 		joining = buf.readBoolean();
+		copy = buf.readBoolean();
 	}
 
 	@Override
 	public void write(PacketByteBuf buf)
 	{
 		buf.writeBoolean(joining);
+		buf.writeBoolean(copy);
 	}
 
 	@Override
@@ -55,7 +59,7 @@ public class WorldTestPacket implements IPacket
 		{
 			if (message.joining)
 			{
-				CutsceneManager.startFakeWorld();
+				CutsceneManager.startFakeWorld(message.copy);
 			} else
 			{
 				CutsceneManager.stopFakeWorld();
