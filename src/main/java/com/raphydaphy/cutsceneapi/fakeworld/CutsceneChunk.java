@@ -6,10 +6,12 @@ import net.minecraft.block.Blocks;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPos;
 import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.light.LightingProvider;
 
 import java.util.Arrays;
 
@@ -17,29 +19,11 @@ public class CutsceneChunk extends WorldChunk
 {
 	private BlockState[] blockStates;
 
-	public CutsceneChunk(World world_1, ChunkPos chunkPos_1, Biome[] biomes_1)
+	public CutsceneChunk(World world, ChunkPos pos, Biome[] biomes)
 	{
-		super(world_1, chunkPos_1, biomes_1);
-		blockStates = new BlockState[16 * 256 * 16];
+		super(world, pos, biomes);
+		blockStates = new BlockState[16 * world.getHeight() * 16];
 		Arrays.fill(blockStates, Blocks.AIR.getDefaultState());
-
-		for (int x = 0; x < 16; x++)
-		{
-			for (int y = 0; y < 20; y++)
-			{
-				for (int z = 0; z < 16; z++)
-				{
-					int index = z * 16 * this.getHeight() + y * 16 + x;
-					if (index < blockStates.length && index >= 0)
-					{
-						blockStates[index] = Blocks.PURPUR_BLOCK.getDefaultState();
-					} else
-					{
-						CutsceneAPI.getLogger().warn("Tried to set a BlockState out of bounds at pos (" + x + ", " + y + ", " + z + ") at index" + index);
-					}
-				}
-			}
-		}
 	}
 
 	@Override
@@ -106,12 +90,15 @@ public class CutsceneChunk extends WorldChunk
 	@Override
 	public BlockState getBlockState(BlockPos pos)
 	{
-		int index = getIndex(pos);
-		if (index < blockStates.length && index >= 0)
+		if (pos.getY() >= 0)
 		{
-			return blockStates[index];
+			int index = getIndex(pos);
+			if (index < blockStates.length && index >= 0)
+			{
+				return blockStates[index];
+			}
+			CutsceneAPI.getLogger().warn("Tried to get BlockState out of chunk with world position " + pos.toString() + " and index " + index);
 		}
-		CutsceneAPI.getLogger().warn("Tried to get BlockState out of chunk with world position " + pos.toString() + " and index " + index);
 		return Blocks.VOID_AIR.getDefaultState();
 	}
 

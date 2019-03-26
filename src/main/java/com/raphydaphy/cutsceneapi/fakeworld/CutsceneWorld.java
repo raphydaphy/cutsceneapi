@@ -4,10 +4,6 @@ import com.raphydaphy.cutsceneapi.mixin.client.ClientWorldHooks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.LightType;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.chunk.Chunk;
@@ -36,16 +32,6 @@ public class CutsceneWorld extends ClientWorld
 		CutsceneChunk chunk = new CutsceneChunk(this, new ChunkPos(chunkX, chunkY), new Biome[]{Biomes.BADLANDS});
 		chunkMap.put(pos, chunk);
 		return chunk;
-	}
-
-	@Override
-	public int getLightLevel(LightType lightType_1, BlockPos blockPos_1)
-	{
-		if (lightType_1 == LightType.BLOCK)
-		{
-			return 15;
-		}
-		return 0;
 	}
 
 	public void addPlayer(ClientPlayerEntity player)

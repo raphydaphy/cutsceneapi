@@ -124,6 +124,8 @@ public class CutsceneManager
 
 		cutsceneWorld.setBlockState(client.player.getBlockPos().down(), Blocks.DIORITE.getDefaultState());
 		cutsceneWorld.addPlayer(client.player);
+
+		client.inGameHud.setTitles("§5Welcome!§r", "", 20, 50, 20);
 	}
 
 	@Environment(EnvType.CLIENT)

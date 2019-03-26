@@ -95,7 +95,6 @@ public class FakeWorldInteractionManager
 
 	private static ActionResult interactBlock(PlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult)
 	{
-		System.out.println("interact magic verison");
 		BlockPos blockPos_1 = hitResult.getBlockPos();
 		BlockState blockState_1 = world.getBlockState(blockPos_1);
 		if (player.isSpectator())
