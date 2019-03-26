@@ -1,8 +1,10 @@
 package com.raphydaphy.cutsceneapi;
 
+import com.raphydaphy.crochet.network.PacketHandler;
 import com.raphydaphy.cutsceneapi.command.CutsceneArgumentType;
 import com.raphydaphy.cutsceneapi.cutscene.*;
 import com.raphydaphy.cutsceneapi.network.CutsceneFinishPacket;
+import com.raphydaphy.cutsceneapi.network.WorldTestPacket;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
@@ -54,25 +56,33 @@ public class CutsceneAPI implements ModInitializer
 			return new Cutscene(player, new Path().withPoint(140, 40, 0).withPoint(44, 75, 16).withPoint(-80, 56, 12))
 					.withDuration(250).withTransition(new Transition.DipTo(0, 40, 0, 0, 0, 0).setIntro())
 					.withTransition(new Transition.FadeFrom(210, 40, 0, 0, 0)).withCutscene(
-					new Cutscene(player, new Path().withPoint(54, 106, 64).withPoint(4, 65, 4).withPoint(-50, 100, -33))
-					.withDuration(100).withTransition(new Transition.FadeTo(0, 40, 0, 0, 0)).withTransition(new Transition.DipTo(60, 40, 0, 0, 0, 0).setOutro()));
+							new Cutscene(player, new Path().withPoint(54, 106, 64).withPoint(4, 65, 4).withPoint(-50, 100, -33))
+									.withDuration(100).withTransition(new Transition.FadeTo(0, 40, 0, 0, 0)).withTransition(new Transition.DipTo(60, 40, 0, 0, 0, 0).setOutro()));
 		});
 
 		CUTSCENE_CAMERA_ENTITY = Registry.register(Registry.ENTITY_TYPE, new Identifier(DOMAIN, "cutscene_camera"), FabricEntityTypeBuilder.create(EntityCategory.MISC, CutsceneCameraEntity::new).size(new EntitySize(1, 1, true)).build());
 		ServerSidePacketRegistry.INSTANCE.register(CutsceneFinishPacket.ID, new CutsceneFinishPacket.Handler());
 
 		CommandRegistry.INSTANCE.register(false, dispatcher -> dispatcher.register((ServerCommandManager.literal("cutscene").requires((command) -> command.hasPermissionLevel(2))
-				.then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).then(ServerCommandManager.argument("cutscene", CutsceneArgumentType.create()).executes(command ->
-				{
-					Identifier cutscene = CutsceneArgumentType.get(command, "cutscene").getID();
-					if (cutscene != null)
-					{
-						ServerPlayerEntity player = EntityArgumentType.getServerPlayerArgument(command, "target");
-						CutsceneManager.startServer(player, cutscene);
-						return 1;
-					}
-					return -1;
-				}))))));
+		.then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).then(ServerCommandManager.argument("cutscene", CutsceneArgumentType.create()).executes(command ->
+		{
+			Identifier cutscene = CutsceneArgumentType.get(command, "cutscene").getID();
+			if (cutscene != null)
+			{
+				ServerPlayerEntity player = EntityArgumentType.getServerPlayerArgument(command, "target");
+				CutsceneManager.startServer(player, cutscene);
+				return 1;
+			}
+			return -1;
+		})))).then(ServerCommandManager.literal("world").then(ServerCommandManager.literal("join").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) ->
+		{
+			PacketHandler.sendToClient(new WorldTestPacket(true), EntityArgumentType.getServerPlayerArgument(command, "target"));
+			return 1;
+		}))).then(ServerCommandManager.literal("leave").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) ->
+		{
+			PacketHandler.sendToClient(new WorldTestPacket(false), EntityArgumentType.getServerPlayerArgument(command, "target"));
+			return 1;
+		}))))));
 	}
 
 	public static Logger getLogger()

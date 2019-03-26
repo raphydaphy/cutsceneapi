@@ -3,6 +3,9 @@ package com.raphydaphy.cutsceneapi.cutscene;
 import com.raphydaphy.crochet.data.PlayerData;
 import com.raphydaphy.crochet.network.PacketHandler;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
+import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
+import com.raphydaphy.cutsceneapi.mixin.client.ClientPlayNetworkHandlerHooks;
+import com.raphydaphy.cutsceneapi.mixin.client.MinecraftClientHooks;
 import com.raphydaphy.cutsceneapi.network.CutsceneFinishPacket;
 import com.raphydaphy.cutsceneapi.network.CutsceneStartPacket;
 import net.fabricmc.api.EnvType;
@@ -10,10 +13,10 @@ import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.audio.SoundManager;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -65,6 +68,7 @@ public class CutsceneManager
 		}
 		return -1;
 	}
+
 	@Environment(EnvType.CLIENT)
 	public static void updateLook()
 	{
@@ -95,12 +99,48 @@ public class CutsceneManager
 	@Environment(EnvType.CLIENT)
 	public static void startClient(Identifier cutscene)
 	{
-		System.out.println("STARTED");
 		MinecraftClient client = MinecraftClient.getInstance();
 		client.getSoundManager().stopAll();
 		currentCutscene = CutsceneRegistry.get(cutscene, client.player);
 		currentCutscene.start(client.player);
+	}
 
+	private static ClientWorld realWorld;
+
+	@Environment(EnvType.CLIENT)
+	public static void startFakeWorld()
+	{
+		MinecraftClient client = MinecraftClient.getInstance();
+		realWorld = client.world;
+		CutsceneWorld cutsceneWorld = new CutsceneWorld(client, client.world);
+		client.player.setWorld(cutsceneWorld);
+		client.world = cutsceneWorld;
+		((MinecraftClientHooks) client).setCutsceneWorld(cutsceneWorld);
+		ClientPlayNetworkHandler handler = client.getNetworkHandler();
+		if (handler != null)
+		{
+			((ClientPlayNetworkHandlerHooks) handler).setCutsceneWorld(cutsceneWorld);
+		}
+
+		cutsceneWorld.setBlockState(client.player.getBlockPos().down(), Blocks.DIORITE.getDefaultState());
+		cutsceneWorld.addPlayer(client.player);
+	}
+
+	@Environment(EnvType.CLIENT)
+	public static void stopFakeWorld()
+	{
+		MinecraftClient client = MinecraftClient.getInstance();
+		if (client.world instanceof CutsceneWorld && realWorld != null)
+		{
+			client.player.setWorld(realWorld);
+			client.world = realWorld;
+			((MinecraftClientHooks) client).setCutsceneWorld(realWorld);
+			ClientPlayNetworkHandler handler = client.getNetworkHandler();
+			if (handler != null)
+			{
+				((ClientPlayNetworkHandlerHooks) handler).setCutsceneWorld(realWorld);
+			}
+		}
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -126,7 +166,8 @@ public class CutsceneManager
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (isActive(client.player))
 		{
-			if (currentCutscene == null) currentCutscene = CutsceneRegistry.get(Identifier.create(PlayerData.get(client.player).getString(CutsceneAPI.CUTSCENE_ID_KEY)), client.player);
+			if (currentCutscene == null)
+				currentCutscene = CutsceneRegistry.get(Identifier.create(PlayerData.get(client.player).getString(CutsceneAPI.CUTSCENE_ID_KEY)), client.player);
 			if (currentCutscene != null) currentCutscene.updateClient();
 		}
 	}

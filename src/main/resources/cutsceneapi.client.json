@@ -5,14 +5,15 @@
   "minVersion": "0.7.11-SNAPSHOT",
   "mixins": [
     "ClientPlayerEntityMixin",
-    "ClientPlayerInteractionManagerMixin",
-    "GameRendererHooks",
-    "GameRendererMixin",
-    "InGameHudMixin",
-    "MinecraftClientMixin",
-    "WorldRendererMixin",
-    "SafeWorldViewMixin",
-    "WorldMixin"
+	"ClientPlayerInteractionManagerMixin",
+	"ClientPlayNetworkHandlerHooks",
+	"ClientWorldHooks",
+	"GameRendererHooks",
+	"GameRendererMixin",
+	"InGameHudMixin",
+	"MinecraftClientHooks",
+	"MinecraftClientMixin",
+	"WorldRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
