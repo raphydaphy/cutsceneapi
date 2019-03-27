@@ -4,6 +4,7 @@ import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -11,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPos;
 import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.light.LightingProvider;
 
 import java.util.Arrays;
 
@@ -105,12 +107,6 @@ public class CutsceneChunk extends WorldChunk
 	}
 
 	@Override
-	public Biome getBiome(BlockPos blockPos_1)
-	{
-		return getBiomeArray()[0];
-	}
-
-	@Override
 	public BlockState getBlockState(BlockPos pos)
 	{
 		if (pos.getY() >= 0)
@@ -133,6 +129,11 @@ public class CutsceneChunk extends WorldChunk
 			int index = getIndex(pos);
 			if (index < blockStates.length)
 			{
+				LightingProvider lightProvider = getLightingProvider();
+				if (lightProvider != null)
+				{
+					lightProvider.enqueueLightUpdate(pos);
+				}
 				blockStates[index] = state;
 				return state;
 			}

@@ -7,7 +7,6 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.packet.*;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.NetworkThreadUtils;
-import net.minecraft.util.ThreadTaskQueue;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,9 +18,6 @@ public class ClientPlayNetworkHandlerMixin
 {
 	@Shadow
 	private ClientWorld world;
-
-	@Shadow
-	private MinecraftClient client;
 
 	// ********** CUSTOM HANDLER *********** //
 
@@ -39,95 +35,43 @@ public class ClientPlayNetworkHandlerMixin
 		}
 	}
 
+	// ******* CANCEL ******* //
+
 	@Inject(at = @At("HEAD"), method = "onChunkDeltaUpdate", cancellable = true)
 	private void onChunkDeltaUpdate(ChunkDeltaUpdateS2CPacket packet, CallbackInfo info)
 	{
 		if (world instanceof CutsceneWorld)
 		{
-			ClientWorld realWorld = CutsceneManager.getRealWorld();
-			if (realWorld != null)
-			{
-				NetworkThreadUtils.forceMainThread(packet, (ClientPlayNetworkHandler) (Object) this, this.client);
-				ChunkDeltaUpdateS2CPacket.ChunkDeltaRecord[] deltaRecords = packet.getRecords();
-
-				for (ChunkDeltaUpdateS2CPacket.ChunkDeltaRecord deltaRecord : deltaRecords)
-				{
-					realWorld.method_2937(deltaRecord.getBlockPos(), deltaRecord.getState());
-				}
-			}
 			info.cancel();
 		}
 	}
 
-	// ********* REDIRECT *********** //
+	@Inject(at = @At("HEAD"), method="onChunkData", cancellable = true)
+	private void onChunkData(ChunkDataS2CPacket packet, CallbackInfo info)
+	{
+		if (world instanceof CutsceneWorld)
+		{
+			info.cancel();
+		}
+	}
 
-	@Inject(at = @At("HEAD"), method = "onEntitySpawn")
-	private void onEntitySpawnHead(EntitySpawnS2CPacket entitySpawnS2CPacket_1, CallbackInfo info)
+	@Inject(at = @At("HEAD"), method = "onEntitySpawn", cancellable = true)
+	private void onEntitySpawn(EntitySpawnS2CPacket entitySpawnS2CPacket_1, CallbackInfo info)
 	{
 		if (this.world instanceof CutsceneWorld)
 		{
-			ClientWorld realWorld = CutsceneManager.getRealWorld();
-			if (realWorld != null)
-			{
-				this.world = realWorld;
-			}
+			info.cancel();
 		}
 	}
 
-	@Inject(at = @At("RETURN"), method = "onEntitySpawn")
-	private void onEntitySpawnReturn(EntitySpawnS2CPacket entitySpawnS2CPacket_1, CallbackInfo info)
-	{
-		if (client.world instanceof CutsceneWorld && !(this.world instanceof CutsceneWorld))
-		{
-			this.world = client.world;
-		}
-	}
-
-	@Inject(at = @At("HEAD"), method = "onChunkData")
-	private void onChunkDataHead(ChunkDataS2CPacket var1, CallbackInfo info)
+	@Inject(at = @At("HEAD"), method = "onUnloadChunk", cancellable = true)
+	private void onUnloadChunk(UnloadChunkS2CPacket var1, CallbackInfo info)
 	{
 		if (this.world instanceof CutsceneWorld)
 		{
-			ClientWorld realWorld = CutsceneManager.getRealWorld();
-			if (realWorld != null)
-			{
-				this.world = realWorld;
-			}
+			info.cancel();
 		}
 	}
-
-	@Inject(at = @At("RETURN"), method = "onChunkData")
-	private void onChunkDataReturn(ChunkDataS2CPacket var1, CallbackInfo info)
-	{
-		if (client.world instanceof CutsceneWorld && !(this.world instanceof CutsceneWorld))
-		{
-			this.world = client.world;
-		}
-	}
-
-	@Inject(at = @At("HEAD"), method = "onUnloadChunk")
-	private void onUnloadChunkHead(UnloadChunkS2CPacket var1, CallbackInfo info)
-	{
-		if (this.world instanceof CutsceneWorld)
-		{
-			ClientWorld realWorld = CutsceneManager.getRealWorld();
-			if (realWorld != null)
-			{
-				this.world = realWorld;
-			}
-		}
-	}
-
-	@Inject(at = @At("RETURN"), method = "onUnloadChunk")
-	private void onUnloadChunkReturn(UnloadChunkS2CPacket var1, CallbackInfo info)
-	{
-		if (client.world instanceof CutsceneWorld && !(this.world instanceof CutsceneWorld))
-		{
-			this.world = client.world;
-		}
-	}
-
-	// ******* CANCEL ******* //
 
 	@Inject(at = @At("HEAD"), method = "onParticle", cancellable = true)
 	private void onParticle(ParticleS2CPacket var, CallbackInfo info)

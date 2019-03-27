@@ -30,10 +30,9 @@ public class Cutscene
 	private Identifier shader;
 	private Path cameraPath;
 	private SoundEvent startSound;
-	private BiFunction<BlockPos, BlockState, BlockState> blockRemapper;
-	private Function<BlockPos, FluidState> fluidRemapper;
 	private Cutscene nextCutscene;
 	private boolean usesFakeWorld = false;
+	private boolean emptyFakeWorld = false;
 	private int duration;
 	private int introLength = 0;
 	private int outroLength = 0;
@@ -51,8 +50,6 @@ public class Cutscene
 		this.ticks = 0;
 		this.cameraPath = cameraPath.build();
 		this.camera = new CutsceneCameraEntity(player.world).withPos(this.cameraPath.getPoint(0));
-		fluidRemapper = (pos) -> Fluids.EMPTY.getDefaultState();
-		blockRemapper = (pos, state) -> Blocks.AIR.getDefaultState();
 	}
 
 	public Cutscene withDuration(int ticks)
@@ -61,21 +58,10 @@ public class Cutscene
 		return this;
 	}
 
-	public Cutscene withFakeWorld()
+	public Cutscene withFakeWorld(boolean copy)
 	{
 		this.usesFakeWorld = true;
-		return this;
-	}
-
-	public Cutscene withBlockRemapper(BiFunction<BlockPos, BlockState, BlockState> remapFunction)
-	{
-		this.blockRemapper = remapFunction;
-		return this;
-	}
-
-	public Cutscene withFluidRemapper(Function<BlockPos, FluidState> remapFunction)
-	{
-		this.fluidRemapper = remapFunction;
+		this.emptyFakeWorld = !copy;
 		return this;
 	}
 
@@ -104,16 +90,6 @@ public class Cutscene
 	{
 		this.nextCutscene = next;
 		return this;
-	}
-
-	public BiFunction<BlockPos, BlockState, BlockState> getBlockRemapper()
-	{
-		return blockRemapper;
-	}
-
-	public Function<BlockPos, FluidState> getFluidRemapper()
-	{
-		return fluidRemapper;
 	}
 
 	public Cutscene withShader(Identifier shader)
@@ -197,8 +173,6 @@ public class Cutscene
 				this.shader = nextCutscene.shader;
 				this.cameraPath = nextCutscene.cameraPath;
 				this.startSound = nextCutscene.startSound;
-				this.blockRemapper = nextCutscene.blockRemapper;
-				this.fluidRemapper = nextCutscene.fluidRemapper;
 				this.usesFakeWorld = nextCutscene.usesFakeWorld;
 				this.duration = nextCutscene.duration;
 				this.outroLength = nextCutscene.outroLength;

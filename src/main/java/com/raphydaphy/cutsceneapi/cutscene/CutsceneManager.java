@@ -10,17 +10,14 @@ import com.raphydaphy.cutsceneapi.network.CutsceneFinishPacket;
 import com.raphydaphy.cutsceneapi.network.CutsceneStartPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.LightType;
 
 public class CutsceneManager
 {
@@ -34,39 +31,6 @@ public class CutsceneManager
 	public static boolean isActive(PlayerEntity player)
 	{
 		return player != null && PlayerData.get(player).getBoolean(CutsceneAPI.WATCHING_CUTSCENE_KEY);
-	}
-
-	@Environment(EnvType.CLIENT)
-	public static BlockState getFakeWorldState(BlockPos pos, BlockState existing)
-	{
-		MinecraftClient client = MinecraftClient.getInstance();
-		if (existing != null && hideHud(client.player) && showFakeWorld())
-		{
-			return currentCutscene.getBlockRemapper().apply(pos, existing);
-		}
-		return null;
-	}
-
-	@Environment(EnvType.CLIENT)
-	public static FluidState getFakeWorldFluid(BlockPos pos)
-	{
-		MinecraftClient client = MinecraftClient.getInstance();
-		if (hideHud(client.player) && showFakeWorld())
-		{
-			return currentCutscene.getFluidRemapper().apply(pos);
-		}
-		return null;
-	}
-
-	@Environment(EnvType.CLIENT)
-	public static int getFakeWorldLight(LightType type, BlockPos pos)
-	{
-		MinecraftClient client = MinecraftClient.getInstance();
-		if (hideHud(client.player) && showFakeWorld())
-		{
-			return 15;
-		}
-		return -1;
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -122,7 +86,21 @@ public class CutsceneManager
 			((ClientPlayNetworkHandlerHooks) handler).setCutsceneWorld(cutsceneWorld);
 		}
 
-		cutsceneWorld.setBlockState(client.player.getBlockPos().down(), Blocks.DIORITE.getDefaultState());
+		BlockPos playerPos = client.player.getBlockPos();
+
+		if (!copy)
+		{
+			for (int x = -2; x <= 2; x++)
+			{
+				for (int y = -1; y >= -3; y--)
+				{
+					for (int z = -2; z <= 2; z++)
+					{
+						cutsceneWorld.setBlockState(playerPos.add(x, y, z), y == -1 ? Blocks.GRASS_BLOCK.getDefaultState() : Blocks.DIRT.getDefaultState());
+					}
+				}
+			}
+		}
 		cutsceneWorld.addPlayer(client.player);
 
 		client.inGameHud.setTitles("§5Welcome!§r", "", 20, 50, 20);
