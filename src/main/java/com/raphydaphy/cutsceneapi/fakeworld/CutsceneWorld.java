@@ -26,10 +26,12 @@ public class CutsceneWorld extends ClientWorld
 	private Map<ChunkPos, CutsceneChunk> chunkMap = new HashMap<>();
 	public boolean cloneExisting;
 	private CutsceneChunkManager cutsceneChunkManager;
+	public final ClientWorld realWorld;
 
 	public CutsceneWorld(MinecraftClient client, ClientWorld realWorld, boolean cloneExisting)
 	{
 		super(((ClientWorldHooks) realWorld).getCutsceneNetHandler(), new LevelInfo(realWorld.getLevelProperties()), DimensionType.OVERWORLD, client.getProfiler(), client.worldRenderer);
+		this.realWorld = realWorld;
 		this.cloneExisting = cloneExisting;
 		cutsceneChunkManager = new CutsceneChunkManager(this);
 	}
@@ -40,7 +42,6 @@ public class CutsceneWorld extends ClientWorld
 		ChunkPos pos = new ChunkPos(chunkX, chunkZ);
 		if (chunkMap.containsKey(pos)) return chunkMap.get(pos);
 		Biome[] biomes = new Biome[16 * 16];
-		ClientWorld realWorld = CutsceneManager.getRealWorld();
 		if (cloneExisting && realWorld != null)
 		{
 			for (int x = 0; x < 16; x++)

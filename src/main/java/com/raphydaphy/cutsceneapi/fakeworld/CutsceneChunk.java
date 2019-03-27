@@ -29,7 +29,7 @@ public class CutsceneChunk extends WorldChunk
 
 		if (world.cloneExisting)
 		{
-			ClientWorld realWorld = CutsceneManager.getRealWorld();
+			ClientWorld realWorld = world.realWorld;
 			if (realWorld != null)
 			{
 				WorldChunk realChunk = realWorld.getWorldChunk(new BlockPos(this.getPos().x * 16, 0, this.getPos().z * 16));

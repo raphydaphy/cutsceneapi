@@ -26,7 +26,7 @@ public class ClientPlayNetworkHandlerMixin
 	{
 		if (this.world instanceof CutsceneWorld)
 		{
-			ClientWorld realWorld = CutsceneManager.getRealWorld();
+			ClientWorld realWorld = ((CutsceneWorld)this.world).realWorld;
 			if (realWorld != null)
 			{
 				realWorld.method_2937(packet.getPos(), packet.getState());

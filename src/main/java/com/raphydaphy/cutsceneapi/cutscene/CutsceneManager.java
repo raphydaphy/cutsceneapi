@@ -107,24 +107,22 @@ public class CutsceneManager
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static ClientWorld getRealWorld()
-	{
-		return realWorld;
-	}
-
-	@Environment(EnvType.CLIENT)
 	public static void stopFakeWorld()
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
-		if (client.world instanceof CutsceneWorld && realWorld != null)
+		if (client.world instanceof CutsceneWorld)
 		{
-			client.player.setWorld(realWorld);
-			client.world = realWorld;
-			((MinecraftClientHooks) client).setCutsceneWorld(realWorld);
-			ClientPlayNetworkHandler handler = client.getNetworkHandler();
-			if (handler != null)
+			ClientWorld realWorld = ((CutsceneWorld)client.world).realWorld;
+			if (realWorld != null)
 			{
-				((ClientPlayNetworkHandlerHooks) handler).setCutsceneWorld(realWorld);
+				client.player.setWorld(realWorld);
+				client.world = realWorld;
+				((MinecraftClientHooks) client).setCutsceneWorld(realWorld);
+				ClientPlayNetworkHandler handler = client.getNetworkHandler();
+				if (handler != null)
+				{
+					((ClientPlayNetworkHandlerHooks) handler).setCutsceneWorld(realWorld);
+				}
 			}
 		}
 	}

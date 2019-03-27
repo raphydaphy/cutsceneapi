@@ -2,6 +2,7 @@ package com.raphydaphy.cutsceneapi.cutscene;
 
 import com.mojang.blaze3d.platform.GLX;
 import com.raphydaphy.crochet.network.PacketHandler;
+import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
 import com.raphydaphy.cutsceneapi.mixin.client.GameRendererHooks;
 import com.raphydaphy.cutsceneapi.network.CutsceneFinishPacket;
 import net.fabricmc.api.EnvType;
@@ -20,6 +21,7 @@ import net.minecraft.util.math.BlockPos;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Cutscene
@@ -31,6 +33,9 @@ public class Cutscene
 	private Path cameraPath;
 	private SoundEvent startSound;
 	private Cutscene nextCutscene;
+	Consumer<CutsceneWorld> init;
+	private Consumer<Integer> tick;
+	private Consumer<MinecraftClient> end;
 	private boolean usesFakeWorld = false;
 	private boolean emptyFakeWorld = false;
 	private int duration;
@@ -62,6 +67,24 @@ public class Cutscene
 	{
 		this.usesFakeWorld = true;
 		this.emptyFakeWorld = !copy;
+		return this;
+	}
+
+	public Cutscene withInitCallback(Consumer<CutsceneWorld> callback)
+	{
+		this.init = callback;
+		return this;
+	}
+
+	public Cutscene withTickCallback(Consumer<Integer> callback)
+	{
+		this.tick = callback;
+		return this;
+	}
+
+	public Cutscene withEndCallback(Consumer<MinecraftClient> callback)
+	{
+		this.end = callback;
 		return this;
 	}
 
