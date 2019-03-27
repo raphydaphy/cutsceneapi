@@ -7,7 +7,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import sun.tools.java.Identifier;
+import net.minecraft.util.Identifier;
 
 import java.util.function.Consumer;
 

@@ -30,7 +30,7 @@ public class CutsceneWorld extends ClientWorld
 
 	public CutsceneWorld(MinecraftClient client, ClientWorld realWorld, boolean cloneExisting)
 	{
-		super(((ClientWorldHooks) realWorld).getCutsceneNetHandler(), new LevelInfo(realWorld.getLevelProperties()), DimensionType.OVERWORLD, client.getProfiler(), client.worldRenderer);
+		super(((ClientWorldHooks) realWorld).getCutsceneNetHandler(), new LevelInfo(realWorld.getLevelProperties()), DimensionType.OVERWORLD, 1, client.getProfiler(), client.worldRenderer);
 		this.realWorld = realWorld;
 		this.cloneExisting = cloneExisting;
 		cutsceneChunkManager = new CutsceneChunkManager(this);

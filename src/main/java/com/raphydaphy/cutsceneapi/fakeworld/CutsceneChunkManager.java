@@ -34,7 +34,7 @@ public class CutsceneChunkManager extends ClientChunkManager
 
 	CutsceneChunkManager(CutsceneWorld cutsceneWorld)
 	{
-		super(cutsceneWorld);
+		super(cutsceneWorld, 1);
 		this.cutsceneWorld = cutsceneWorld;
 		this.cutsceneEmptyChunk = new EmptyChunk(cutsceneWorld, new ChunkPos(0, 0));
 		this.cutsceneLightingPRovider = new LightingProvider(this, true, cutsceneWorld.getDimension().hasSkyLight());

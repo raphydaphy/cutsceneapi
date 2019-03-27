@@ -3,7 +3,7 @@ package com.raphydaphy.cutsceneapi.cutscene;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import sun.tools.java.Identifier;
+import net.minecraft.util.Identifier;
 
 import java.util.function.Consumer;
 
