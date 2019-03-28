@@ -9,14 +9,12 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.fabricmc.fabric.api.registry.CommandRegistry;
-import net.minecraft.block.Blocks;
 import net.minecraft.command.arguments.EntityArgumentType;
 import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.command.ServerCommandManager;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
@@ -32,7 +30,7 @@ public class CutsceneAPI implements ModInitializer
 
 	public static EntityType<CutsceneCameraEntity> CUTSCENE_CAMERA_ENTITY;
 
-	public static final ICutscene DEMO_CUTSCENE = new NewCutscene(250);
+	public static final Cutscene DEMO_CUTSCENE = new DefaultCutscene(250);
 
 	@Override
 	public void onInitialize()

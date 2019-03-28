@@ -66,7 +66,7 @@ public class Path
 						yCubics.get(cubicNum).eval(cubicPos),
 						zCubics.get(cubicNum).eval(cubicPos));
 			}
-			return new Vector3f(getPoint(0.9999f));
+			return new Vector3f(this.points.get(this.points.size() - 1));
 		}
 		return new Vector3f(this.points.get(0));
 	}

@@ -9,9 +9,9 @@ import java.util.Set;
 
 public class CutsceneRegistry
 {
-	private static Map<Identifier, ICutscene> REGISTRY = new HashMap<>();
+	private static Map<Identifier, Cutscene> REGISTRY = new HashMap<>();
 
-	public static Identifier register(Identifier id, ICutscene cutscene)
+	public static Identifier register(Identifier id, Cutscene cutscene)
 	{
 		if (REGISTRY.containsKey(id))
 		{
@@ -24,7 +24,7 @@ public class CutsceneRegistry
 		}
 	}
 
-	public static ICutscene get(Identifier id)
+	public static Cutscene get(Identifier id)
 	{
 		return REGISTRY.get(id).copy();
 	}

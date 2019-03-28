@@ -7,7 +7,7 @@ import net.minecraft.util.Identifier;
 
 import java.util.function.Consumer;
 
-public interface ICutscene
+public interface Cutscene
 {
 	/**
 	 * Called once per tick
@@ -20,6 +20,13 @@ public interface ICutscene
 	 */
 	@Environment(EnvType.CLIENT)
 	void render();
+
+	/**
+	 * Called once per frame after the players look direction is set
+	 * Can be used to adjust this direction
+	 */
+	@Environment(EnvType.CLIENT)
+	void updateLook();
 
 	/**
 	 * @param path A new path for the camera to travel on
@@ -49,25 +56,25 @@ public interface ICutscene
 	 * @param initCallback A function to be called before the start of the cutscene
 	 */
 	@Environment(EnvType.CLIENT)
-	void setInitCallback(Consumer<ICutscene> initCallback);
+	void setInitCallback(Consumer<Cutscene> initCallback);
 
 	/**
 	 * @param tickCallback A function to be called once per tick while the cutscene is playing
 	 */
 	@Environment(EnvType.CLIENT)
-	void setTickCallback(Consumer<ICutscene> tickCallback);
+	void setTickCallback(Consumer<Cutscene> tickCallback);
 
 	/**
 	 * @param renderCallback A function which will be called once per frame when rendering
 	 */
 	@Environment(EnvType.CLIENT)
-	void setRenderCallback(Consumer<ICutscene> renderCallback);
+	void setRenderCallback(Consumer<Cutscene> renderCallback);
 
 	/**
 	 * @param finishCallback A function which will be called at the end of the cutscene
 	 */
 	@Environment(EnvType.CLIENT)
-	void setFinishCallback(Consumer<ICutscene> finishCallback);
+	void setFinishCallback(Consumer<Cutscene> finishCallback);
 
 	/**
 	 * @param worldType The type of world which should be used during the cutscene
@@ -79,7 +86,7 @@ public interface ICutscene
 	 * @return A copy of the cutscene
 	 */
 	@Environment(EnvType.CLIENT)
-	ICutscene copy();
+	Cutscene copy();
 
 	/**
 	 * @return The fake world used by the cutscene, if any
@@ -103,4 +110,10 @@ public interface ICutscene
 	 */
 	@Environment(EnvType.CLIENT)
 	Path getCameraPath();
+
+	/**
+	 * @return True if the ingame HUD should be hidden at the current point during the transition
+	 */
+	@Environment(EnvType.CLIENT)
+	boolean shouldHideHud();
 }

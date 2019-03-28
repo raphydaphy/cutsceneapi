@@ -33,7 +33,7 @@ public class WorldRendererMixin
 	@Inject(at = @At("HEAD"), method="renderEntities", cancellable = true)
 	private void renderEntities(Camera camera_1, VisibleRegion visibleRegion_1, float float_1, CallbackInfo info)
 	{
-		if (world instanceof CutsceneWorld || (CutsceneManager.hideHud(MinecraftClient.getInstance().player) && CutsceneManager.showFakeWorld()))
+		if (world instanceof CutsceneWorld)
 		{
 			info.cancel();
 		}

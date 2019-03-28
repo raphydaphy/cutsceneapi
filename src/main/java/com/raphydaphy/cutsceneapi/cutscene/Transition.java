@@ -5,21 +5,23 @@ import com.raphydaphy.cutsceneapi.utils.CutsceneUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormats;
 
 @Environment(EnvType.CLIENT)
 public abstract class Transition
 {
 	int ticks;
 	float length;
-	boolean showHud = false;
-	boolean fixedCamera = false;
+	boolean firstHalf = true;
 
 	public Transition(float length)
 	{
 		this.length = length;
+	}
+
+	public void init()
+	{
+		this.ticks = 0;
+		this.firstHalf = true;
 	}
 
 	public abstract void render(MinecraftClient client, float tickDelta);
@@ -29,14 +31,9 @@ public abstract class Transition
 		ticks++;
 	}
 
-	public boolean showHud()
+	public boolean isFirstHalf()
 	{
-		return showHud;
-	}
-
-	public boolean fixedCamera()
-	{
-		return fixedCamera;
+		return firstHalf;
 	}
 
 	public static class FadeTo extends Transition
@@ -70,6 +67,12 @@ public abstract class Transition
 		}
 
 		@Override
+		public void init()
+		{
+			this.firstHalf = false;
+		}
+
+		@Override
 		public void render(MinecraftClient client, float tickDelta)
 		{
 			float transitionTime = CutsceneUtils.lerp(ticks - 1, ticks, tickDelta);
@@ -80,26 +83,12 @@ public abstract class Transition
 
 	public static class DipTo extends FadeTo
 	{
-		private boolean isIntro = false;
-		private boolean isOutro = false;
 		private float hold;
 
 		public DipTo(float length, float hold, int red, int green, int blue)
 		{
 			super(length + hold, red, green, blue);
 			this.hold = hold;
-		}
-
-		public DipTo setIntro()
-		{
-			this.isIntro = true;
-			return this;
-		}
-
-		public DipTo setOutro()
-		{
-			this.isOutro = true;
-			return this;
 		}
 
 		@Override
@@ -110,20 +99,17 @@ public abstract class Transition
 			GlStateManager.disableDepthTest();
 			if (transitionTime < halfTime)
 			{
-				showHud = isIntro;
-				fixedCamera = isIntro;
+				firstHalf = true;
 				float percent = transitionTime / halfTime;
 				CutsceneUtils.drawRect(0, 0, client.window.getScaledWidth(), client.window.getScaledHeight(), percent, red, green, blue);
 			} else if (transitionTime < halfTime + hold)
 			{
-				showHud = isOutro;
-				fixedCamera = isIntro;
+				firstHalf = false;
 				CutsceneUtils.drawRect(0, 0, client.window.getScaledWidth(), client.window.getScaledHeight(), 1, red, green, blue);
 			} else
 			{
 				transitionTime = transitionTime - halfTime - hold;
-				showHud = isOutro;
-				fixedCamera = isOutro;
+				firstHalf = false;
 				float percent = 1 - transitionTime / halfTime;
 				CutsceneUtils.drawRect(0, 0, client.window.getScaledWidth(), client.window.getScaledHeight(), percent, red, green, blue);
 			}

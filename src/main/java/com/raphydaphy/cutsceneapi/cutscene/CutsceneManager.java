@@ -21,11 +21,11 @@ import net.minecraft.util.math.BlockPos;
 
 public class CutsceneManager
 {
-	private static ICutscene currentCutscene;
+	private static Cutscene currentCutscene;
 
 	public static boolean hideHud(PlayerEntity player)
 	{
-		return isActive(player) && currentCutscene != null;
+		return isActive(player) && currentCutscene != null && currentCutscene.shouldHideHud();
 	}
 
 	public static boolean isActive(PlayerEntity player)
@@ -36,6 +36,10 @@ public class CutsceneManager
 	@Environment(EnvType.CLIENT)
 	public static void updateLook()
 	{
+		if (isActive(MinecraftClient.getInstance().player) && currentCutscene != null)
+		{
+			currentCutscene.updateLook();
+		}
 	}
 
 	public static boolean showFakeWorld()

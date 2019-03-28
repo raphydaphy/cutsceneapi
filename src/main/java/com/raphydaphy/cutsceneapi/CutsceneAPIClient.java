@@ -24,7 +24,8 @@ public class CutsceneAPIClient implements ClientModInitializer
 			float playerX = (float)client.player.x;
 			float playerY = (float)client.player.y;
 			float playerZ = (float)client.player.z;
-			cutscene.setCameraPath(new Path().withPoint(playerX - 20, playerY + 20, playerZ).withPoint(playerX + 30, playerY +15, playerZ + 10));
+			cutscene.setCameraPath(new Path()
+					.withPoint(playerX - 40, playerY + 35, playerZ).withPoint(playerX + 70, playerY +10, playerZ));
 			client.player.playSound(SoundEvents.ENTITY_WITHER_SPAWN, 1, 1);
 		});
 	}

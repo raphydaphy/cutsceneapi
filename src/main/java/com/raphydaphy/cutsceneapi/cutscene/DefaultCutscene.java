@@ -14,7 +14,7 @@ import net.minecraft.util.Identifier;
 
 import java.util.function.Consumer;
 
-public class NewCutscene implements ICutscene
+public class DefaultCutscene implements Cutscene
 {
 	// Common Settings
 	private int length;
@@ -30,16 +30,16 @@ public class NewCutscene implements ICutscene
 	private Identifier shader;
 
 	@Environment(EnvType.CLIENT)
-	private Consumer<ICutscene> initCallback;
+	private Consumer<Cutscene> initCallback;
 
 	@Environment(EnvType.CLIENT)
-	private Consumer<ICutscene> tickCallback;
+	private Consumer<Cutscene> tickCallback;
 
 	@Environment(EnvType.CLIENT)
-	private Consumer<ICutscene> renderCallback;
+	private Consumer<Cutscene> renderCallback;
 
 	@Environment(EnvType.CLIENT)
-	private Consumer<ICutscene> finishCallback;
+	private Consumer<Cutscene> finishCallback;
 
 	@Environment(EnvType.CLIENT)
 	private Path path;
@@ -66,7 +66,13 @@ public class NewCutscene implements ICutscene
 	@Environment(EnvType.CLIENT)
 	private float startYaw;
 
-	public NewCutscene(int length)
+	@Environment(EnvType.CLIENT)
+	private boolean usingShader = false;
+
+	@Environment(EnvType.CLIENT)
+	private boolean started = false;
+
+	public DefaultCutscene(int length)
 	{
 		this.length = length;
 	}
@@ -80,6 +86,8 @@ public class NewCutscene implements ICutscene
 		this.startPerspective = client.options.perspective;
 		this.startPitch = client.player.pitch;
 		this.startYaw = client.player.yaw;
+		if (introTransition != null) introTransition.init();
+		if (outroTransition != null) outroTransition.init();
 		if (!this.worldType.isRealWorld())
 		{
 			this.cutsceneWorld = new CutsceneWorld(client, client.world, this.worldType == CutsceneWorldType.CLONE);
@@ -94,70 +102,103 @@ public class NewCutscene implements ICutscene
 			this.cutsceneWorld.addPlayer(client.player);
 		}
 		this.camera = new CutsceneCameraEntity(client.world).withPos(this.path.getPoint(0));
+		this.started = true;
 	}
 
 	@Override
 	public void tick()
 	{
-		MinecraftClient client = MinecraftClient.getInstance();
-
-		if (ticks == 0)
+		if (ticks < length)
 		{
-			start();
-		}
+			MinecraftClient client = MinecraftClient.getInstance();
 
-		// Move Camera
-		camera.update();
-		camera.moveTo(path.getPoint(ticks / (float) length));
-
-		// Fix perspective
-		if (client.options.perspective != 0)
-		{
-			client.options.perspective = 0;
-			client.worldRenderer.method_3292();
-		}
-
-		// Set Camera
-		if (client.cameraEntity != camera)
-		{
-			client.cameraEntity = camera;
-
-			if (this.shader != null)
+			if (ticks == 0)
 			{
-				client.worldRenderer.method_3292();
-				if (GLX.usePostProcess)
+				start();
+			}
+
+			if (shouldHideHud())
+			{
+				// Move Camera
+				camera.update();
+				camera.moveTo(path.getPoint(ticks / (float) length));
+
+				// Fix perspective
+				if (client.options.perspective != 0)
 				{
-					((GameRendererHooks) client.gameRenderer).useShader(this.shader);
+					client.options.perspective = 0;
+					client.worldRenderer.method_3292();
+				}
+
+				// Set Camera
+				if (client.cameraEntity != camera)
+				{
+					client.cameraEntity = camera;
+
+					if (this.shader != null && !usingShader)
+					{
+						client.worldRenderer.method_3292();
+						if (GLX.usePostProcess)
+						{
+							((GameRendererHooks) client.gameRenderer).useShader(this.shader);
+						}
+						usingShader = true;
+					}
+				}
+
+				// Set Camera Look
+				float percent = ticks / (float) length;
+
+				Vector3f direction = path.getPoint(percent);
+				direction.subtract(path.getPoint(percent >= 0.99f ? 0.9999f : percent + 0.01f));
+				float lengthSquared = direction.x() * direction.x() + direction.y() * direction.y() + direction.z() * direction.z();
+				if (lengthSquared != 0 && lengthSquared != 1) direction.scale(1 / (float) Math.sqrt(lengthSquared));
+
+				camera.prevYaw = camera.yaw;
+				camera.prevPitch = camera.pitch;
+
+				camera.pitch = (float) Math.toDegrees(Math.asin(direction.y()));
+				camera.yaw = (float) Math.toDegrees(Math.atan2(direction.x(), direction.z()));
+			} else
+			{
+				// Restore real world
+				if (!worldType.isRealWorld()) CutsceneManager.stopFakeWorld();
+
+				// Disable Shader
+				if (usingShader)
+				{
+					client.gameRenderer.disableShader();
+					usingShader = false;
+				}
+
+				// Restore player camera
+				if (client.getCameraEntity() == camera)
+				{
+					client.setCameraEntity(client.player);
+					client.worldRenderer.method_3292();
+				}
+
+				// Restore perspective
+				if (client.options.perspective != startPerspective)
+				{
+					client.options.perspective = startPerspective;
+					client.worldRenderer.method_3292();
 				}
 			}
-		}
 
-		// Set Camera Look
-		float percent = ticks / (float) length;
+			// Update Transitions
+			if (ticks < introTransition.length) introTransition.update();
+			else if (ticks > length - outroTransition.length) outroTransition.update();
 
-		Vector3f direction = path.getPoint(percent);
-		direction.subtract(path.getPoint(percent >= 0.99f ? 0.9999f : percent + 0.01f));
-		float lengthSquared = direction.x() * direction.x() + direction.y() * direction.y() + direction.z() * direction.z();
-		if (lengthSquared != 0 && lengthSquared != 1) direction.scale(1 / (float) Math.sqrt(lengthSquared));
+			// Callback
+			if (tickCallback != null) tickCallback.accept(this);
 
-		camera.prevYaw = camera.yaw;
-		camera.prevPitch = camera.pitch;
+			ticks++;
 
-		camera.pitch = (float) Math.toDegrees(Math.asin(direction.y()));
-		camera.yaw = (float) Math.toDegrees(Math.atan2(direction.x(), direction.z()));
-
-		// Update Transitions
-		if (ticks < introTransition.length) introTransition.update();
-		else if (length - ticks < outroTransition.length) outroTransition.update();
-
-		// Callback
-		if (tickCallback != null) tickCallback.accept(this);
-
-		ticks++;
-
-		if (ticks == length)
-		{
-			end();
+			if (ticks == length)
+			{
+				end();
+			}
 		}
 	}
 
@@ -168,10 +209,21 @@ public class NewCutscene implements ICutscene
 
 		// Render Transitions
 		if (ticks < introTransition.length) introTransition.render(client, client.getTickDelta());
-		else if (length - ticks < outroTransition.length) outroTransition.render(client, client.getTickDelta());
+		else if (ticks > length - outroTransition.length) outroTransition.render(client, client.getTickDelta());
 
 		// Callback
 		if (renderCallback != null) renderCallback.accept(this);
+	}
+
+	@Override
+	public void updateLook()
+	{
+		if (started)
+		{
+			MinecraftClient client = MinecraftClient.getInstance();
+			client.player.pitch = startPitch;
+			client.player.yaw = startYaw;
+		}
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -183,13 +235,13 @@ public class NewCutscene implements ICutscene
 		if (!worldType.isRealWorld()) CutsceneManager.stopFakeWorld();
 
 		// Disable Shader
-		if (shader != null) client.gameRenderer.disableShader();
+		if (usingShader)
+		{
+			client.gameRenderer.disableShader();
+			usingShader = false;
+		}
 
-		// Restore player camera
-		client.setCameraEntity(client.player);
-		client.worldRenderer.method_3292();
-
-		// Fix perspective
+		// Restore perspective
 		if (client.options.perspective != startPerspective)
 		{
 			client.options.perspective = startPerspective;
@@ -204,7 +256,7 @@ public class NewCutscene implements ICutscene
 	@Override
 	public void setCameraPath(Path path)
 	{
-		this.path = path;
+		this.path = path.build();
 	}
 
 	@Override
@@ -226,25 +278,25 @@ public class NewCutscene implements ICutscene
 	}
 
 	@Override
-	public void setInitCallback(Consumer<ICutscene> initCallback)
+	public void setInitCallback(Consumer<Cutscene> initCallback)
 	{
 		this.initCallback = initCallback;
 	}
 
 	@Override
-	public void setTickCallback(Consumer<ICutscene> tickCallback)
+	public void setTickCallback(Consumer<Cutscene> tickCallback)
 	{
 		this.tickCallback = tickCallback;
 	}
 
 	@Override
-	public void setRenderCallback(Consumer<ICutscene> renderCallback)
+	public void setRenderCallback(Consumer<Cutscene> renderCallback)
 	{
 		this.renderCallback = renderCallback;
 	}
 
 	@Override
-	public void setFinishCallback(Consumer<ICutscene> finishCallback)
+	public void setFinishCallback(Consumer<Cutscene> finishCallback)
 	{
 		this.finishCallback = finishCallback;
 	}
@@ -256,9 +308,9 @@ public class NewCutscene implements ICutscene
 	}
 
 	@Override
-	public ICutscene copy()
+	public Cutscene copy()
 	{
-		NewCutscene cutscene = new NewCutscene(length);
+		DefaultCutscene cutscene = new DefaultCutscene(length);
 
 		cutscene.introTransition = this.introTransition;
 		cutscene.outroTransition = this.outroTransition;
@@ -295,5 +347,13 @@ public class NewCutscene implements ICutscene
 	public Path getCameraPath()
 	{
 		return path;
+	}
+
+	@Override
+	public boolean shouldHideHud()
+	{
+		if (ticks < introTransition.length && introTransition.isFirstHalf()) return false;
+		else if (ticks > length - outroTransition.length && !outroTransition.isFirstHalf()) return false;
+		return true;
 	}
 }
