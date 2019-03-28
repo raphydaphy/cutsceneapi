@@ -90,6 +90,11 @@ public interface Cutscene
 	void setWorldType(CutsceneWorldType worldType);
 
 	/**
+	 * @param nextCutscene The cutscene which should play after this one
+	 */
+	void setNextCutscene(Cutscene nextCutscene);
+
+	/**
 	 * @return A copy of the cutscene
 	 */
 	@Environment(EnvType.CLIENT)
@@ -100,6 +105,12 @@ public interface Cutscene
 	 */
 	@Environment(EnvType.CLIENT)
 	CutsceneWorld getWorld();
+
+	/**
+	 * @return The cutscene which should play after this one
+	 */
+	@Environment(EnvType.CLIENT)
+	Cutscene getNextCutscene();
 
 	/**
 	 * @return The function which should be run whenever a cutscene chunk is generated

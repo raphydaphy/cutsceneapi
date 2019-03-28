@@ -11,6 +11,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
 
 import java.util.function.Consumer;
@@ -51,6 +52,9 @@ public class DefaultCutscene implements Cutscene
 	@Environment(EnvType.CLIENT)
 	private CutsceneWorldType worldType = CutsceneWorldType.REAL;
 
+	@Environment(EnvType.CLIENT)
+	private Cutscene nextCutscene;
+
 	// Client Data
 	@Environment(EnvType.CLIENT)
 	private int ticks = 0;
@@ -88,7 +92,20 @@ public class DefaultCutscene implements Cutscene
 		this.startPerspective = client.options.perspective;
 		this.startPitch = client.player.pitch;
 		this.startYaw = client.player.yaw;
-		if (!worldType.isRealWorld()) this.cutsceneWorld = new CutsceneWorld(client, client.world, this.worldType == CutsceneWorldType.CLONE);
+		if (!worldType.isRealWorld())
+		{
+			if (worldType == CutsceneWorldType.PREVIOUS)
+			{
+				ClientWorld world = client.world;
+				if (world instanceof CutsceneWorld)
+				{
+					this.cutsceneWorld = (CutsceneWorld)world;
+				}
+			} else
+			{
+				this.cutsceneWorld = new CutsceneWorld(client, client.world, this.worldType == CutsceneWorldType.CLONE);
+			}
+		}
 		if (this.initCallback != null) this.initCallback.accept(this);
 		if (introTransition != null) introTransition.init();
 		if (outroTransition != null) outroTransition.init();
@@ -190,8 +207,8 @@ public class DefaultCutscene implements Cutscene
 			}
 
 			// Update Transitions
-			if (ticks < introTransition.length) introTransition.update();
-			else if (ticks > length - outroTransition.length) outroTransition.update();
+			if (introTransition != null && ticks < introTransition.length) introTransition.update();
+			else if (outroTransition != null && ticks > length - outroTransition.length) outroTransition.update();
 
 			// Callback
 			if (tickCallback != null) tickCallback.accept(this);
@@ -211,8 +228,8 @@ public class DefaultCutscene implements Cutscene
 		MinecraftClient client = MinecraftClient.getInstance();
 
 		// Render Transitions
-		if (ticks < introTransition.length) introTransition.render(client, client.getTickDelta());
-		else if (ticks > length - outroTransition.length) outroTransition.render(client, client.getTickDelta());
+		if (introTransition != null && ticks < introTransition.length) introTransition.render(client, client.getTickDelta());
+		else if (outroTransition != null && ticks > length - outroTransition.length) outroTransition.render(client, client.getTickDelta());
 
 		// Callback
 		if (renderCallback != null) renderCallback.accept(this);
@@ -317,6 +334,12 @@ public class DefaultCutscene implements Cutscene
 	}
 
 	@Override
+	public void setNextCutscene(Cutscene nextCutscene)
+	{
+		this.nextCutscene = nextCutscene;
+	}
+
+	@Override
 	public Cutscene copy()
 	{
 		DefaultCutscene cutscene = new DefaultCutscene(length);
@@ -331,6 +354,7 @@ public class DefaultCutscene implements Cutscene
 		cutscene.finishCallback = this.finishCallback;
 		cutscene.path = this.path;
 		cutscene.worldType = this.worldType;
+		cutscene.nextCutscene = this.nextCutscene;
 
 		return cutscene;
 	}
@@ -339,6 +363,12 @@ public class DefaultCutscene implements Cutscene
 	public CutsceneWorld getWorld()
 	{
 		return cutsceneWorld;
+	}
+
+	@Override
+	public Cutscene getNextCutscene()
+	{
+		return nextCutscene;
 	}
 
 	@Override
@@ -368,8 +398,8 @@ public class DefaultCutscene implements Cutscene
 	@Override
 	public boolean shouldHideHud()
 	{
-		if (ticks < introTransition.length && introTransition.isFirstHalf()) return false;
-		else if (ticks > length - outroTransition.length && !outroTransition.isFirstHalf()) return false;
+		if (introTransition != null && ticks < introTransition.length && introTransition.isFirstHalf()) return false;
+		else if (outroTransition != null && ticks > length - outroTransition.length && !outroTransition.isFirstHalf()) return false;
 		return true;
 	}
 }

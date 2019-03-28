@@ -31,14 +31,16 @@ public class CutsceneAPI implements ModInitializer
 	public static EntityType<CutsceneCameraEntity> CUTSCENE_CAMERA_ENTITY;
 
 	public static final Cutscene REALWORLD_CUTSCENE = new DefaultCutscene(250);
-	public static final Cutscene FAKEWORLD_CUTSCENE = new DefaultCutscene(400);
+	public static final Cutscene FAKEWORLD_CUTSCENE_1 = new DefaultCutscene(400);
+	public static final Cutscene FAKEWORLD_CUTSCENE_2 = new DefaultCutscene(200);
 	public static final Cutscene VOIDWORLD_CUTSCENE = new DefaultCutscene(200);
 
 	@Override
 	public void onInitialize()
 	{
 		CutsceneRegistry.register(new Identifier(DOMAIN, "real_world"), REALWORLD_CUTSCENE);
-		CutsceneRegistry.register(new Identifier(DOMAIN, "fake_world"), FAKEWORLD_CUTSCENE);
+		CutsceneRegistry.register(new Identifier(DOMAIN, "fake_world_1"), FAKEWORLD_CUTSCENE_1);
+		CutsceneRegistry.register(new Identifier(DOMAIN, "fake_world_2"), FAKEWORLD_CUTSCENE_2);
 		CutsceneRegistry.register(new Identifier(DOMAIN, "void_world"), VOIDWORLD_CUTSCENE);
 
 		CUTSCENE_CAMERA_ENTITY = Registry.register(Registry.ENTITY_TYPE, new Identifier(DOMAIN, "cutscene_camera"), FabricEntityTypeBuilder.create(EntityCategory.MISC, CutsceneCameraEntity::new).size(new EntitySize(1, 1, true)).build());

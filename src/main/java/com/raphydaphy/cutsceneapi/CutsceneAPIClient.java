@@ -40,10 +40,10 @@ public class CutsceneAPIClient implements ClientModInitializer
 			client.player.playSound(SoundEvents.ENTITY_WITHER_SPAWN, 1, 1);
 		});
 
-		CutsceneAPI.FAKEWORLD_CUTSCENE.setIntroTransition(new Transition.DipTo(40, 50, 0, 0, 0));
-		CutsceneAPI.FAKEWORLD_CUTSCENE.setOutroTransition(new Transition.DipTo(40, 10, 0, 0, 0));
-		CutsceneAPI.FAKEWORLD_CUTSCENE.setWorldType(CutsceneWorldType.CLONE);
-		CutsceneAPI.FAKEWORLD_CUTSCENE.setInitCallback((cutscene) ->
+		CutsceneAPI.FAKEWORLD_CUTSCENE_1.setIntroTransition(new Transition.DipTo(40, 50, 0, 0, 0));
+		CutsceneAPI.FAKEWORLD_CUTSCENE_1.setOutroTransition(new Transition.DipTo(40, 10, 0, 0, 0));
+		CutsceneAPI.FAKEWORLD_CUTSCENE_1.setWorldType(CutsceneWorldType.CLONE);
+		CutsceneAPI.FAKEWORLD_CUTSCENE_1.setInitCallback((cutscene) ->
 		{
 			MinecraftClient client = MinecraftClient.getInstance();
 			float playerX = (float) client.player.x;
@@ -56,7 +56,7 @@ public class CutsceneAPIClient implements ClientModInitializer
 
 			System.out.println(cutscene.getWorld().getTimeOfDay());
 		});
-		CutsceneAPI.FAKEWORLD_CUTSCENE.setChunkGenCallback((chunk) ->
+		CutsceneAPI.FAKEWORLD_CUTSCENE_1.setChunkGenCallback((chunk) ->
 		{
 			int index, x, y, z;
 			for (x = 0; x < 16; x++)
