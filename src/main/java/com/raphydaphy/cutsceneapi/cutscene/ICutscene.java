@@ -10,6 +10,18 @@ import java.util.function.Consumer;
 public interface ICutscene
 {
 	/**
+	 * Called once per tick
+	 */
+	@Environment(EnvType.CLIENT)
+	void tick();
+
+	/**
+	 * Called once per frame
+	 */
+	@Environment(EnvType.CLIENT)
+	void render();
+
+	/**
 	 * @param path A new path for the camera to travel on
 	 */
 	@Environment(EnvType.CLIENT)
@@ -34,10 +46,10 @@ public interface ICutscene
 	void setOutroTransition(Transition outroTransition);
 
 	/**
-	 * @param introCallback A function to be called before the start of the cutscene
+	 * @param initCallback A function to be called before the start of the cutscene
 	 */
 	@Environment(EnvType.CLIENT)
-	void setIntroCallback(Consumer<ICutscene> introCallback);
+	void setInitCallback(Consumer<ICutscene> initCallback);
 
 	/**
 	 * @param tickCallback A function to be called once per tick while the cutscene is playing
@@ -46,16 +58,28 @@ public interface ICutscene
 	void setTickCallback(Consumer<ICutscene> tickCallback);
 
 	/**
-	 * @param outroCallback A function which will be called at the end of the cutscene
+	 * @param renderCallback A function which will be called once per frame when rendering
 	 */
 	@Environment(EnvType.CLIENT)
-	void setOutroCallback(Consumer<ICutscene> outroCallback);
+	void setRenderCallback(Consumer<ICutscene> renderCallback);
+
+	/**
+	 * @param finishCallback A function which will be called at the end of the cutscene
+	 */
+	@Environment(EnvType.CLIENT)
+	void setFinishCallback(Consumer<ICutscene> finishCallback);
 
 	/**
 	 * @param worldType The type of world which should be used during the cutscene
 	 */
 	@Environment(EnvType.CLIENT)
 	void setWorldType(CutsceneWorldType worldType);
+
+	/**
+	 * @return A copy of the cutscene
+	 */
+	@Environment(EnvType.CLIENT)
+	ICutscene copy();
 
 	/**
 	 * @return The fake world used by the cutscene, if any

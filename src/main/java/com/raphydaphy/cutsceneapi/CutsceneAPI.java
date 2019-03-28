@@ -32,26 +32,12 @@ public class CutsceneAPI implements ModInitializer
 
 	public static EntityType<CutsceneCameraEntity> CUTSCENE_CAMERA_ENTITY;
 
+	public static final ICutscene DEMO_CUTSCENE = new NewCutscene(250);
+
 	@Override
 	public void onInitialize()
 	{
-		CutsceneRegistry.register(new Identifier(DOMAIN, "demo"), (player) ->
-		{
-			float pX = (float) player.x;
-			float pY = (float) player.y;
-			float pZ = (float) player.z;
-			return new Cutscene(player, new Path().withPoint(pX + 0, pY + 20, pZ + 0).withPoint(pX + 30, pY + 30, pZ + 10).withPoint(pX + 50, pY + 10, pZ + 10))
-					.withDuration(250).withFakeWorld(true).withStartSound(SoundEvents.UI_BUTTON_CLICK).withDipTo(40, 20, 0, 0, 0);
-		});
-
-		CutsceneRegistry.register(new Identifier(DOMAIN, "end"), (player) ->
-		{
-			return new Cutscene(player, new Path().withPoint(140, 40, 0).withPoint(44, 75, 16).withPoint(-80, 56, 12))
-					.withDuration(250).withTransition(new Transition.DipTo(0, 40, 0, 0, 0, 0).setIntro())
-					.withTransition(new Transition.FadeFrom(210, 40, 0, 0, 0)).withCutscene(
-							new Cutscene(player, new Path().withPoint(54, 106, 64).withPoint(4, 65, 4).withPoint(-50, 100, -33))
-									.withDuration(100).withTransition(new Transition.FadeTo(0, 40, 0, 0, 0)).withTransition(new Transition.DipTo(60, 40, 0, 0, 0, 0).setOutro()));
-		});
+		CutsceneRegistry.register(new Identifier(DOMAIN, "demo"), DEMO_CUTSCENE);
 
 		CUTSCENE_CAMERA_ENTITY = Registry.register(Registry.ENTITY_TYPE, new Identifier(DOMAIN, "cutscene_camera"), FabricEntityTypeBuilder.create(EntityCategory.MISC, CutsceneCameraEntity::new).size(new EntitySize(1, 1, true)).build());
 		ServerSidePacketRegistry.INSTANCE.register(CutsceneFinishPacket.ID, new CutsceneFinishPacket.Handler());

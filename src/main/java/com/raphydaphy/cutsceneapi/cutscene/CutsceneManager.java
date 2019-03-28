@@ -21,11 +21,11 @@ import net.minecraft.util.math.BlockPos;
 
 public class CutsceneManager
 {
-	private static Cutscene currentCutscene;
+	private static ICutscene currentCutscene;
 
 	public static boolean hideHud(PlayerEntity player)
 	{
-		return isActive(player) && currentCutscene != null && currentCutscene.hideHud();
+		return isActive(player) && currentCutscene != null;
 	}
 
 	public static boolean isActive(PlayerEntity player)
@@ -36,18 +36,10 @@ public class CutsceneManager
 	@Environment(EnvType.CLIENT)
 	public static void updateLook()
 	{
-		if (currentCutscene != null)
-		{
-			currentCutscene.updateLook();
-		}
 	}
 
 	public static boolean showFakeWorld()
 	{
-		if (currentCutscene != null)
-		{
-			return currentCutscene.usesFakeWorld();
-		}
 		return false;
 	}
 
@@ -56,17 +48,14 @@ public class CutsceneManager
 	{
 		if (currentCutscene != null)
 		{
-			currentCutscene.renderTransitions();
+			currentCutscene.render();
 		}
 	}
 
 	@Environment(EnvType.CLIENT)
 	public static void startClient(Identifier cutscene)
 	{
-		MinecraftClient client = MinecraftClient.getInstance();
-		client.getSoundManager().stopAll();
-		currentCutscene = CutsceneRegistry.get(cutscene, client.player);
-		currentCutscene.start(client.player);
+		currentCutscene = CutsceneRegistry.get(cutscene);
 	}
 
 	private static ClientWorld realWorld;
@@ -112,7 +101,7 @@ public class CutsceneManager
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (client.world instanceof CutsceneWorld)
 		{
-			ClientWorld realWorld = ((CutsceneWorld)client.world).realWorld;
+			ClientWorld realWorld = ((CutsceneWorld) client.world).realWorld;
 			if (realWorld != null)
 			{
 				client.player.setWorld(realWorld);
@@ -130,18 +119,11 @@ public class CutsceneManager
 	@Environment(EnvType.CLIENT)
 	public static void finishClient()
 	{
-		boolean reload = false;
 		if (currentCutscene != null)
 		{
-			reload = currentCutscene.usesFakeWorld();
 			currentCutscene = null;
 		}
 		PacketHandler.sendToServer(new CutsceneFinishPacket());
-
-		if (reload)
-		{
-			MinecraftClient.getInstance().worldRenderer.reload();
-		}
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -151,8 +133,8 @@ public class CutsceneManager
 		if (isActive(client.player))
 		{
 			if (currentCutscene == null)
-				currentCutscene = CutsceneRegistry.get(Identifier.create(PlayerData.get(client.player).getString(CutsceneAPI.CUTSCENE_ID_KEY)), client.player);
-			if (currentCutscene != null) currentCutscene.updateClient();
+				currentCutscene = CutsceneRegistry.get(Identifier.create(PlayerData.get(client.player).getString(CutsceneAPI.CUTSCENE_ID_KEY)));
+			if (currentCutscene != null) currentCutscene.tick();
 		}
 	}
 

@@ -1,19 +1,17 @@
 package com.raphydaphy.cutsceneapi.cutscene;
 
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 public class CutsceneRegistry
 {
-	private static Map<Identifier, Function<PlayerEntity, Cutscene>> REGISTRY = new HashMap<>();
+	private static Map<Identifier, ICutscene> REGISTRY = new HashMap<>();
 
-	public static Identifier register(Identifier id, Function<PlayerEntity, Cutscene> cutscene)
+	public static Identifier register(Identifier id, ICutscene cutscene)
 	{
 		if (REGISTRY.containsKey(id))
 		{
@@ -26,9 +24,9 @@ public class CutsceneRegistry
 		}
 	}
 
-	public static Cutscene get(Identifier id, PlayerEntity player)
+	public static ICutscene get(Identifier id)
 	{
-		return REGISTRY.get(id).apply(player);
+		return REGISTRY.get(id).copy();
 	}
 
 	public static Set<Identifier> getIDs()

@@ -1,4 +1,4 @@
-package com.raphydaphy.cutsceneapi.mixin.common;
+package com.raphydaphy.cutsceneapi.mixin;
 
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
 import net.minecraft.entity.Entity;

@@ -20,7 +20,11 @@ public enum CutsceneWorldType
 	 * A fake world which is based on the real world.
 	 * You can modify the blocks without changing the actual world.
 	 */
-	CLONE;
+	CLONE,
+	/**
+	 * Uses whatever world is active at the start of the cutscene
+	 */
+	PREVIOUS;
 
 	public boolean isRealWorld()
 	{
