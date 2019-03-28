@@ -1,7 +1,8 @@
 package com.raphydaphy.cutsceneapi.fakeworld;
 
-import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
 import com.raphydaphy.cutsceneapi.mixin.client.ClientWorldHooks;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientChunkManager;
@@ -13,6 +14,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkManager;
 import net.minecraft.world.chunk.ChunkPos;
 import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.level.LevelInfo;
 
@@ -21,12 +23,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 
+@Environment(EnvType.CLIENT)
 public class CutsceneWorld extends ClientWorld
 {
 	private Map<ChunkPos, CutsceneChunk> chunkMap = new HashMap<>();
 	public boolean cloneExisting;
 	private CutsceneChunkManager cutsceneChunkManager;
 	public final ClientWorld realWorld;
+	public long cutsceneTime;
 
 	public CutsceneWorld(MinecraftClient client, ClientWorld realWorld, boolean cloneExisting)
 	{
@@ -93,5 +97,29 @@ public class CutsceneWorld extends ClientWorld
 		this.cutsceneChunkManager.tick(booleanSupplier_1);
 		((ClientWorldHooks) this).updateCutsceneLighting();
 		this.getProfiler().pop();
+		cutsceneTime++;
+	}
+
+	@Override
+	public float method_8391()
+	{
+		return Dimension.MOON_PHASE_TO_SIZE[this.getDimension().getMoonPhase(getTimeOfDay())];
+	}
+
+	public int getMoonPhase()
+	{
+		return this.getDimension().getMoonPhase(getTimeOfDay());
+	}
+
+	@Override
+	public float getSkyAngle(float float_1)
+	{
+		return this.getDimension().getSkyAngle(getTimeOfDay(), float_1);
+	}
+
+	@Override
+	public long getTimeOfDay()
+	{
+		return cutsceneTime;
 	}
 }

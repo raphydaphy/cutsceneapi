@@ -1,5 +1,6 @@
 package com.raphydaphy.cutsceneapi.cutscene;
 
+import com.raphydaphy.cutsceneapi.fakeworld.CutsceneChunk;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -59,6 +60,12 @@ public interface Cutscene
 	void setInitCallback(Consumer<Cutscene> initCallback);
 
 	/**
+	 * @param chunkGenCallback A function which will be called whenever a fake world chunk is generated for the cutscene
+	 */
+	@Environment(EnvType.CLIENT)
+	void setChunkGenCallback(Consumer<CutsceneChunk> chunkGenCallback);
+
+	/**
 	 * @param tickCallback A function to be called once per tick while the cutscene is playing
 	 */
 	@Environment(EnvType.CLIENT)
@@ -93,6 +100,12 @@ public interface Cutscene
 	 */
 	@Environment(EnvType.CLIENT)
 	CutsceneWorld getWorld();
+
+	/**
+	 * @return The function which should be run whenever a cutscene chunk is generated
+	 */
+	@Environment(EnvType.CLIENT)
+	Consumer<CutsceneChunk> getChunkGenCallback();
 
 	/**
 	 * @return The amount of ticks since the cutscene started

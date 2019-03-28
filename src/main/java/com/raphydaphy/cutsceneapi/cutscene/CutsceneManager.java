@@ -121,6 +121,12 @@ public class CutsceneManager
 	}
 
 	@Environment(EnvType.CLIENT)
+	public static Cutscene getCurrentCutscene()
+	{
+		return currentCutscene;
+	}
+
+	@Environment(EnvType.CLIENT)
 	public static void finishClient()
 	{
 		if (currentCutscene != null)

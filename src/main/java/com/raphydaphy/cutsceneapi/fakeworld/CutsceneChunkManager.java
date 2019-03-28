@@ -21,6 +21,7 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.BooleanSupplier;
 
+@Environment(EnvType.CLIENT)
 public class CutsceneChunkManager extends ClientChunkManager
 {
 	private final MinecraftClient cutsceneClient = MinecraftClient.getInstance();

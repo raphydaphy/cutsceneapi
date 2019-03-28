@@ -1,6 +1,7 @@
 package com.raphydaphy.cutsceneapi.cutscene;
 
 import com.mojang.blaze3d.platform.GLX;
+import com.raphydaphy.cutsceneapi.fakeworld.CutsceneChunk;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
 import com.raphydaphy.cutsceneapi.mixin.client.ClientPlayNetworkHandlerHooks;
 import com.raphydaphy.cutsceneapi.mixin.client.GameRendererHooks;
@@ -31,6 +32,9 @@ public class DefaultCutscene implements Cutscene
 
 	@Environment(EnvType.CLIENT)
 	private Consumer<Cutscene> initCallback;
+
+	@Environment(EnvType.CLIENT)
+	private Consumer<CutsceneChunk> chunkGenCallback;
 
 	@Environment(EnvType.CLIENT)
 	private Consumer<Cutscene> tickCallback;
@@ -80,27 +84,14 @@ public class DefaultCutscene implements Cutscene
 	@Environment(EnvType.CLIENT)
 	private void start()
 	{
-		if (this.initCallback != null) this.initCallback.accept(this);
-
 		MinecraftClient client = MinecraftClient.getInstance();
 		this.startPerspective = client.options.perspective;
 		this.startPitch = client.player.pitch;
 		this.startYaw = client.player.yaw;
+		if (!worldType.isRealWorld()) this.cutsceneWorld = new CutsceneWorld(client, client.world, this.worldType == CutsceneWorldType.CLONE);
+		if (this.initCallback != null) this.initCallback.accept(this);
 		if (introTransition != null) introTransition.init();
 		if (outroTransition != null) outroTransition.init();
-		if (!this.worldType.isRealWorld())
-		{
-			this.cutsceneWorld = new CutsceneWorld(client, client.world, this.worldType == CutsceneWorldType.CLONE);
-			client.player.setWorld(cutsceneWorld);
-			client.world = cutsceneWorld;
-			((MinecraftClientHooks) client).setCutsceneWorld(cutsceneWorld);
-			ClientPlayNetworkHandler handler = client.getNetworkHandler();
-			if (handler != null)
-			{
-				((ClientPlayNetworkHandlerHooks) handler).setCutsceneWorld(cutsceneWorld);
-			}
-			this.cutsceneWorld.addPlayer(client.player);
-		}
 		this.camera = new CutsceneCameraEntity(client.world).withPos(this.path.getPoint(0));
 		this.started = true;
 	}
@@ -123,6 +114,18 @@ public class DefaultCutscene implements Cutscene
 				camera.update();
 				camera.moveTo(path.getPoint(ticks / (float) length));
 
+				if (!this.worldType.isRealWorld() && !(client.world instanceof CutsceneWorld))
+				{
+					client.player.setWorld(cutsceneWorld);
+					client.world = cutsceneWorld;
+					((MinecraftClientHooks) client).setCutsceneWorld(cutsceneWorld);
+					ClientPlayNetworkHandler handler = client.getNetworkHandler();
+					if (handler != null)
+					{
+						((ClientPlayNetworkHandlerHooks) handler).setCutsceneWorld(cutsceneWorld);
+					}
+					this.cutsceneWorld.addPlayer(client.player);
+				}
 				// Fix perspective
 				if (client.options.perspective != 0)
 				{
@@ -284,6 +287,12 @@ public class DefaultCutscene implements Cutscene
 	}
 
 	@Override
+	public void setChunkGenCallback(Consumer<CutsceneChunk> chunkGenCallback)
+	{
+		this.chunkGenCallback = chunkGenCallback;
+	}
+
+	@Override
 	public void setTickCallback(Consumer<Cutscene> tickCallback)
 	{
 		this.tickCallback = tickCallback;
@@ -316,6 +325,7 @@ public class DefaultCutscene implements Cutscene
 		cutscene.outroTransition = this.outroTransition;
 		cutscene.shader = this.shader;
 		cutscene.initCallback = this.initCallback;
+		cutscene.chunkGenCallback = this.chunkGenCallback;
 		cutscene.tickCallback = this.tickCallback;
 		cutscene.renderCallback = this.renderCallback;
 		cutscene.finishCallback = this.finishCallback;
@@ -329,6 +339,12 @@ public class DefaultCutscene implements Cutscene
 	public CutsceneWorld getWorld()
 	{
 		return cutsceneWorld;
+	}
+
+	@Override
+	public Consumer<CutsceneChunk> getChunkGenCallback()
+	{
+		return chunkGenCallback;
 	}
 
 	@Override

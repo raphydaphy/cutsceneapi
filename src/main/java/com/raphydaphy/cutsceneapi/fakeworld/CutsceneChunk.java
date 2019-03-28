@@ -1,7 +1,10 @@
 package com.raphydaphy.cutsceneapi.fakeworld;
 
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
+import com.raphydaphy.cutsceneapi.cutscene.Cutscene;
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.world.ClientChunkManager;
@@ -15,10 +18,12 @@ import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.chunk.light.LightingProvider;
 
 import java.util.Arrays;
+import java.util.function.Consumer;
 
+@Environment(EnvType.CLIENT)
 public class CutsceneChunk extends WorldChunk
 {
-	private BlockState[] blockStates;
+	public BlockState[] blockStates;
 
 	public CutsceneChunk(CutsceneWorld world, ChunkPos pos, Biome[] biomes)
 	{
@@ -47,6 +52,16 @@ public class CutsceneChunk extends WorldChunk
 						}
 					}
 				}
+			}
+		}
+
+		Cutscene currentCutscene = CutsceneManager.getCurrentCutscene();
+		if (currentCutscene != null)
+		{
+			Consumer<CutsceneChunk> chunkGenCallback = currentCutscene.getChunkGenCallback();
+			if (chunkGenCallback != null)
+			{
+				chunkGenCallback.accept(this);
 			}
 		}
 	}
