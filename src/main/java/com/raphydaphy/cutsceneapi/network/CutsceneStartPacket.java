@@ -1,6 +1,9 @@
 package com.raphydaphy.cutsceneapi.network;
 
+import com.raphydaphy.cutsceneapi.api.CutsceneAPI;
+import com.raphydaphy.cutsceneapi.api.CutsceneManager;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -10,17 +13,15 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 public class CutsceneStartPacket implements IMessage
 {
 	private ResourceLocation id;
-	private int length;
 
 	public CutsceneStartPacket()
 	{
 
 	}
 
-	public CutsceneStartPacket(ResourceLocation id, int length)
+	public CutsceneStartPacket(ResourceLocation id)
 	{
 		this.id = id;
-		this.length = length;
 	}
 
 	@Override
@@ -28,7 +29,6 @@ public class CutsceneStartPacket implements IMessage
 	{
 		PacketBuffer pbuf = new PacketBuffer(buf);
 		id = new ResourceLocation(pbuf.readString(pbuf.readInt()));
-		length = pbuf.readInt();
 	}
 
 	@Override
@@ -38,7 +38,6 @@ public class CutsceneStartPacket implements IMessage
 		String id = this.id.toString();
 		pbuf.writeInt(id.length());
 		pbuf.writeString(id);
-		pbuf.writeInt(length);
 	}
 
 	public static class Handler implements IMessageHandler<CutsceneStartPacket, IMessage>
@@ -46,6 +45,9 @@ public class CutsceneStartPacket implements IMessage
 		@Override
 		public IMessage onMessage(CutsceneStartPacket message, MessageContext ctx)
 		{
+			Minecraft minecraft = Minecraft.getMinecraft();
+			CutsceneManager manager = CutsceneAPI.getCutsceneManager();
+			manager.start(minecraft.player, manager.get(message.id));
 			return null;
 		}
 	}

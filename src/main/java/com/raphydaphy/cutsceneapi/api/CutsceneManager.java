@@ -1,9 +1,9 @@
 package com.raphydaphy.cutsceneapi.api;
 
 import jline.internal.Nullable;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.World;
 
 public interface CutsceneManager
 {
@@ -23,14 +23,14 @@ public interface CutsceneManager
 	Cutscene get(ResourceLocation id);
 
 	/**
-	 * Starts a cutscene on the server
+	 * Start playing a cutscene. Should be called on the server.
+	 * #param player The player who should watch the cutscene
 	 * @param cutscene The cutscene which should be started
 	 */
-	void start(Cutscene cutscene);
+	void start(EntityPlayer player, Cutscene cutscene);
 
 	/**
-	 * Stops a cutscene on the client
+	 * Stops a cutscene. Should be called on the client.
 	 */
-	@SideOnly(Side.CLIENT)
-	void stop();
+	void stop(EntityPlayer player);
 }

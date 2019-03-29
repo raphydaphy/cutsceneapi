@@ -1,5 +1,7 @@
 package com.raphydaphy.cutsceneapi.api;
 
+import net.minecraft.util.ResourceLocation;
+
 import java.util.function.Supplier;
 
 public class CutsceneAPI
