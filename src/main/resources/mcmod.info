@@ -1,0 +1,16 @@
+[
+{
+  "modid": "cutsceneapi",
+  "name": "Cutscene API",
+  "description": "Tools for mod developers to add cutscenes to their mods.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["raphydaphy"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
