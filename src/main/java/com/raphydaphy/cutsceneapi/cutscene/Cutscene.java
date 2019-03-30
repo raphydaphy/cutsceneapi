@@ -92,6 +92,7 @@ public interface Cutscene
 	/**
 	 * @param nextCutscene The cutscene which should play after this one
 	 */
+	@Environment(EnvType.CLIENT)
 	void setNextCutscene(Cutscene nextCutscene);
 
 	/**

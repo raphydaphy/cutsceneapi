@@ -30,7 +30,7 @@ public class CutsceneManager
 
 	public static boolean isActive(PlayerEntity player)
 	{
-		return player != null && PlayerData.get(player).getBoolean(CutsceneAPI.WATCHING_CUTSCENE_KEY);
+		return player != null && PlayerData.get(player, CutsceneAPI.DOMAIN).getBoolean(CutsceneAPI.WATCHING_CUTSCENE_KEY);
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -143,7 +143,7 @@ public class CutsceneManager
 		if (isActive(client.player))
 		{
 			if (currentCutscene == null)
-				currentCutscene = CutsceneRegistry.get(Identifier.create(PlayerData.get(client.player).getString(CutsceneAPI.CUTSCENE_ID_KEY)));
+				currentCutscene = CutsceneRegistry.get(Identifier.create(PlayerData.get(client.player, CutsceneAPI.DOMAIN).getString(CutsceneAPI.CUTSCENE_ID_KEY)));
 			if (currentCutscene != null) currentCutscene.tick();
 		}
 	}
@@ -151,15 +151,15 @@ public class CutsceneManager
 	public static void startServer(ServerPlayerEntity player, Identifier id)
 	{
 		player.stopRiding();
-		PlayerData.get(player).putBoolean(CutsceneAPI.WATCHING_CUTSCENE_KEY, true);
-		PlayerData.get(player).putString(CutsceneAPI.CUTSCENE_ID_KEY, id.toString());
+		PlayerData.get(player, CutsceneAPI.DOMAIN).putBoolean(CutsceneAPI.WATCHING_CUTSCENE_KEY, true);
+		PlayerData.get(player, CutsceneAPI.DOMAIN).putString(CutsceneAPI.CUTSCENE_ID_KEY, id.toString());
 		PlayerData.markDirty(player);
 		PacketHandler.sendToClient(new CutsceneStartPacket(id), player);
 	}
 
 	public static void finishServer(PlayerEntity player)
 	{
-		PlayerData.get(player).putBoolean(CutsceneAPI.WATCHING_CUTSCENE_KEY, false);
+		PlayerData.get(player, CutsceneAPI.DOMAIN).putBoolean(CutsceneAPI.WATCHING_CUTSCENE_KEY, false);
 		PlayerData.markDirty(player);
 	}
 }
