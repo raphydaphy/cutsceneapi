@@ -20,13 +20,21 @@ import java.util.Random;
 
 public class CutsceneAPIClient implements ClientModInitializer
 {
+	public CutsceneAPIClient()
+	{
+		CutsceneAPI.REALWORLD_CUTSCENE = new DefaultClientCutscene(CutsceneAPI.REALWORLD_CUTSCENE.getLength());
+		CutsceneAPI.FAKEWORLD_CUTSCENE_1 = new DefaultClientCutscene(CutsceneAPI.FAKEWORLD_CUTSCENE_1.getLength());
+		CutsceneAPI.FAKEWORLD_CUTSCENE_2 = new DefaultClientCutscene(CutsceneAPI.FAKEWORLD_CUTSCENE_2.getLength());
+		CutsceneAPI.VOIDWORLD_CUTSCENE = new DefaultClientCutscene(CutsceneAPI.VOIDWORLD_CUTSCENE.getLength());
+	}
+
 	@Override
 	public void onInitializeClient()
 	{
 		ClientSidePacketRegistry.INSTANCE.register(CutsceneStartPacket.ID, new CutsceneStartPacket.Handler());
 		ClientSidePacketRegistry.INSTANCE.register(WorldTestPacket.ID, new WorldTestPacket.Handler());
 
-		ClientCutscene realworld = new DefaultClientCutscene(CutsceneAPI.REALWORLD_CUTSCENE.length);
+		ClientCutscene realworld = (ClientCutscene)CutsceneAPI.REALWORLD_CUTSCENE;
 		realworld.setIntroTransition(new Transition.DipTo(40, 5, 0, 0, 0));
 		realworld.setOutroTransition(new Transition.DipTo(40, 5, 0, 0, 0));
 		realworld.setInitCallback((cutscene) ->
@@ -40,9 +48,8 @@ public class CutsceneAPIClient implements ClientModInitializer
 					.withPoint(playerX - 40, playerY + 35, playerZ).withPoint(playerX + 70, playerY + 10, playerZ));
 			client.player.playSound(SoundEvents.ENTITY_WITHER_SPAWN, 1, 1);
 		});
-		CutsceneRegistry.replace(CutsceneAPI.REALWORLD_CUTSCENE, realworld);
 
-		ClientCutscene fakeworld_1 = new DefaultClientCutscene(CutsceneAPI.FAKEWORLD_CUTSCENE_1.length);
+		ClientCutscene fakeworld_1 = (ClientCutscene)CutsceneAPI.FAKEWORLD_CUTSCENE_1;
 		fakeworld_1.setIntroTransition(new Transition.DipTo(40, 50, 0, 0, 0));
 		fakeworld_1.setOutroTransition(new Transition.DipTo(40, 10, 0, 0, 0));
 		fakeworld_1.setWorldType(CutsceneWorldType.CLONE);
@@ -82,9 +89,8 @@ public class CutsceneAPIClient implements ClientModInitializer
 				}
 			}
 		});
-		CutsceneRegistry.replace(CutsceneAPI.FAKEWORLD_CUTSCENE_1, fakeworld_1);
 
-		ClientCutscene voidworld = new DefaultClientCutscene(CutsceneAPI.VOIDWORLD_CUTSCENE.length);
+		ClientCutscene voidworld = (ClientCutscene)CutsceneAPI.VOIDWORLD_CUTSCENE;
 		voidworld.setIntroTransition(new Transition.DipTo(40, 10, 0, 0, 0));
 		voidworld.setOutroTransition(new Transition.DipTo(40, 10, 0, 0, 0));
 		voidworld.setWorldType(CutsceneWorldType.EMPTY);
@@ -117,6 +123,5 @@ public class CutsceneAPIClient implements ClientModInitializer
 				}
 			}
 		});
-		CutsceneRegistry.replace(CutsceneAPI.VOIDWORLD_CUTSCENE, voidworld);
 	}
 }

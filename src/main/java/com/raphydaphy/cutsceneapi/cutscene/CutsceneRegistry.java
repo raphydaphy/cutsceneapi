@@ -13,22 +13,15 @@ public class CutsceneRegistry
 {
 	private static Map<Identifier, Cutscene> REGISTRY = new HashMap<>();
 
-	public static CutsceneEntry register(Identifier id, Cutscene cutscene)
+	public static void register(Identifier id, Cutscene cutscene)
 	{
 		if (!REGISTRY.containsKey(id))
 		{
 			cutscene.setID(id);
 			REGISTRY.put(id, cutscene);
-			return new CutsceneEntry(id, cutscene.getLength());
+			return;
 		}
 		CutsceneAPI.getLogger().error("Tried to replace existing cutscene with ID " + id + "! Use CutsceneRegistry#replace if you wish to replace a cutscene.");
-		return null;
-	}
-
-	public static void replace(CutsceneEntry entry, Cutscene cutscene)
-	{
-		cutscene.setID(entry.id);
-		REGISTRY.put(entry.id, cutscene);
 	}
 
 	public static Cutscene get(Identifier id)

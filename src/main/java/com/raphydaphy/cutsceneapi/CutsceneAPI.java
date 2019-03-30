@@ -1,7 +1,7 @@
 package com.raphydaphy.cutsceneapi;
 
 import com.raphydaphy.crochet.network.PacketHandler;
-import com.raphydaphy.cutsceneapi.api.CutsceneEntry;
+import com.raphydaphy.cutsceneapi.api.Cutscene;
 import com.raphydaphy.cutsceneapi.command.CutsceneArgumentType;
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneCameraEntity;
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
@@ -34,18 +34,18 @@ public class CutsceneAPI implements ModInitializer
 
 	public static EntityType<CutsceneCameraEntity> CUTSCENE_CAMERA_ENTITY;
 
-	public static CutsceneEntry REALWORLD_CUTSCENE;
-	public static CutsceneEntry FAKEWORLD_CUTSCENE_1;
-	public static CutsceneEntry FAKEWORLD_CUTSCENE_2;
-	public static CutsceneEntry VOIDWORLD_CUTSCENE;
+	public static Cutscene REALWORLD_CUTSCENE = new DefaultCutscene(250);
+	public static Cutscene FAKEWORLD_CUTSCENE_1 = new DefaultCutscene(400);
+	public static Cutscene FAKEWORLD_CUTSCENE_2 = new DefaultCutscene(200);
+	public static Cutscene VOIDWORLD_CUTSCENE = new DefaultCutscene(150);
 
 	@Override
 	public void onInitialize()
 	{
-		REALWORLD_CUTSCENE = CutsceneRegistry.register(new Identifier(DOMAIN, "real_world"), new DefaultCutscene(250));
-		FAKEWORLD_CUTSCENE_1 = CutsceneRegistry.register(new Identifier(DOMAIN, "fake_world_1"), new DefaultCutscene(400));
-		FAKEWORLD_CUTSCENE_2 = CutsceneRegistry.register(new Identifier(DOMAIN, "fake_world_2"), new DefaultCutscene(200));
-		VOIDWORLD_CUTSCENE = CutsceneRegistry.register(new Identifier(DOMAIN, "void_world"), new DefaultCutscene(150));
+		CutsceneRegistry.register(new Identifier(DOMAIN, "real_world"), REALWORLD_CUTSCENE);
+		CutsceneRegistry.register(new Identifier(DOMAIN, "fake_world_1"), FAKEWORLD_CUTSCENE_1);
+		CutsceneRegistry.register(new Identifier(DOMAIN, "fake_world_2"), FAKEWORLD_CUTSCENE_2);
+		CutsceneRegistry.register(new Identifier(DOMAIN, "void_world"), VOIDWORLD_CUTSCENE);
 
 		CUTSCENE_CAMERA_ENTITY = Registry.register(Registry.ENTITY_TYPE, new Identifier(DOMAIN, "cutscene_camera"), FabricEntityTypeBuilder.create(EntityCategory.MISC, CutsceneCameraEntity::new).size(new EntitySize(1, 1, true)).build());
 		ServerSidePacketRegistry.INSTANCE.register(CutsceneFinishPacket.ID, new CutsceneFinishPacket.Handler());
