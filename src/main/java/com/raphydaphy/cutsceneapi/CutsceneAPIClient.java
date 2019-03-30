@@ -1,5 +1,6 @@
 package com.raphydaphy.cutsceneapi;
 
+import com.raphydaphy.cutsceneapi.api.ClientCutscene;
 import com.raphydaphy.cutsceneapi.cutscene.*;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
 import com.raphydaphy.cutsceneapi.network.CutsceneStartPacket;
@@ -25,7 +26,7 @@ public class CutsceneAPIClient implements ClientModInitializer
 		ClientSidePacketRegistry.INSTANCE.register(CutsceneStartPacket.ID, new CutsceneStartPacket.Handler());
 		ClientSidePacketRegistry.INSTANCE.register(WorldTestPacket.ID, new WorldTestPacket.Handler());
 
-		ClientCutscene realworld = new DefaultClientCutscene(CutsceneAPI.REALWORLD_CUTSCENE.getLength());
+		ClientCutscene realworld = new DefaultClientCutscene(CutsceneAPI.REALWORLD_CUTSCENE.length);
 		realworld.setIntroTransition(new Transition.DipTo(40, 5, 0, 0, 0));
 		realworld.setOutroTransition(new Transition.DipTo(40, 5, 0, 0, 0));
 		realworld.setInitCallback((cutscene) ->
@@ -39,9 +40,9 @@ public class CutsceneAPIClient implements ClientModInitializer
 					.withPoint(playerX - 40, playerY + 35, playerZ).withPoint(playerX + 70, playerY + 10, playerZ));
 			client.player.playSound(SoundEvents.ENTITY_WITHER_SPAWN, 1, 1);
 		});
-		CutsceneRegistry.register(CutsceneAPI.REALWORLD_CUTSCENE.getID(), realworld);
+		CutsceneRegistry.replace(CutsceneAPI.REALWORLD_CUTSCENE, realworld);
 
-		ClientCutscene fakeworld_1 = new DefaultClientCutscene(CutsceneAPI.FAKEWORLD_CUTSCENE_1.getLength());
+		ClientCutscene fakeworld_1 = new DefaultClientCutscene(CutsceneAPI.FAKEWORLD_CUTSCENE_1.length);
 		fakeworld_1.setIntroTransition(new Transition.DipTo(40, 50, 0, 0, 0));
 		fakeworld_1.setOutroTransition(new Transition.DipTo(40, 10, 0, 0, 0));
 		fakeworld_1.setWorldType(CutsceneWorldType.CLONE);
@@ -81,9 +82,9 @@ public class CutsceneAPIClient implements ClientModInitializer
 				}
 			}
 		});
-		CutsceneRegistry.register(CutsceneAPI.FAKEWORLD_CUTSCENE_1.getID(), fakeworld_1);
+		CutsceneRegistry.replace(CutsceneAPI.FAKEWORLD_CUTSCENE_1, fakeworld_1);
 
-		ClientCutscene voidworld = new DefaultClientCutscene(CutsceneAPI.VOIDWORLD_CUTSCENE.getLength());
+		ClientCutscene voidworld = new DefaultClientCutscene(CutsceneAPI.VOIDWORLD_CUTSCENE.length);
 		voidworld.setIntroTransition(new Transition.DipTo(40, 10, 0, 0, 0));
 		voidworld.setOutroTransition(new Transition.DipTo(40, 10, 0, 0, 0));
 		voidworld.setWorldType(CutsceneWorldType.EMPTY);
@@ -116,6 +117,6 @@ public class CutsceneAPIClient implements ClientModInitializer
 				}
 			}
 		});
-		CutsceneRegistry.register(CutsceneAPI.VOIDWORLD_CUTSCENE.getID(), voidworld);
+		CutsceneRegistry.replace(CutsceneAPI.VOIDWORLD_CUTSCENE, voidworld);
 	}
 }

@@ -3,6 +3,8 @@ package com.raphydaphy.cutsceneapi.cutscene;
 import com.raphydaphy.crochet.data.PlayerData;
 import com.raphydaphy.crochet.network.PacketHandler;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
+import com.raphydaphy.cutsceneapi.api.ClientCutscene;
+import com.raphydaphy.cutsceneapi.api.Cutscene;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
 import com.raphydaphy.cutsceneapi.mixin.client.ClientPlayNetworkHandlerHooks;
 import com.raphydaphy.cutsceneapi.mixin.client.MinecraftClientHooks;

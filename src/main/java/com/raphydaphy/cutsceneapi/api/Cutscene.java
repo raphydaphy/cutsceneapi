@@ -1,4 +1,4 @@
-package com.raphydaphy.cutsceneapi.cutscene;
+package com.raphydaphy.cutsceneapi.api;
 
 import net.minecraft.util.Identifier;
 

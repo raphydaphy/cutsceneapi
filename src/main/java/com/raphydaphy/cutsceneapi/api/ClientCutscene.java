@@ -1,5 +1,8 @@
-package com.raphydaphy.cutsceneapi.cutscene;
+package com.raphydaphy.cutsceneapi.api;
 
+import com.raphydaphy.cutsceneapi.cutscene.CutsceneWorldType;
+import com.raphydaphy.cutsceneapi.cutscene.Path;
+import com.raphydaphy.cutsceneapi.cutscene.Transition;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneChunk;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
 import net.fabricmc.api.EnvType;

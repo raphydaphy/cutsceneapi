@@ -1,5 +1,6 @@
 package com.raphydaphy.cutsceneapi.cutscene;
 
+import com.raphydaphy.cutsceneapi.api.Cutscene;
 import net.minecraft.util.Identifier;
 
 import java.util.function.Consumer;
