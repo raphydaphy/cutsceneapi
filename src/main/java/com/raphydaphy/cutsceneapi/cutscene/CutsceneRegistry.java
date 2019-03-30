@@ -2,7 +2,6 @@ package com.raphydaphy.cutsceneapi.cutscene;
 
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.api.Cutscene;
-import com.raphydaphy.cutsceneapi.api.CutsceneEntry;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;

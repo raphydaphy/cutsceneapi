@@ -38,6 +38,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 	private float startPitch;
 	private float startYaw;
 	private boolean usingShader = false;
+	private boolean setCamera = false;
 
 	public DefaultClientCutscene(int length)
 	{
@@ -57,7 +58,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 				ClientWorld world = client.world;
 				if (world instanceof CutsceneWorld)
 				{
-					this.cutsceneWorld = (CutsceneWorld)world;
+					this.cutsceneWorld = (CutsceneWorld) world;
 				}
 			} else
 			{
@@ -69,12 +70,13 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 		if (outroTransition != null) outroTransition.init();
 		this.camera = new CutsceneCameraEntity(client.world).withPos(this.path.getPoint(0));
 		this.started = true;
+		this.setCamera = false;
 	}
 
 	@Override
 	public void tick()
 	{
-		if (ticks < length)
+		if (!ended)
 		{
 			MinecraftClient client = MinecraftClient.getInstance();
 
@@ -106,22 +108,16 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 				{
 					client.options.perspective = 0;
 					client.worldRenderer.method_3292();
+					enableShader();
 				}
 
 				// Set Camera
-				if (client.cameraEntity != camera)
+				if (!setCamera)
 				{
 					client.cameraEntity = camera;
 
-					if (this.shader != null && !usingShader)
-					{
-						client.worldRenderer.method_3292();
-						if (GLX.usePostProcess)
-						{
-							((GameRendererHooks) client.gameRenderer).useShader(this.shader);
-						}
-						usingShader = true;
-					}
+					enableShader();
+					setCamera = true;
 				}
 
 				// Set Camera Look
@@ -150,11 +146,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 				}
 
 				// Restore player camera
-				if (client.getCameraEntity() == camera)
-				{
-					client.setCameraEntity(client.player);
-					client.worldRenderer.method_3292();
-				}
+				disableCamera();
 
 				// Restore perspective
 				if (client.options.perspective != startPerspective)
@@ -175,28 +167,61 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 
 			if (ticks == length)
 			{
+				if (nextCutscene != null)
+				{
+				}
 				end();
 			}
+		}
+	}
+
+	private void enableShader()
+	{
+		if (this.shader != null && !usingShader)
+		{
+			MinecraftClient client = MinecraftClient.getInstance();
+			client.worldRenderer.method_3292();
+			if (GLX.usePostProcess)
+			{
+				((GameRendererHooks) client.gameRenderer).useShader(this.shader);
+			}
+			usingShader = true;
+		}
+	}
+
+	private void disableCamera()
+	{
+		if (setCamera)
+		{
+			MinecraftClient client = MinecraftClient.getInstance();
+			client.setCameraEntity(client.player);
+			client.worldRenderer.method_3292();
+			setCamera = false;
 		}
 	}
 
 	@Override
 	public void render()
 	{
-		MinecraftClient client = MinecraftClient.getInstance();
+		if (started && !ended)
+		{
+			MinecraftClient client = MinecraftClient.getInstance();
 
-		// Render Transitions
-		if (introTransition != null && ticks < introTransition.length) introTransition.render(client, client.getTickDelta());
-		else if (outroTransition != null && ticks > length - outroTransition.length) outroTransition.render(client, client.getTickDelta());
+			// Render Transitions
+			if (introTransition != null && ticks < introTransition.length)
+				introTransition.render(client, client.getTickDelta());
+			else if (outroTransition != null && ticks > length - outroTransition.length)
+				outroTransition.render(client, client.getTickDelta());
 
-		// Callback
-		if (renderCallback != null) renderCallback.accept(this);
+			// Callback
+			if (renderCallback != null) renderCallback.accept(this);
+		}
 	}
 
 	@Override
 	public void updateLook()
 	{
-		if (started)
+		if (started && !ended)
 		{
 			MinecraftClient client = MinecraftClient.getInstance();
 			client.player.pitch = startPitch;
@@ -208,6 +233,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
 
+		disableCamera();
 		// Restore real world
 		if (!worldType.isRealWorld()) CutsceneManager.stopFakeWorld();
 
@@ -228,12 +254,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 		if (finishCallback != null) finishCallback.accept(this);
 
 		CutsceneManager.finishClient();
-	}
-
-	@Override
-	public void setCameraPath(Path path)
-	{
-		this.path = path;
+		ended = true;
 	}
 
 	@Override
@@ -261,12 +282,6 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 	}
 
 	@Override
-	public void setChunkGenCallback(Consumer<CutsceneChunk> chunkGenCallback)
-	{
-		this.chunkGenCallback = chunkGenCallback;
-	}
-
-	@Override
 	public void setTickCallback(Consumer<Cutscene> tickCallback)
 	{
 		this.tickCallback = tickCallback;
@@ -288,12 +303,6 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 	public void setWorldType(CutsceneWorldType worldType)
 	{
 		this.worldType = worldType;
-	}
-
-	@Override
-	public void setNextCutscene(ClientCutscene nextCutscene)
-	{
-		this.nextCutscene = nextCutscene;
 	}
 
 	@Override
@@ -329,9 +338,21 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 	}
 
 	@Override
+	public void setNextCutscene(ClientCutscene nextCutscene)
+	{
+		this.nextCutscene = nextCutscene;
+	}
+
+	@Override
 	public Consumer<CutsceneChunk> getChunkGenCallback()
 	{
 		return chunkGenCallback;
+	}
+
+	@Override
+	public void setChunkGenCallback(Consumer<CutsceneChunk> chunkGenCallback)
+	{
+		this.chunkGenCallback = chunkGenCallback;
 	}
 
 	@Override
@@ -353,10 +374,19 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 	}
 
 	@Override
+	public void setCameraPath(Path path)
+	{
+		this.path = path;
+	}
+
+	@Override
 	public boolean shouldHideHud()
 	{
 		if (introTransition != null && ticks < introTransition.length && introTransition.isFirstHalf()) return false;
-		else if (outroTransition != null && ticks > length - outroTransition.length && !outroTransition.isFirstHalf()) return false;
+		else if (outroTransition != null && ticks > length - outroTransition.length && !outroTransition.isFirstHalf())
+			return false;
+		else if (ticks == 0 || ticks >= length) return false;
+		else if (ended) return false;
 		return true;
 	}
 }

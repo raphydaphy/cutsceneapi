@@ -24,6 +24,11 @@ public class CutsceneArgumentType implements ArgumentType<CutsceneArgument>
 		return new CutsceneArgumentType();
 	}
 
+	public static CutsceneArgument get(final CommandContext<?> context, final String name)
+	{
+		return context.getArgument(name, CutsceneArgument.class);
+	}
+
 	@Override
 	public CutsceneArgument parse(StringReader reader) throws CommandSyntaxException
 	{
@@ -31,11 +36,6 @@ public class CutsceneArgumentType implements ArgumentType<CutsceneArgument>
 		if (!CutsceneRegistry.getIDs().contains(id))
 			throw new CommandSyntaxException(CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument(), new TranslatableTextComponent("arguments.cutsceneapi.invalid"));
 		return new CutsceneArgument(id);
-	}
-
-	public static CutsceneArgument get(final CommandContext<?> context, final String name)
-	{
-		return context.getArgument(name, CutsceneArgument.class);
 	}
 
 	@Override

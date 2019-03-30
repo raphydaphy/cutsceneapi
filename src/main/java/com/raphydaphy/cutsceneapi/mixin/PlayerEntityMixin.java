@@ -30,7 +30,7 @@ public abstract class PlayerEntityMixin extends LivingEntity
 			this.onGround = false;
 			if (world.isClient)
 			{
-				arcaneMagicClientTick();
+				cutsceneAPIClientTick();
 			}
 		}
 	}
@@ -44,7 +44,7 @@ public abstract class PlayerEntityMixin extends LivingEntity
 		}
 	}
 
-	private void arcaneMagicClientTick()
+	private void cutsceneAPIClientTick()
 	{
 		CutsceneManager.updateClient();
 	}

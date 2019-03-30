@@ -26,11 +26,11 @@ import java.util.function.BooleanSupplier;
 @Environment(EnvType.CLIENT)
 public class CutsceneWorld extends ClientWorld
 {
-	private Map<ChunkPos, CutsceneChunk> chunkMap = new HashMap<>();
-	public boolean cloneExisting;
-	private CutsceneChunkManager cutsceneChunkManager;
 	public final ClientWorld realWorld;
+	public boolean cloneExisting;
 	public long cutsceneTime;
+	private Map<ChunkPos, CutsceneChunk> chunkMap = new HashMap<>();
+	private CutsceneChunkManager cutsceneChunkManager;
 
 	public CutsceneWorld(MinecraftClient client, ClientWorld realWorld, boolean cloneExisting)
 	{

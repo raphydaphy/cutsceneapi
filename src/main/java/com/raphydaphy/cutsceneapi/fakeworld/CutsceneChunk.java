@@ -58,7 +58,7 @@ public class CutsceneChunk extends WorldChunk
 		Cutscene currentCutscene = CutsceneManager.getCurrentCutscene();
 		if (currentCutscene instanceof ClientCutscene)
 		{
-			Consumer<CutsceneChunk> chunkGenCallback = ((ClientCutscene)currentCutscene).getChunkGenCallback();
+			Consumer<CutsceneChunk> chunkGenCallback = ((ClientCutscene) currentCutscene).getChunkGenCallback();
 			if (chunkGenCallback != null)
 			{
 				chunkGenCallback.accept(this);

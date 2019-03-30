@@ -40,7 +40,7 @@ public class CutsceneManager
 	{
 		if (isActive(MinecraftClient.getInstance().player) && currentCutscene instanceof ClientCutscene)
 		{
-			((ClientCutscene)currentCutscene).updateLook();
+			((ClientCutscene) currentCutscene).updateLook();
 		}
 	}
 
@@ -54,7 +54,7 @@ public class CutsceneManager
 	{
 		if (currentCutscene instanceof ClientCutscene)
 		{
-			((ClientCutscene)currentCutscene).render();
+			((ClientCutscene) currentCutscene).render();
 		}
 	}
 

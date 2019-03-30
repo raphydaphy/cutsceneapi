@@ -17,6 +17,11 @@ public interface Cutscene
 	Identifier getID();
 
 	/**
+	 * @param id The ID which the cutscene should be stored by
+	 */
+	void setID(Identifier id);
+
+	/**
 	 * Called once per tick
 	 */
 	void tick();
@@ -25,11 +30,6 @@ public interface Cutscene
 	 * @return A copy of the cutscene
 	 */
 	Cutscene copy();
-
-	/**
-	 * @param id The ID which the cutscene should be stored by
-	 */
-	void setID(Identifier id);
 
 	/**
 	 * @param initCallback A function to be called before the start of the cutscene

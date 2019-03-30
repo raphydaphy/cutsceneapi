@@ -1,12 +1,9 @@
 package com.raphydaphy.cutsceneapi.mixin.client;
 
-import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.packet.*;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.network.NetworkThreadUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,7 +23,7 @@ public class ClientPlayNetworkHandlerMixin
 	{
 		if (this.world instanceof CutsceneWorld)
 		{
-			ClientWorld realWorld = ((CutsceneWorld)this.world).realWorld;
+			ClientWorld realWorld = ((CutsceneWorld) this.world).realWorld;
 			if (realWorld != null)
 			{
 				realWorld.method_2937(packet.getPos(), packet.getState());
@@ -46,7 +43,7 @@ public class ClientPlayNetworkHandlerMixin
 		}
 	}
 
-	@Inject(at = @At("HEAD"), method="onChunkData", cancellable = true)
+	@Inject(at = @At("HEAD"), method = "onChunkData", cancellable = true)
 	private void onChunkData(ChunkDataS2CPacket packet, CallbackInfo info)
 	{
 		if (world instanceof CutsceneWorld)

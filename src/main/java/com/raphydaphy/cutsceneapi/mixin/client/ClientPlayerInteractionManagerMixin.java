@@ -40,26 +40,22 @@ public abstract class ClientPlayerInteractionManagerMixin
 
 	@Shadow
 	private float currentBreakingProgress;
+	@Shadow
+	private boolean breakingBlock;
+	@Shadow
+	private int field_3716;
+	@Shadow
+	private BlockPos currentBreakingPos;
+	@Shadow
+	private float field_3713;
+	@Shadow
+	private ItemStack field_3718;
 
 	@Shadow
 	protected abstract boolean isCurrentlyBreaking(BlockPos blockPos_1);
 
 	@Shadow
-	private boolean breakingBlock;
-
-	@Shadow
-	private int field_3716;
-
-	@Shadow
-	private BlockPos currentBreakingPos;
-
-	@Shadow
-	private float field_3713;
-
-	@Shadow
-	private ItemStack field_3718;
-
-	@Shadow public abstract boolean breakBlock(BlockPos blockPos_1);
+	public abstract boolean breakBlock(BlockPos blockPos_1);
 
 	@Inject(at = @At("HEAD"), method = "attackEntity", cancellable = true)
 	private void attackEntity(PlayerEntity player, Entity entity, CallbackInfo info)
@@ -116,7 +112,7 @@ public abstract class ClientPlayerInteractionManagerMixin
 				{
 					this.client.getTutorialManager().onBlockAttacked(this.client.world, blockPos_1, this.client.world.getBlockState(blockPos_1), 1.0F);
 					//this.networkHandler.sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, blockPos_1, direction_1));
-					ClientPlayerInteractionManager.method_2921(this.client, (ClientPlayerInteractionManager)(Object)this, blockPos_1, direction_1);
+					ClientPlayerInteractionManager.method_2921(this.client, (ClientPlayerInteractionManager) (Object) this, blockPos_1, direction_1);
 					this.field_3716 = 5;
 				} else if (!this.breakingBlock || !this.isCurrentlyBreaking(blockPos_1))
 				{

@@ -1,6 +1,5 @@
 package com.raphydaphy.cutsceneapi.fakeworld;
 
-import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -13,7 +12,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.*;
 import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -27,11 +25,11 @@ public class CutsceneChunkManager extends ClientChunkManager
 	private final MinecraftClient cutsceneClient = MinecraftClient.getInstance();
 	private final WorldChunk cutsceneEmptyChunk;
 	private final LightingProvider cutsceneLightingPRovider;
+	private final CutsceneWorld cutsceneWorld;
 	private volatile CutsceneChunkMap cutsceneChunkMap = new CutsceneChunkMap(3);
 	private int cutsceneLoadedChunkCount;
 	private volatile int cutscenePlayerChunkX;
 	private volatile int cutscenePlayerChunkZ;
-	private final CutsceneWorld cutsceneWorld;
 
 	CutsceneChunkManager(CutsceneWorld cutsceneWorld)
 	{

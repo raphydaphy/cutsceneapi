@@ -9,14 +9,14 @@ public class DefaultCutscene implements Cutscene
 {
 	// Settings
 	protected int length;
-	private Identifier id;
 	protected Consumer<Cutscene> initCallback;
 	protected Consumer<Cutscene> tickCallback;
 	protected Consumer<Cutscene> finishCallback;
-
 	// Data
 	protected int ticks = 0;
 	protected boolean started = false;
+	protected boolean ended = false;
+	private Identifier id;
 
 	public DefaultCutscene(int length)
 	{
@@ -75,12 +75,6 @@ public class DefaultCutscene implements Cutscene
 	}
 
 	@Override
-	public void setID(Identifier id)
-	{
-		this.id = id;
-	}
-
-	@Override
 	public int getTicks()
 	{
 		return ticks;
@@ -96,5 +90,11 @@ public class DefaultCutscene implements Cutscene
 	public Identifier getID()
 	{
 		return id;
+	}
+
+	@Override
+	public void setID(Identifier id)
+	{
+		this.id = id;
 	}
 }

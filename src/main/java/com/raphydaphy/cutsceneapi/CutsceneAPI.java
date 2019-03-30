@@ -26,18 +26,21 @@ import org.apache.logging.log4j.Logger;
 
 public class CutsceneAPI implements ModInitializer
 {
-	public static String DOMAIN = "cutsceneapi";
-	private static final Logger LOGGER = LogManager.getLogger();
-
 	public static final String WATCHING_CUTSCENE_KEY = "WatchingCutscene";
 	public static final String CUTSCENE_ID_KEY = "CutsceneID";
-
+	private static final Logger LOGGER = LogManager.getLogger();
+	public static String DOMAIN = "cutsceneapi";
 	public static EntityType<CutsceneCameraEntity> CUTSCENE_CAMERA_ENTITY;
 
 	public static Cutscene REALWORLD_CUTSCENE = new DefaultCutscene(250);
 	public static Cutscene FAKEWORLD_CUTSCENE_1 = new DefaultCutscene(400);
 	public static Cutscene FAKEWORLD_CUTSCENE_2 = new DefaultCutscene(200);
 	public static Cutscene VOIDWORLD_CUTSCENE = new DefaultCutscene(150);
+
+	public static Logger getLogger()
+	{
+		return LOGGER;
+	}
 
 	@Override
 	public void onInitialize()
@@ -74,10 +77,5 @@ public class CutsceneAPI implements ModInitializer
 			PacketHandler.sendToClient(new WorldTestPacket(false, false), EntityArgumentType.getServerPlayerArgument(command, "target"));
 			return 1;
 		}))))));
-	}
-
-	public static Logger getLogger()
-	{
-		return LOGGER;
 	}
 }

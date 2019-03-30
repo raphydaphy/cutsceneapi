@@ -27,11 +27,6 @@ public interface ClientCutscene extends Cutscene
 	void updateLook();
 
 	/**
-	 * @param path A new path for the camera to travel on
-	 */
-	void setCameraPath(Path path);
-
-	/**
 	 * @param shader The path to the shader which the cutscene should use
 	 */
 	void setShader(Identifier shader);
@@ -47,11 +42,6 @@ public interface ClientCutscene extends Cutscene
 	void setOutroTransition(Transition outroTransition);
 
 	/**
-	 * @param chunkGenCallback A function which will be called whenever a fake world chunk is generated for the cutscene
-	 */
-	void setChunkGenCallback(Consumer<CutsceneChunk> chunkGenCallback);
-
-	/**
 	 * @param renderCallback A function which will be called once per frame when rendering
 	 */
 	void setRenderCallback(Consumer<ClientCutscene> renderCallback);
@@ -60,11 +50,6 @@ public interface ClientCutscene extends Cutscene
 	 * @param worldType The type of world which should be used during the cutscene
 	 */
 	void setWorldType(CutsceneWorldType worldType);
-
-	/**
-	 * @param nextCutscene The cutscene which should play after this one
-	 */
-	void setNextCutscene(ClientCutscene nextCutscene);
 
 	/**
 	 * @return The fake world used by the cutscene, if any
@@ -77,14 +62,29 @@ public interface ClientCutscene extends Cutscene
 	ClientCutscene getNextCutscene();
 
 	/**
+	 * @param nextCutscene The cutscene which should play after this one
+	 */
+	void setNextCutscene(ClientCutscene nextCutscene);
+
+	/**
 	 * @return The function which should be run whenever a cutscene chunk is generated
 	 */
 	Consumer<CutsceneChunk> getChunkGenCallback();
 
 	/**
+	 * @param chunkGenCallback A function which will be called whenever a fake world chunk is generated for the cutscene
+	 */
+	void setChunkGenCallback(Consumer<CutsceneChunk> chunkGenCallback);
+
+	/**
 	 * @return The current path which the camera is traveling on
 	 */
 	Path getCameraPath();
+
+	/**
+	 * @param path A new path for the camera to travel on
+	 */
+	void setCameraPath(Path path);
 
 	/**
 	 * @return True if the ingame HUD should be hidden at the current point during the transition
