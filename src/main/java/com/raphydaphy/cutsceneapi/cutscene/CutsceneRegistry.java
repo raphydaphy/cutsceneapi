@@ -13,15 +13,9 @@ public class CutsceneRegistry
 
 	public static Identifier register(Identifier id, Cutscene cutscene)
 	{
-		if (REGISTRY.containsKey(id))
-		{
-			CutsceneAPI.getLogger().error("Tried to register a cutscene with ID " + id + ", but it already existed!");
-			return null;
-		} else
-		{
-			REGISTRY.put(id, cutscene);
-			return id;
-		}
+		cutscene.setID(id);
+		REGISTRY.put(id, cutscene);
+		return id;
 	}
 
 	public static Cutscene get(Identifier id)

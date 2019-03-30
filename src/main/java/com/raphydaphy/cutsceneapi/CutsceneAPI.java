@@ -30,10 +30,10 @@ public class CutsceneAPI implements ModInitializer
 
 	public static EntityType<CutsceneCameraEntity> CUTSCENE_CAMERA_ENTITY;
 
-	public static final Cutscene REALWORLD_CUTSCENE = new DefaultCutscene(250);
-	public static final Cutscene FAKEWORLD_CUTSCENE_1 = new DefaultCutscene(400);
-	public static final Cutscene FAKEWORLD_CUTSCENE_2 = new DefaultCutscene(200);
-	public static final Cutscene VOIDWORLD_CUTSCENE = new DefaultCutscene(200);
+	public static Cutscene REALWORLD_CUTSCENE = new DefaultCutscene(250);
+	public static Cutscene FAKEWORLD_CUTSCENE_1 = new DefaultCutscene(400);
+	public static Cutscene FAKEWORLD_CUTSCENE_2 = new DefaultCutscene(200);
+	public static Cutscene VOIDWORLD_CUTSCENE = new DefaultCutscene(200);
 
 	@Override
 	public void onInitialize()

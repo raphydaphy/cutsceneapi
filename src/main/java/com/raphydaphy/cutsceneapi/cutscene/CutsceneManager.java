@@ -25,7 +25,7 @@ public class CutsceneManager
 
 	public static boolean hideHud(PlayerEntity player)
 	{
-		return isActive(player) && currentCutscene != null && currentCutscene.shouldHideHud();
+		return isActive(player) && currentCutscene instanceof ClientCutscene && ((ClientCutscene) currentCutscene).shouldHideHud();
 	}
 
 	public static boolean isActive(PlayerEntity player)
@@ -36,9 +36,9 @@ public class CutsceneManager
 	@Environment(EnvType.CLIENT)
 	public static void updateLook()
 	{
-		if (isActive(MinecraftClient.getInstance().player) && currentCutscene != null)
+		if (isActive(MinecraftClient.getInstance().player) && currentCutscene instanceof ClientCutscene)
 		{
-			currentCutscene.updateLook();
+			((ClientCutscene)currentCutscene).updateLook();
 		}
 	}
 
@@ -50,9 +50,9 @@ public class CutsceneManager
 	@Environment(EnvType.CLIENT)
 	public static void renderHud()
 	{
-		if (currentCutscene != null)
+		if (currentCutscene instanceof ClientCutscene)
 		{
-			currentCutscene.render();
+			((ClientCutscene)currentCutscene).render();
 		}
 	}
 
@@ -62,13 +62,10 @@ public class CutsceneManager
 		currentCutscene = CutsceneRegistry.get(cutscene);
 	}
 
-	private static ClientWorld realWorld;
-
 	@Environment(EnvType.CLIENT)
 	public static void startFakeWorld(boolean copy)
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
-		realWorld = client.world;
 		CutsceneWorld cutsceneWorld = new CutsceneWorld(client, client.world, copy);
 		client.player.setWorld(cutsceneWorld);
 		client.world = cutsceneWorld;
