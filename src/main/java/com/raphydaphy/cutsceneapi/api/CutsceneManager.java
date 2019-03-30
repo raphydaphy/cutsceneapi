@@ -3,7 +3,6 @@ package com.raphydaphy.cutsceneapi.api;
 import jline.internal.Nullable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
 
 public interface CutsceneManager
 {
@@ -20,7 +19,7 @@ public interface CutsceneManager
 	 * @return The cutscene, if found, or null if an invalid ID is provided
 	 */
 	@Nullable
-	Cutscene get(ResourceLocation id);
+	Cutscene get(ResourceLocation id, boolean client);
 
 	/**
 	 * Start playing a cutscene. Should be called on the server.
@@ -33,4 +32,10 @@ public interface CutsceneManager
 	 * Stops a cutscene. Should be called on the client.
 	 */
 	void stop(EntityPlayer player);
+
+	/**
+	 * @return The cutscene that is currently playing
+	 */
+	@Nullable
+	Cutscene getActiveCutscene(EntityPlayer player);
 }

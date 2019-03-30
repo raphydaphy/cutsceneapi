@@ -47,7 +47,7 @@ public class CutsceneStartPacket implements IMessage
 		{
 			Minecraft minecraft = Minecraft.getMinecraft();
 			CutsceneManager manager = CutsceneAPI.getCutsceneManager();
-			manager.start(minecraft.player, manager.get(message.id));
+			manager.start(minecraft.player, manager.get(message.id, true));
 			return null;
 		}
 	}

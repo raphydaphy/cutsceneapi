@@ -3,11 +3,13 @@ package com.raphydaphy.cutsceneapi;
 import com.raphydaphy.cutsceneapi.api.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.BasicCutsceneManager;
 import com.raphydaphy.cutsceneapi.cutscene.DefaultCutscene;
+import com.raphydaphy.cutsceneapi.network.CutsceneCommand;
 import com.raphydaphy.cutsceneapi.path.SplinePath;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.apache.logging.log4j.LogManager;
@@ -27,8 +29,15 @@ public class CutsceneMod
 	}
 
 	@EventHandler
+	public void serverLoad(FMLServerStartingEvent event)
+	{
+		event.registerServerCommand(new CutsceneCommand());
+	}
+
+	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{
+
 	}
 
 	public static Logger getLogger()

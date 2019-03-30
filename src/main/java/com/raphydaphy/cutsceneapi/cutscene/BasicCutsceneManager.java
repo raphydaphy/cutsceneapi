@@ -14,22 +14,25 @@ import java.util.Map;
 
 public class BasicCutsceneManager implements CutsceneManager
 {
+	private static String WATCHING_CUTSCENE_KEY = "WatchingCutscene";
+	private static String CURRENT_CUTSCENE_KEY = "CurrentCutscene";
+
 	private Map<ResourceLocation, Cutscene> REGISTRY = new HashMap<>();
-	private String WATCHING_CUTSCENE_KEY = "WatchingCutscene";
 	private Cutscene currentCutscene;
 
 	@Override
 	public void register(ResourceLocation id, Cutscene cutscene)
 	{
 		cutscene.setID(id);
-		if (REGISTRY.containsKey(id)) CutsceneMod.getLogger().error("Tried to register a cutscene with ID " + id + ", but it already existed!");
+		if (REGISTRY.containsKey(id))
+			CutsceneMod.getLogger().error("Tried to register a cutscene with ID " + id + ", but it already existed!");
 		else REGISTRY.put(id, cutscene);
 	}
 
 	@Override
-	public Cutscene get(ResourceLocation id)
+	public Cutscene get(ResourceLocation id, boolean client)
 	{
-		return null;
+		return REGISTRY.containsKey(id) ? REGISTRY.get(id).copy(client) : null;
 	}
 
 	@Override
@@ -41,6 +44,7 @@ public class BasicCutsceneManager implements CutsceneManager
 		} else
 		{
 			player.getEntityData().setBoolean(WATCHING_CUTSCENE_KEY, true);
+			player.getEntityData().setString(CURRENT_CUTSCENE_KEY, cutscene.getID().toString());
 			CutsceneMod.NETWORK_WRAPPER.sendTo(new CutsceneStartPacket(cutscene.getID()), (EntityPlayerMP) player);
 		}
 	}
@@ -55,6 +59,19 @@ public class BasicCutsceneManager implements CutsceneManager
 		} else
 		{
 			player.getEntityData().setBoolean(WATCHING_CUTSCENE_KEY, false);
+			player.getEntityData().removeTag(CURRENT_CUTSCENE_KEY);
+		}
+	}
+
+	@Override
+	public Cutscene getActiveCutscene(EntityPlayer player)
+	{
+		if (player.world.isRemote)
+		{
+			return currentCutscene;
+		} else
+		{
+			return get(new ResourceLocation(player.getEntityData().getString(CURRENT_CUTSCENE_KEY)), false);
 		}
 	}
 }
