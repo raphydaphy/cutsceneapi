@@ -233,7 +233,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 	@Override
 	public void setCameraPath(Path path)
 	{
-		this.path = path.build();
+		this.path = path;
 	}
 
 	@Override

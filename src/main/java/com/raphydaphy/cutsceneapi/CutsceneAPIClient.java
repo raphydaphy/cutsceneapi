@@ -44,8 +44,10 @@ public class CutsceneAPIClient implements ClientModInitializer
 			float playerX = (float) client.player.x;
 			float playerY = (float) client.player.y;
 			float playerZ = (float) client.player.z;
-			clientCutscene.setCameraPath(new Path()
-					.withPoint(playerX - 40, playerY + 35, playerZ).withPoint(playerX + 70, playerY + 10, playerZ));
+			clientCutscene.setCameraPath(Path.builder()
+                    .with(playerX - 40, playerY + 35, playerZ)
+                    .with(playerX + 70, playerY + 10, playerZ)
+                    .build());
 			client.player.playSound(SoundEvents.ENTITY_WITHER_SPAWN, 1, 1);
 		});
 
@@ -60,8 +62,10 @@ public class CutsceneAPIClient implements ClientModInitializer
 			float playerX = (float) client.player.x;
 			float playerY = (float) client.player.y;
 			float playerZ = (float) client.player.z;
-			clientCutscene.setCameraPath(new Path()
-					.withPoint(playerX - 30, playerY + 20, playerZ - 10).withPoint(playerX + 30, playerY + 5, playerZ + 30));
+			clientCutscene.setCameraPath(Path.builder()
+					.with(playerX - 30, playerY + 20, playerZ - 10)
+                    .with(playerX + 30, playerY + 5, playerZ + 30)
+                    .build());
 			client.player.playSound(SoundEvents.ENTITY_ENDER_DRAGON_SHOOT, 1, 1);
 			clientCutscene.getWorld().cutsceneTime = 18000;
 
@@ -98,7 +102,10 @@ public class CutsceneAPIClient implements ClientModInitializer
 		{
 			BlockPos player = MinecraftClient.getInstance().player.getBlockPos();
 			ClientCutscene clientCutscene = (ClientCutscene)cutscene;
-			clientCutscene.setCameraPath(new Path().withPoint(player.getX() - 150, 70, player.getZ()).withPoint(player.getX() + 40, 50, player.getZ()));
+			clientCutscene.setCameraPath(Path.builder()
+                    .with(player.getX() - 150, 70, player.getZ())
+                    .with(player.getX() + 40, 50, player.getZ())
+                    .build());
 			CutsceneWorld world = clientCutscene.getWorld();
 			Random rand = new Random(world.getSeed());
 			for (int x = -10; x < 10; x++)
