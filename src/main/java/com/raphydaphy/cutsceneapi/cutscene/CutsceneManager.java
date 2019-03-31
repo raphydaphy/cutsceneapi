@@ -24,6 +24,7 @@ import net.minecraft.util.math.BlockPos;
 public class CutsceneManager
 {
 	private static Cutscene currentCutscene;
+	private static boolean stopping = false;
 
 	public static boolean hideHud(PlayerEntity player)
 	{
@@ -132,6 +133,7 @@ public class CutsceneManager
 		{
 			currentCutscene = null;
 		}
+		stopping = true;
 		PacketHandler.sendToServer(new CutsceneFinishPacket());
 	}
 
@@ -141,9 +143,15 @@ public class CutsceneManager
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (isActive(client.player))
 		{
-			if (currentCutscene == null)
+			if (currentCutscene == null && !stopping)
+			{
 				currentCutscene = CutsceneRegistry.get(Identifier.create(PlayerData.get(client.player, CutsceneAPI.DOMAIN).getString(CutsceneAPI.CUTSCENE_ID_KEY)));
-			if (currentCutscene != null) currentCutscene.tick();
+			}
+			if (currentCutscene != null)
+			{
+				stopping = false;
+				currentCutscene.tick();
+			}
 		}
 	}
 
