@@ -49,7 +49,7 @@ public abstract class Transition
 		public void render(MinecraftClient client, float tickDelta)
 		{
 			float transitionTime = CutsceneUtils.lerp(ticks - 1, ticks, tickDelta);
-			float percent = 1 - transitionTime / length;
+			float percent = transitionTime / length;
 			CutsceneUtils.drawRect(0, 0, client.window.getScaledWidth(), client.window.getScaledHeight(), percent, red, green, blue);
 		}
 
@@ -71,7 +71,7 @@ public abstract class Transition
 		public void render(MinecraftClient client, float tickDelta)
 		{
 			float transitionTime = CutsceneUtils.lerp(ticks - 1, ticks, tickDelta);
-			float percent = transitionTime / length;
+			float percent = 1 - transitionTime / length;
 			CutsceneUtils.drawRect(0, 0, client.window.getScaledWidth(), client.window.getScaledHeight(), percent, red, green, blue);
 		}
 

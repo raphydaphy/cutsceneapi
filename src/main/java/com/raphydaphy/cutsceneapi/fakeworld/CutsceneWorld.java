@@ -1,6 +1,7 @@
 package com.raphydaphy.cutsceneapi.fakeworld;
 
 import com.raphydaphy.cutsceneapi.mixin.client.ClientWorldHooks;
+import com.raphydaphy.cutsceneapi.mixin.client.WorldHooks;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -46,6 +47,14 @@ public class CutsceneWorld extends ClientWorld
 	{
 		super(netHandler, levelInfo, dimension, id, profiler, renderer);
 		cutsceneChunkManager = new CutsceneChunkManager(this);
+	}
+
+	public void setupFrom(ClientWorld other)
+	{
+		((ClientWorldHooks)this).setCutsceneNetHandler(((ClientWorldHooks)other).getCutsceneNetHandler());
+		((ClientWorldHooks)this).setWorldRenderer(MinecraftClient.getInstance().worldRenderer);
+		((WorldHooks)this).setCutsceneProfiler(other.getProfiler());
+		this.realWorld = other;
 	}
 
 	@Override

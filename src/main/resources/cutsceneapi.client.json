@@ -14,7 +14,8 @@
 	"InGameHudMixin",
 	"MinecraftClientHooks",
 	"MinecraftClientMixin",
-	"WorldRendererMixin"
+	"WorldRendererMixin",
+    "WorldHooks"
   ],
   "injectors": {
     "defaultRequire": 1

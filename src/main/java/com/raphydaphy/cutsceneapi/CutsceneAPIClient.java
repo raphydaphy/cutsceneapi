@@ -57,7 +57,7 @@ public class CutsceneAPIClient implements ClientModInitializer
 		});
 
 		ClientCutscene fakeworld_2 = (ClientCutscene) CutsceneAPI.FAKEWORLD_CUTSCENE_2;
-		fakeworld_2.setIntroTransition(new Transition.FadeFrom(5, 0, 0, 0));
+		fakeworld_2.setIntroTransition(new Transition.FadeFrom(20, 0, 0, 0));
 		fakeworld_2.setOutroTransition(new Transition.DipTo(40, 10, 0, 0, 0));
 		fakeworld_2.setWorldType(CutsceneWorldType.PREVIOUS);
 		fakeworld_2.setInitCallback((cutscene) ->
@@ -75,7 +75,7 @@ public class CutsceneAPIClient implements ClientModInitializer
 
 		ClientCutscene fakeworld_1 = (ClientCutscene) CutsceneAPI.FAKEWORLD_CUTSCENE_1;
 		fakeworld_1.setIntroTransition(new Transition.DipTo(40, 50, 0, 0, 0));
-		fakeworld_1.setOutroTransition(new Transition.FadeTo(5, 0, 0, 0));
+		fakeworld_1.setOutroTransition(new Transition.FadeTo(20, 0, 0, 0));
 		fakeworld_1.setWorldType(CutsceneWorldType.CLONE);
 		fakeworld_1.setNextCutscene(fakeworld_2);
 		fakeworld_1.setInitCallback((cutscene) ->
@@ -91,8 +91,6 @@ public class CutsceneAPIClient implements ClientModInitializer
 					.build());
 			client.player.playSound(SoundEvents.ENTITY_ENDER_DRAGON_SHOOT, 1, 1);
 			clientCutscene.getWorld().cutsceneTime = 18000;
-
-			System.out.println(clientCutscene.getWorld().getTimeOfDay());
 		});
 		fakeworld_1.setChunkGenCallback((chunk) ->
 		{

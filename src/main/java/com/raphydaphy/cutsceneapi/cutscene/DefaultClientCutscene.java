@@ -197,9 +197,12 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 
 			// Render Transitions
 			if (introTransition != null && ticks < introTransition.length)
+			{
 				introTransition.render(client, client.getTickDelta());
-			else if (outroTransition != null && ticks > length - outroTransition.length)
+			} else if (outroTransition != null && ticks > length - outroTransition.length)
+			{
 				outroTransition.render(client, client.getTickDelta());
+			}
 
 			// Callback
 			if (renderCallback != null) renderCallback.accept(this);
