@@ -1,6 +1,7 @@
 package com.raphydaphy.cutsceneapi.cutscene;
 
 import com.mojang.blaze3d.platform.GLX;
+import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.api.ClientCutscene;
 import com.raphydaphy.cutsceneapi.api.Cutscene;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneChunk;
@@ -51,19 +52,9 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 		this.startPerspective = client.options.perspective;
 		this.startPitch = client.player.pitch;
 		this.startYaw = client.player.yaw;
-		if (!worldType.isRealWorld())
+		if (!worldType.isRealWorld() && worldType != CutsceneWorldType.PREVIOUS)
 		{
-			if (worldType == CutsceneWorldType.PREVIOUS)
-			{
-				ClientWorld world = client.world;
-				if (world instanceof CutsceneWorld)
-				{
-					this.cutsceneWorld = (CutsceneWorld) world;
-				}
-			} else
-			{
-				this.cutsceneWorld = new CutsceneWorld(client, client.world, this.worldType == CutsceneWorldType.CLONE);
-			}
+			this.cutsceneWorld = new CutsceneWorld(client, client.world, this.worldType == CutsceneWorldType.CLONE);
 		}
 		if (this.initCallback != null) this.initCallback.accept(this);
 		if (introTransition != null) introTransition.init();
@@ -91,7 +82,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 				camera.update();
 				camera.moveTo(path.getPoint(ticks / (float) length));
 
-				if (!this.worldType.isRealWorld() && !(client.world instanceof CutsceneWorld))
+				if (!this.worldType.isRealWorld() && this.worldType != CutsceneWorldType.PREVIOUS && !(client.world instanceof CutsceneWorld))
 				{
 					client.player.setWorld(cutsceneWorld);
 					client.world = cutsceneWorld;
@@ -167,9 +158,6 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 
 			if (ticks == length)
 			{
-				if (nextCutscene != null)
-				{
-				}
 				end();
 			}
 		}
@@ -233,27 +221,42 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
 
-		disableCamera();
-		// Restore real world
-		if (!worldType.isRealWorld()) CutsceneManager.stopFakeWorld();
-
-		// Disable Shader
-		if (usingShader)
+		if (nextCutscene == null || nextCutscene.getWorldType() != CutsceneWorldType.PREVIOUS)
 		{
-			client.gameRenderer.disableShader();
-			usingShader = false;
-		}
+			disableCamera();
+			// Restore real world
+			if (!worldType.isRealWorld()) CutsceneManager.stopFakeWorld();
 
-		// Restore perspective
-		if (client.options.perspective != startPerspective)
+			// Disable Shader
+			if (usingShader)
+			{
+				client.gameRenderer.disableShader();
+				usingShader = false;
+			}
+
+			// Restore perspective
+			if (client.options.perspective != startPerspective)
+			{
+				client.options.perspective = startPerspective;
+				client.worldRenderer.method_3292();
+			}
+
+			if (finishCallback != null) finishCallback.accept(this);
+
+			if (nextCutscene != null)
+			{
+				CutsceneManager.startClient(nextCutscene.getID());
+			} else
+			{
+				CutsceneManager.finishClient();
+			}
+		} else
 		{
-			client.options.perspective = startPerspective;
-			client.worldRenderer.method_3292();
+			CutsceneManager.startClient(nextCutscene.getID());
+			ClientCutscene newCutscene = (ClientCutscene)CutsceneManager.getCurrentCutscene();
+			newCutscene.setWorld(this.cutsceneWorld);
+			newCutscene.setChunkGenCallback(this.chunkGenCallback);
 		}
-
-		if (finishCallback != null) finishCallback.accept(this);
-
-		CutsceneManager.finishClient();
 		ended = true;
 	}
 
@@ -306,10 +309,17 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 	}
 
 	@Override
+	public void setWorld(CutsceneWorld world)
+	{
+		this.cutsceneWorld = world;
+	}
+
+	@Override
 	public Cutscene copy()
 	{
 		DefaultClientCutscene cutscene = new DefaultClientCutscene(length);
 
+		cutscene.setID(getID());
 		cutscene.introTransition = this.introTransition;
 		cutscene.outroTransition = this.outroTransition;
 		cutscene.shader = this.shader;
@@ -329,6 +339,12 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 	public CutsceneWorld getWorld()
 	{
 		return cutsceneWorld;
+	}
+
+	@Override
+	public CutsceneWorldType getWorldType()
+	{
+		return worldType;
 	}
 
 	@Override
@@ -385,8 +401,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 		if (introTransition != null && ticks < introTransition.length && introTransition.isFirstHalf()) return false;
 		else if (outroTransition != null && ticks > length - outroTransition.length && !outroTransition.isFirstHalf())
 			return false;
-		else if (ticks == 0 || ticks >= length) return false;
-		else if (ended) return false;
+		else if (ticks >= length || ended) return false;
 		return true;
 	}
 }

@@ -52,9 +52,19 @@ public interface ClientCutscene extends Cutscene
 	void setWorldType(CutsceneWorldType worldType);
 
 	/**
+	 * @param world A new CutsceneWorld to use as the world during the cutscene
+	 */
+	void setWorld(CutsceneWorld world);
+
+	/**
 	 * @return The fake world used by the cutscene, if any
 	 */
 	CutsceneWorld getWorld();
+
+	/**
+	 * @return The type of world used by the cutscene. See {@link CutsceneWorldType} for more info
+	 */
+	CutsceneWorldType getWorldType();
 
 	/**
 	 * @return The cutscene which should play after this one

@@ -11,7 +11,6 @@ public abstract class Transition
 {
 	int ticks;
 	float length;
-	boolean firstHalf = true;
 
 	public Transition(float length)
 	{
@@ -21,7 +20,6 @@ public abstract class Transition
 	public void init()
 	{
 		this.ticks = 0;
-		this.firstHalf = true;
 	}
 
 	public abstract void render(MinecraftClient client, float tickDelta);
@@ -31,10 +29,7 @@ public abstract class Transition
 		ticks++;
 	}
 
-	public boolean isFirstHalf()
-	{
-		return firstHalf;
-	}
+	public abstract boolean isFirstHalf();
 
 	public static class FadeTo extends Transition
 	{
@@ -57,6 +52,12 @@ public abstract class Transition
 			float percent = 1 - transitionTime / length;
 			CutsceneUtils.drawRect(0, 0, client.window.getScaledWidth(), client.window.getScaledHeight(), percent, red, green, blue);
 		}
+
+		@Override
+		public boolean isFirstHalf()
+		{
+			return true;
+		}
 	}
 
 	public static class FadeFrom extends FadeTo
@@ -67,17 +68,17 @@ public abstract class Transition
 		}
 
 		@Override
-		public void init()
-		{
-			this.firstHalf = false;
-		}
-
-		@Override
 		public void render(MinecraftClient client, float tickDelta)
 		{
 			float transitionTime = CutsceneUtils.lerp(ticks - 1, ticks, tickDelta);
 			float percent = transitionTime / length;
 			CutsceneUtils.drawRect(0, 0, client.window.getScaledWidth(), client.window.getScaledHeight(), percent, red, green, blue);
+		}
+
+		@Override
+		public boolean isFirstHalf()
+		{
+			return false;
 		}
 	}
 
@@ -99,21 +100,23 @@ public abstract class Transition
 			GlStateManager.disableDepthTest();
 			if (transitionTime < halfTime)
 			{
-				firstHalf = true;
 				float percent = transitionTime / halfTime;
 				CutsceneUtils.drawRect(0, 0, client.window.getScaledWidth(), client.window.getScaledHeight(), percent, red, green, blue);
 			} else if (transitionTime < halfTime + hold)
 			{
-				firstHalf = false;
 				CutsceneUtils.drawRect(0, 0, client.window.getScaledWidth(), client.window.getScaledHeight(), 1, red, green, blue);
 			} else
 			{
 				transitionTime = transitionTime - halfTime - hold;
-				firstHalf = false;
 				float percent = 1 - transitionTime / halfTime;
 				CutsceneUtils.drawRect(0, 0, client.window.getScaledWidth(), client.window.getScaledHeight(), percent, red, green, blue);
 			}
 			GlStateManager.enableDepthTest();
+		}
+
+		public boolean isFirstHalf()
+		{
+			return ticks < (length - hold) / 2f;
 		}
 	}
 }

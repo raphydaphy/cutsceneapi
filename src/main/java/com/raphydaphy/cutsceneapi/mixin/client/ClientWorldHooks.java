@@ -15,6 +15,9 @@ public interface ClientWorldHooks
 	@Accessor("netHandler")
 	ClientPlayNetworkHandler getCutsceneNetHandler();
 
+	@Accessor("netHandler")
+	void setCutsceneNetHandler(ClientPlayNetworkHandler handler);
+
 	@Accessor("globalEntities")
 	List<Entity> getCutsceneEntities();
 

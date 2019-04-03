@@ -77,7 +77,7 @@ public class CutsceneAPIClient implements ClientModInitializer
 		fakeworld_1.setIntroTransition(new Transition.DipTo(40, 50, 0, 0, 0));
 		fakeworld_1.setOutroTransition(new Transition.FadeTo(5, 0, 0, 0));
 		fakeworld_1.setWorldType(CutsceneWorldType.CLONE);
-		//fakeworld_1.setNextCutscene(fakeworld_2);
+		fakeworld_1.setNextCutscene(fakeworld_2);
 		fakeworld_1.setInitCallback((cutscene) ->
 		{
 			MinecraftClient client = MinecraftClient.getInstance();

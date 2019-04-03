@@ -4,10 +4,13 @@ import com.raphydaphy.cutsceneapi.mixin.client.ClientWorldHooks;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.chunk.Chunk;
@@ -26,17 +29,22 @@ import java.util.function.BooleanSupplier;
 @Environment(EnvType.CLIENT)
 public class CutsceneWorld extends ClientWorld
 {
-	public final ClientWorld realWorld;
-	public boolean cloneExisting;
+	public ClientWorld realWorld;
+	public boolean cloneExisting = false;
 	public long cutsceneTime;
 	private Map<ChunkPos, CutsceneChunk> chunkMap = new HashMap<>();
 	private CutsceneChunkManager cutsceneChunkManager;
 
 	public CutsceneWorld(MinecraftClient client, ClientWorld realWorld, boolean cloneExisting)
 	{
-		super(((ClientWorldHooks) realWorld).getCutsceneNetHandler(), new LevelInfo(realWorld.getLevelProperties()), DimensionType.OVERWORLD, 1, client.getProfiler(), client.worldRenderer);
+		this(((ClientWorldHooks) realWorld).getCutsceneNetHandler(), new LevelInfo(realWorld.getLevelProperties()), DimensionType.OVERWORLD, 1, client.getProfiler(), client.worldRenderer);
 		this.realWorld = realWorld;
 		this.cloneExisting = cloneExisting;
+	}
+
+	public CutsceneWorld(ClientPlayNetworkHandler netHandler, LevelInfo levelInfo, DimensionType dimension, int id, Profiler profiler, WorldRenderer renderer)
+	{
+		super(netHandler, levelInfo, dimension, id, profiler, renderer);
 		cutsceneChunkManager = new CutsceneChunkManager(this);
 	}
 

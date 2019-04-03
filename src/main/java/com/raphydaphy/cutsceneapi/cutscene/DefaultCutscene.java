@@ -71,6 +71,7 @@ public class DefaultCutscene implements Cutscene
 		cutscene.initCallback = this.initCallback;
 		cutscene.tickCallback = this.tickCallback;
 		cutscene.finishCallback = this.finishCallback;
+		cutscene.id = id;
 		return cutscene;
 	}
 
