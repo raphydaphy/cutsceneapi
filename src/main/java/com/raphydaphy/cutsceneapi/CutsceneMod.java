@@ -1,13 +1,12 @@
 package com.raphydaphy.cutsceneapi;
 
-import com.raphydaphy.cutsceneapi.api.CutsceneAPI;
-import com.raphydaphy.cutsceneapi.cutscene.BasicCutsceneManager;
-import com.raphydaphy.cutsceneapi.cutscene.DefaultCutscene;
 import com.raphydaphy.cutsceneapi.network.CutsceneCommand;
-import com.raphydaphy.cutsceneapi.path.SplinePath;
+import com.raphydaphy.cutsceneapi.proxy.CommonProxy;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -22,22 +21,31 @@ public class CutsceneMod
 	private static final Logger LOGGER = LogManager.getLogger();
 	public static final SimpleNetworkWrapper NETWORK_WRAPPER = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
 
+	@SidedProxy(clientSide="com.raphydaphy.cutsceneapi.proxy.ClientProxy", serverSide="com.raphydaphy.cutsceneapi.proxy.ServerProxy")
+	public static CommonProxy proxy;
+
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
-		CutsceneAPI.initialize(new BasicCutsceneManager(), DefaultCutscene::new, SplinePath::new);
+		proxy.preInit();
+	}
+
+	@EventHandler
+	public void init(FMLInitializationEvent event)
+	{
+		proxy.init();
+	}
+
+	@EventHandler
+	public void postInit(FMLPostInitializationEvent event)
+	{
+		proxy.postInit();
 	}
 
 	@EventHandler
 	public void serverLoad(FMLServerStartingEvent event)
 	{
 		event.registerServerCommand(new CutsceneCommand());
-	}
-
-	@EventHandler
-	public void init(FMLInitializationEvent event)
-	{
-
 	}
 
 	public static Logger getLogger()

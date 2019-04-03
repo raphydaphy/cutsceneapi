@@ -46,6 +46,7 @@ public class CutsceneCommand extends CommandBase
 		}
 		EntityPlayer player = getPlayer(server, sender, args[0]);
 		ResourceLocation id = new ResourceLocation(args[1]);
+		System.out.println(("Trying to play cutscene with id " + id.toString()));
 		Cutscene cutscene = CutsceneAPI.getCutsceneManager().get(id, false);
 		if (cutscene != null)
 		{

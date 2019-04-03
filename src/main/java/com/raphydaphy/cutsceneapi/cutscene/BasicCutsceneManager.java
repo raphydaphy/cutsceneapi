@@ -14,8 +14,8 @@ import java.util.Map;
 
 public class BasicCutsceneManager implements CutsceneManager
 {
-	private static String WATCHING_CUTSCENE_KEY = "WatchingCutscene";
-	private static String CURRENT_CUTSCENE_KEY = "CurrentCutscene";
+	public static String WATCHING_CUTSCENE_KEY = "WatchingCutscene";
+	public static String CURRENT_CUTSCENE_KEY = "CurrentCutscene";
 
 	private Map<ResourceLocation, Cutscene> REGISTRY = new HashMap<>();
 	private Cutscene currentCutscene;
@@ -23,6 +23,7 @@ public class BasicCutsceneManager implements CutsceneManager
 	@Override
 	public void register(ResourceLocation id, Cutscene cutscene)
 	{
+		System.out.println(("registered cutscene with id " + id.toString()));
 		cutscene.setID(id);
 		if (REGISTRY.containsKey(id))
 			CutsceneMod.getLogger().error("Tried to register a cutscene with ID " + id + ", but it already existed!");
@@ -32,7 +33,7 @@ public class BasicCutsceneManager implements CutsceneManager
 	@Override
 	public Cutscene get(ResourceLocation id, boolean client)
 	{
-		return REGISTRY.containsKey(id) ? REGISTRY.get(id).copy(client) : null;
+		return REGISTRY.containsKey(id) ? REGISTRY.get(id).copy() : null;
 	}
 
 	@Override

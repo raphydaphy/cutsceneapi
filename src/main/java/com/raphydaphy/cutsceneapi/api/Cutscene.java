@@ -19,12 +19,6 @@ public interface Cutscene
 	void setLength(int length);
 
 	/**
-	 * @param path The path which the camera should follow during the cutscene
-	 */
-	@SideOnly(Side.CLIENT)
-	void setPath(Path path);
-
-	/**
 	 * @param callback A function which is called at the start of the cutscene
 	 */
 	void setInitCallback(Consumer<Cutscene> callback);
@@ -35,12 +29,6 @@ public interface Cutscene
 	void setTickCallback(Consumer<Cutscene> callback);
 
 	/**
-	 * @param callback A function which will be called once per frame during the cutscene
-	 */
-	@SideOnly(Side.CLIENT)
-	void setRenderCallback(Consumer<Cutscene> callback);
-
-	/**
 	 * @param callback A function which will be called when the cutscene finishes
 	 */
 	void setEndCallback(Consumer<Cutscene> callback);
@@ -49,12 +37,6 @@ public interface Cutscene
 	 * Called once per tick while the cutscene is playing
 	 */
 	void tick();
-
-	/**
-	 * Called once per frame while the cutscene is playing
-	 */
-	@SideOnly(Side.CLIENT)
-	void render();
 
 	/**
 	 * @return The registry ID of the cutscene
@@ -69,5 +51,5 @@ public interface Cutscene
 	/**
 	 * @return A new cutscene with the same settings
 	 */
-	Cutscene copy(boolean client);
+	Cutscene copy();
 }
