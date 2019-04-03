@@ -161,11 +161,11 @@ public class CutsceneChunkManager extends ClientChunkManager
 	@Override
 	public void onLightUpdate(LightType lightType_1, ChunkSectionPos chunkSectionPos_1)
 	{
-		MinecraftClient.getInstance().worldRenderer.method_8571(chunkSectionPos_1.getChunkX(), chunkSectionPos_1.getChunkY(), chunkSectionPos_1.getChunkZ());
+		MinecraftClient.getInstance().worldRenderer.scheduleBlockRender(chunkSectionPos_1.getChunkX(), chunkSectionPos_1.getChunkY(), chunkSectionPos_1.getChunkZ());
 	}
 
 	@Override
-	public Chunk getChunkSync(int var1, int var2, ChunkStatus var3, boolean var4)
+	public Chunk getChunk(int var1, int var2, ChunkStatus var3, boolean var4)
 	{
 		return this.method_2857(var1, var2, var3, var4);
 	}

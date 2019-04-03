@@ -98,7 +98,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 				if (client.options.perspective != 0)
 				{
 					client.options.perspective = 0;
-					client.worldRenderer.method_3292();
+					client.worldRenderer.scheduleTerrainUpdate();
 					enableShader();
 				}
 
@@ -143,7 +143,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 				if (client.options.perspective != startPerspective)
 				{
 					client.options.perspective = startPerspective;
-					client.worldRenderer.method_3292();
+					client.worldRenderer.scheduleTerrainUpdate();
 				}
 			}
 
@@ -168,7 +168,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 		if (this.shader != null && !usingShader)
 		{
 			MinecraftClient client = MinecraftClient.getInstance();
-			client.worldRenderer.method_3292();
+			client.worldRenderer.scheduleTerrainUpdate();
 			if (GLX.usePostProcess)
 			{
 				((GameRendererHooks) client.gameRenderer).useShader(this.shader);
@@ -183,7 +183,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 		{
 			MinecraftClient client = MinecraftClient.getInstance();
 			client.setCameraEntity(client.player);
-			client.worldRenderer.method_3292();
+			client.worldRenderer.scheduleTerrainUpdate();
 			setCamera = false;
 		}
 	}
@@ -241,7 +241,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 			if (client.options.perspective != startPerspective)
 			{
 				client.options.perspective = startPerspective;
-				client.worldRenderer.method_3292();
+				client.worldRenderer.scheduleTerrainUpdate();
 			}
 
 			if (finishCallback != null) finishCallback.accept(this);

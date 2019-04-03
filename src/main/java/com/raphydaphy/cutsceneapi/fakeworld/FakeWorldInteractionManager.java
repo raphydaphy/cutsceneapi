@@ -52,7 +52,7 @@ public class FakeWorldInteractionManager
 					handlePlayerInteractBlock(hand, hitResult);
 					if (!itemStack_1.isEmpty() && !player.getItemCooldownManager().isCooldown(itemStack_1.getItem()))
 					{
-						ItemUsageContext itemUsageContext_1 = new ItemUsageContext(player, player.getStackInHand(hand), hitResult);
+						ItemUsageContext itemUsageContext_1 = new ItemUsageContext(player, hand, hitResult);
 						ActionResult result;
 						if (player.isCreative())
 						{
@@ -114,7 +114,7 @@ public class FakeWorldInteractionManager
 				return ActionResult.SUCCESS;
 			} else if (!stack.isEmpty() && !player.getItemCooldownManager().isCooldown(stack.getItem()))
 			{
-				ItemUsageContext itemUsageContext_1 = new ItemUsageContext(player, player.getStackInHand(hand), hitResult);
+				ItemUsageContext itemUsageContext_1 = new ItemUsageContext(player, hand, hitResult);
 				if (player.isCreative())
 				{
 					int int_1 = stack.getAmount();

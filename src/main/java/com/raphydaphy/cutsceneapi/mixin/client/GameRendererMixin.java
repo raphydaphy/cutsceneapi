@@ -19,7 +19,7 @@ public class GameRendererMixin
 	@Final
 	private MinecraftClient client;
 
-	@Inject(at = @At(value = "HEAD"), method = "method_3172", cancellable = true)
+	@Inject(at = @At(value = "HEAD"), method = "renderHand", cancellable = true)
 	private void renderHand(Camera camera_1, float float_1, CallbackInfo info)
 	{
 		if (CutsceneManager.hideHud(client.player))

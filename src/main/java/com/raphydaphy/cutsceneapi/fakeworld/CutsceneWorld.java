@@ -108,7 +108,7 @@ public class CutsceneWorld extends ClientWorld
 	@Override
 	public void method_8441(BooleanSupplier booleanSupplier_1)
 	{
-		this.getWorldBorder().update();
+		this.getWorldBorder().tick();
 		this.tickTime();
 		this.getProfiler().push("blocks");
 		this.cutsceneChunkManager.tick(booleanSupplier_1);
@@ -118,7 +118,7 @@ public class CutsceneWorld extends ClientWorld
 	}
 
 	@Override
-	public float method_8391()
+	public float getMoonSize()
 	{
 		return Dimension.MOON_PHASE_TO_SIZE[this.getDimension().getMoonPhase(getTimeOfDay())];
 	}
