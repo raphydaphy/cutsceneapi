@@ -24,7 +24,11 @@ public enum CutsceneWorldType
 	/**
 	 * Uses whatever world is active at the start of the cutscene
 	 */
-	PREVIOUS;
+	PREVIOUS,
+	/**
+	 * Like EMPTY, but you can provide the world during the init callback
+	 */
+	CUSTOM;
 
 	public boolean isRealWorld()
 	{

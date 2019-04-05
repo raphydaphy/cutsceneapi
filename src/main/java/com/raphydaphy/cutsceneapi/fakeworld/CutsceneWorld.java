@@ -81,6 +81,11 @@ public class CutsceneWorld extends ClientWorld
 		return chunk;
 	}
 
+	public void putChunk(CutsceneChunk chunk)
+	{
+		chunkMap.put(chunk.getPos(), chunk);
+	}
+
 	public void addPlayer(ClientPlayerEntity player)
 	{
 		getPlayers().add(player);

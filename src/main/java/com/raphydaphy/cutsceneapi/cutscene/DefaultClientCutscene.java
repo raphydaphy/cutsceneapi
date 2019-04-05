@@ -52,7 +52,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 		this.startPerspective = client.options.perspective;
 		this.startPitch = client.player.pitch;
 		this.startYaw = client.player.yaw;
-		if (!worldType.isRealWorld() && worldType != CutsceneWorldType.PREVIOUS)
+		if (!worldType.isRealWorld() && worldType != CutsceneWorldType.PREVIOUS && worldType != CutsceneWorldType.CUSTOM)
 		{
 			this.cutsceneWorld = new CutsceneWorld(client, client.world, this.worldType == CutsceneWorldType.CLONE);
 		}
