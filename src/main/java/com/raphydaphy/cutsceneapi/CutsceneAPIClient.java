@@ -24,12 +24,15 @@ import java.util.Random;
 
 public class CutsceneAPIClient implements ClientModInitializer
 {
+	private CutsceneWorld GENERATED;
+
 	public CutsceneAPIClient()
 	{
 		CutsceneAPI.REALWORLD_CUTSCENE = new DefaultClientCutscene(CutsceneAPI.REALWORLD_CUTSCENE.getLength());
 		CutsceneAPI.FAKEWORLD_CUTSCENE_1 = new DefaultClientCutscene(CutsceneAPI.FAKEWORLD_CUTSCENE_1.getLength());
 		CutsceneAPI.FAKEWORLD_CUTSCENE_2 = new DefaultClientCutscene(CutsceneAPI.FAKEWORLD_CUTSCENE_2.getLength());
 		CutsceneAPI.VOIDWORLD_CUTSCENE = new DefaultClientCutscene(CutsceneAPI.VOIDWORLD_CUTSCENE.getLength());
+		CutsceneAPI.GENERATEDWORLD_CUTSCENE = new DefaultClientCutscene(CutsceneAPI.GENERATEDWORLD_CUTSCENE.getLength());
 	}
 
 	@Override
@@ -38,11 +41,11 @@ public class CutsceneAPIClient implements ClientModInitializer
 		ClientSidePacketRegistry.INSTANCE.register(CutsceneStartPacket.ID, new CutsceneStartPacket.Handler());
 		ClientSidePacketRegistry.INSTANCE.register(WorldTestPacket.ID, new WorldTestPacket.Handler());
 
-		ClientCutscene realworld = (ClientCutscene) CutsceneAPI.REALWORLD_CUTSCENE;
-		//realworld.setIntroTransition(new Transition.DipTo(40, 5, 0, 0, 0));
-		//realworld.setOutroTransition(new Transition.DipTo(40, 5, 0, 0, 0));
-		realworld.setShader(new Identifier("shaders/post/invert.json"));
-		realworld.setInitCallback((cutscene) ->
+		ClientCutscene realWorld = (ClientCutscene) CutsceneAPI.REALWORLD_CUTSCENE;
+		//realWorld.setIntroTransition(new Transition.DipTo(40, 5, 0, 0, 0));
+		//realWorld.setOutroTransition(new Transition.DipTo(40, 5, 0, 0, 0));
+		realWorld.setShader(new Identifier("shaders/post/invert.json"));
+		realWorld.setInitCallback((cutscene) ->
 		{
 			MinecraftClient client = MinecraftClient.getInstance();
 			ClientCutscene clientCutscene = (ClientCutscene) cutscene;
@@ -56,11 +59,11 @@ public class CutsceneAPIClient implements ClientModInitializer
 			client.player.playSound(SoundEvents.ENTITY_WITHER_SPAWN, 1, 1);
 		});
 
-		ClientCutscene fakeworld_2 = (ClientCutscene) CutsceneAPI.FAKEWORLD_CUTSCENE_2;
-		fakeworld_2.setIntroTransition(new Transition.FadeFrom(20, 0, 0, 0));
-		fakeworld_2.setOutroTransition(new Transition.DipTo(40, 10, 0, 0, 0));
-		fakeworld_2.setWorldType(CutsceneWorldType.PREVIOUS);
-		fakeworld_2.setInitCallback((cutscene) ->
+		ClientCutscene fakeWorld2 = (ClientCutscene) CutsceneAPI.FAKEWORLD_CUTSCENE_2;
+		fakeWorld2.setIntroTransition(new Transition.FadeFrom(20, 0, 0, 0));
+		fakeWorld2.setOutroTransition(new Transition.DipTo(40, 10, 0, 0, 0));
+		fakeWorld2.setWorldType(CutsceneWorldType.PREVIOUS);
+		fakeWorld2.setInitCallback((cutscene) ->
 		{
 			MinecraftClient client = MinecraftClient.getInstance();
 			ClientCutscene clientCutscene = (ClientCutscene) cutscene;
@@ -73,12 +76,12 @@ public class CutsceneAPIClient implements ClientModInitializer
 					.build());
 		});
 
-		ClientCutscene fakeworld_1 = (ClientCutscene) CutsceneAPI.FAKEWORLD_CUTSCENE_1;
-		fakeworld_1.setIntroTransition(new Transition.DipTo(40, 50, 0, 0, 0));
-		fakeworld_1.setOutroTransition(new Transition.FadeTo(20, 0, 0, 0));
-		fakeworld_1.setWorldType(CutsceneWorldType.CLONE);
-		fakeworld_1.setNextCutscene(fakeworld_2);
-		fakeworld_1.setInitCallback((cutscene) ->
+		ClientCutscene fakeWorld1 = (ClientCutscene) CutsceneAPI.FAKEWORLD_CUTSCENE_1;
+		fakeWorld1.setIntroTransition(new Transition.DipTo(40, 50, 0, 0, 0));
+		fakeWorld1.setOutroTransition(new Transition.FadeTo(20, 0, 0, 0));
+		fakeWorld1.setWorldType(CutsceneWorldType.CLONE);
+		fakeWorld1.setNextCutscene(fakeWorld2);
+		fakeWorld1.setInitCallback((cutscene) ->
 		{
 			MinecraftClient client = MinecraftClient.getInstance();
 			ClientCutscene clientCutscene = (ClientCutscene) cutscene;
@@ -92,7 +95,7 @@ public class CutsceneAPIClient implements ClientModInitializer
 			client.player.playSound(SoundEvents.ENTITY_ENDER_DRAGON_SHOOT, 1, 1);
 			clientCutscene.getWorld().cutsceneTime = 18000;
 		});
-		fakeworld_1.setChunkGenCallback((chunk) ->
+		fakeWorld1.setChunkGenCallback((chunk) ->
 		{
 			int index, x, y, z;
 			for (x = 0; x < 16; x++)
@@ -115,11 +118,11 @@ public class CutsceneAPIClient implements ClientModInitializer
 			}
 		});
 
-		ClientCutscene voidworld = (ClientCutscene) CutsceneAPI.VOIDWORLD_CUTSCENE;
-		voidworld.setIntroTransition(new Transition.DipTo(40, 10, 0, 0, 0));
-		voidworld.setOutroTransition(new Transition.DipTo(40, 10, 0, 0, 0));
-		voidworld.setWorldType(CutsceneWorldType.EMPTY);
-		voidworld.setInitCallback((cutscene) ->
+		ClientCutscene voidWorld = (ClientCutscene) CutsceneAPI.VOIDWORLD_CUTSCENE;
+		voidWorld.setIntroTransition(new Transition.DipTo(40, 10, 0, 0, 0));
+		voidWorld.setOutroTransition(new Transition.DipTo(40, 10, 0, 0, 0));
+		voidWorld.setWorldType(CutsceneWorldType.EMPTY);
+		voidWorld.setInitCallback((cutscene) ->
 		{
 			ClientCutscene clientCutscene = (ClientCutscene) cutscene;
 			clientCutscene.setCameraPath(Path.builder()
@@ -150,5 +153,20 @@ public class CutsceneAPIClient implements ClientModInitializer
 				}
 			}
 		});
+
+		GENERATED = CutsceneWorld.createCached(4783, 15, false, (chunk) -> {});
+
+		ClientCutscene generatedWorld = (ClientCutscene)CutsceneAPI.GENERATEDWORLD_CUTSCENE;
+		generatedWorld.setIntroTransition(new Transition.DipTo(20, 50, 1, 1, 1));
+		generatedWorld.setOutroTransition(new Transition.FadeTo(20, 1, 1, 1));
+		generatedWorld.setWorldType(CutsceneWorldType.CUSTOM);
+		generatedWorld.setInitCallback((cutscene) ->
+        {
+        	MinecraftClient client = MinecraftClient.getInstance();
+            ClientCutscene clientCutscene = (ClientCutscene)cutscene;
+            GENERATED.setupFrom(client.world);
+            clientCutscene.setWorld(GENERATED);
+	        clientCutscene.setCameraPath(new Path.Builder().with(-200, 90, 0).with(200, 100, 30).build());
+        });
 	}
 }

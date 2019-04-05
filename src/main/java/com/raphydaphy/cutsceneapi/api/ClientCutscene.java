@@ -77,11 +77,6 @@ public interface ClientCutscene extends Cutscene
 	void setNextCutscene(ClientCutscene nextCutscene);
 
 	/**
-	 * @return The function which should be run whenever a cutscene chunk is generated
-	 */
-	Consumer<CutsceneChunk> getChunkGenCallback();
-
-	/**
 	 * @param chunkGenCallback A function which will be called whenever a fake world chunk is generated for the cutscene
 	 */
 	void setChunkGenCallback(Consumer<CutsceneChunk> chunkGenCallback);

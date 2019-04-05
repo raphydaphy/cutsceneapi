@@ -1,9 +1,6 @@
 package com.raphydaphy.cutsceneapi.fakeworld;
 
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
-import com.raphydaphy.cutsceneapi.api.ClientCutscene;
-import com.raphydaphy.cutsceneapi.api.Cutscene;
-import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
@@ -55,14 +52,10 @@ public class CutsceneChunk extends WorldChunk
 			}
 		}
 
-		Cutscene currentCutscene = CutsceneManager.getCurrentCutscene();
-		if (currentCutscene instanceof ClientCutscene)
+		Consumer<CutsceneChunk> chunkGenCallback = world.getChunkGenCallback();
+		if (chunkGenCallback != null)
 		{
-			Consumer<CutsceneChunk> chunkGenCallback = ((ClientCutscene) currentCutscene).getChunkGenCallback();
-			if (chunkGenCallback != null)
-			{
-				chunkGenCallback.accept(this);
-			}
+			chunkGenCallback.accept(this);
 		}
 	}
 

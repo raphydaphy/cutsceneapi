@@ -69,7 +69,7 @@ public class CutsceneManager
 	public static void startFakeWorld(boolean copy)
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
-		CutsceneWorld cutsceneWorld = new CutsceneWorld(client, client.world, copy);
+		CutsceneWorld cutsceneWorld = new CutsceneWorld(client, client.world, null, copy);
 		client.player.setWorld(cutsceneWorld);
 		client.world = cutsceneWorld;
 		((MinecraftClientHooks) client).setCutsceneWorld(cutsceneWorld);

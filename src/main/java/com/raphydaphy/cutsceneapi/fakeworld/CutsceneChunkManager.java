@@ -41,9 +41,9 @@ public class CutsceneChunkManager extends ClientChunkManager
 		this.cutsceneLightingPRovider = new LightingProvider(this, true, cutsceneWorld.getDimension().hasSkyLight());
 	}
 
-	private static boolean isWithinDistanceCutscene(int int_1, int int_2, int int_3, int int_4, int int_5)
+	public static boolean isWithinDistanceCutscene(int chunkZ, int chunkX, int cameraX, int cameraZ, int viewDist)
 	{
-		return Math.abs(int_1 - int_3) <= int_5 && Math.abs(int_2 - int_4) <= int_5;
+		return Math.abs(chunkZ - cameraX) <= viewDist && Math.abs(chunkX - cameraZ) <= viewDist;
 	}
 
 	@Override
@@ -99,26 +99,26 @@ public class CutsceneChunkManager extends ClientChunkManager
 	private void updateCutsceneChunkList()
 	{
 		int loadDistance = this.cutsceneChunkMap.loadDistance;
-		int int_2 = Math.max(2, this.cutsceneClient.options.viewDistance + -2) + 2;
-		int int_3;
-		int int_4;
-		if (loadDistance != int_2)
+		int adjustedViewDist = Math.max(2, this.cutsceneClient.options.viewDistance + -2) + 2;
+		int cameraZ;
+		int chunkX;
+		if (loadDistance != adjustedViewDist)
 		{
-			CutsceneChunkMap chunkMap = new CutsceneChunkMap(int_2);
+			CutsceneChunkMap chunkMap = new CutsceneChunkMap(adjustedViewDist);
 
-			for (int_3 = this.cutscenePlayerChunkZ - loadDistance; int_3 <= this.cutscenePlayerChunkZ + loadDistance; ++int_3)
+			for (cameraZ = this.cutscenePlayerChunkZ - loadDistance; cameraZ <= this.cutscenePlayerChunkZ + loadDistance; ++cameraZ)
 			{
-				for (int_4 = this.cutscenePlayerChunkX - loadDistance; int_4 <= this.cutscenePlayerChunkX + loadDistance; ++int_4)
+				for (chunkX = this.cutscenePlayerChunkX - loadDistance; chunkX <= this.cutscenePlayerChunkX + loadDistance; ++chunkX)
 				{
-					CutsceneChunk chunk = this.cutsceneChunkMap.chunks.get(this.cutsceneChunkMap.index(int_4, int_3));
+					CutsceneChunk chunk = this.cutsceneChunkMap.chunks.get(this.cutsceneChunkMap.index(chunkX, cameraZ));
 					if (chunk != null)
 					{
-						if (!isWithinDistanceCutscene(int_4, int_3, this.cutscenePlayerChunkX, this.cutscenePlayerChunkZ, int_2))
+						if (!isWithinDistanceCutscene(chunkX, cameraZ, this.cutscenePlayerChunkX, this.cutscenePlayerChunkZ, adjustedViewDist))
 						{
 							--this.cutsceneLoadedChunkCount;
 						} else
 						{
-							chunkMap.chunks.set(chunkMap.index(int_4, int_3), chunk);
+							chunkMap.chunks.set(chunkMap.index(chunkX, cameraZ), chunk);
 						}
 					}
 				}
@@ -128,23 +128,23 @@ public class CutsceneChunkManager extends ClientChunkManager
 		}
 
 		Entity cameraEntity = this.cutsceneClient.cameraEntity;
-		int int_5 = MathHelper.floor(cameraEntity instanceof CutsceneCameraEntity ? cameraEntity.x : this.cutsceneClient.player.x) >> 4;
-		int_3 = MathHelper.floor(cameraEntity instanceof CutsceneCameraEntity ? cameraEntity.z : this.cutsceneClient.player.z) >> 4;
-		if (this.cutscenePlayerChunkX != int_5 || this.cutscenePlayerChunkZ != int_3)
+		int cameraX = MathHelper.floor(cameraEntity instanceof CutsceneCameraEntity ? cameraEntity.x : this.cutsceneClient.player.x) >> 4;
+		cameraZ = MathHelper.floor(cameraEntity instanceof CutsceneCameraEntity ? cameraEntity.z : this.cutsceneClient.player.z) >> 4;
+		if (this.cutscenePlayerChunkX != cameraX || this.cutscenePlayerChunkZ != cameraZ)
 		{
-			for (int_4 = this.cutscenePlayerChunkZ - int_2; int_4 <= this.cutscenePlayerChunkZ + int_2; ++int_4)
+			for (chunkX = this.cutscenePlayerChunkZ - adjustedViewDist; chunkX <= this.cutscenePlayerChunkZ + adjustedViewDist; ++chunkX)
 			{
-				for (int int_8 = this.cutscenePlayerChunkX - int_2; int_8 <= this.cutscenePlayerChunkX + int_2; ++int_8)
+				for (int chunkZ = this.cutscenePlayerChunkX - adjustedViewDist; chunkZ <= this.cutscenePlayerChunkX + adjustedViewDist; ++chunkZ)
 				{
-					if (!isWithinDistanceCutscene(int_8, int_4, int_5, int_3, int_2))
+					if (!isWithinDistanceCutscene(chunkZ, chunkX, cameraX, cameraZ, adjustedViewDist))
 					{
-						this.cutsceneChunkMap.unload(this.cutsceneChunkMap.index(int_8, int_4), null);
+						this.cutsceneChunkMap.unload(this.cutsceneChunkMap.index(chunkZ, chunkX), null);
 					}
 				}
 			}
 
-			this.cutscenePlayerChunkX = int_5;
-			this.cutscenePlayerChunkZ = int_3;
+			this.cutscenePlayerChunkX = cameraX;
+			this.cutscenePlayerChunkZ = cameraZ;
 		}
 
 	}

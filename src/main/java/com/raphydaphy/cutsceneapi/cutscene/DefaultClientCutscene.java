@@ -55,7 +55,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 		this.startYaw = client.player.yaw;
 		if (!worldType.isRealWorld() && worldType != CutsceneWorldType.PREVIOUS && worldType != CutsceneWorldType.CUSTOM)
 		{
-			this.cutsceneWorld = new CutsceneWorld(client, client.world, this.worldType == CutsceneWorldType.CLONE);
+			this.cutsceneWorld = new CutsceneWorld(client, client.world, chunkGenCallback, this.worldType == CutsceneWorldType.CLONE);
 		}
 		if (this.initCallback != null) this.initCallback.accept(this);
 		if (introTransition != null) introTransition.init();
@@ -371,12 +371,6 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 	public void setNextCutscene(ClientCutscene nextCutscene)
 	{
 		this.nextCutscene = nextCutscene;
-	}
-
-	@Override
-	public Consumer<CutsceneChunk> getChunkGenCallback()
-	{
-		return chunkGenCallback;
 	}
 
 	@Override

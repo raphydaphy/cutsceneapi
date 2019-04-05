@@ -432,13 +432,13 @@ public class CutsceneChunkRegion implements IWorld
 	}
 
 	@Override
-	public <T extends Entity> List<T> getEntitiesInBox(Class<? extends T> class_1, BoundingBox boundingBox_1, Predicate<? super T> predicate_1)
+	public List<Entity> getEntities(Entity entity_1, BoundingBox boundingBox_1, Predicate<? super Entity> predicate_1)
 	{
 		return Collections.emptyList();
 	}
 
 	@Override
-	public List<Entity> getEntities(Entity entity_1, BoundingBox boundingBox_1, Predicate<? super Entity> predicate_1)
+	public <T extends Entity> List<T> getEntities(Class<? extends T> var1, BoundingBox var2, Predicate<? super T> var3)
 	{
 		return Collections.emptyList();
 	}
