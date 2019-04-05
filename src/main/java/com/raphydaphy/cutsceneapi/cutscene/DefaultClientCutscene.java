@@ -40,6 +40,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 	private float startYaw;
 	private boolean usingShader = false;
 	private boolean setCamera = false;
+	private int timeSinceWorldSet = 0;
 
 	public DefaultClientCutscene(int length)
 	{
@@ -82,26 +83,6 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 				camera.update();
 				camera.moveTo(path.getPoint(ticks / (float) length));
 
-				if (!this.worldType.isRealWorld() && this.worldType != CutsceneWorldType.PREVIOUS && !(client.world instanceof CutsceneWorld))
-				{
-					client.player.setWorld(cutsceneWorld);
-					client.world = cutsceneWorld;
-					((MinecraftClientHooks) client).setCutsceneWorld(cutsceneWorld);
-					ClientPlayNetworkHandler handler = client.getNetworkHandler();
-					if (handler != null)
-					{
-						((ClientPlayNetworkHandlerHooks) handler).setCutsceneWorld(cutsceneWorld);
-					}
-					this.cutsceneWorld.addPlayer(client.player);
-				}
-				// Fix perspective
-				if (client.options.perspective != 0)
-				{
-					client.options.perspective = 0;
-					client.worldRenderer.scheduleTerrainUpdate();
-					enableShader();
-				}
-
 				// Set Camera
 				if (!setCamera)
 				{
@@ -109,6 +90,36 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 
 					enableShader();
 					setCamera = true;
+				}
+
+				if (!this.worldType.isRealWorld() && this.worldType != CutsceneWorldType.PREVIOUS)
+				{
+					if (!(client.world instanceof CutsceneWorld))
+					{
+						client.player.setWorld(cutsceneWorld);
+						client.world = cutsceneWorld;
+						((MinecraftClientHooks) client).setCutsceneWorld(cutsceneWorld);
+						ClientPlayNetworkHandler handler = client.getNetworkHandler();
+						if (handler != null)
+						{
+							((ClientPlayNetworkHandlerHooks) handler).setCutsceneWorld(cutsceneWorld);
+						}
+						this.cutsceneWorld.addPlayer(client.player);
+						timeSinceWorldSet = 0;
+					} else if (timeSinceWorldSet == 1)
+					{
+						// Why? It didn't work when I reloaded earlier :D
+						client.worldRenderer.reload();
+					}
+
+					timeSinceWorldSet++;
+				}
+				// Fix perspective
+				if (client.options.perspective != 0)
+				{
+					client.options.perspective = 0;
+					client.worldRenderer.scheduleTerrainUpdate();
+					enableShader();
 				}
 
 				// Set Camera Look

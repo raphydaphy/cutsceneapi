@@ -1,5 +1,6 @@
 package com.raphydaphy.cutsceneapi.fakeworld;
 
+import com.raphydaphy.cutsceneapi.cutscene.CutsceneCameraEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -97,17 +98,17 @@ public class CutsceneChunkManager extends ClientChunkManager
 
 	private void updateCutsceneChunkList()
 	{
-		int int_1 = this.cutsceneChunkMap.loadDistance;
+		int loadDistance = this.cutsceneChunkMap.loadDistance;
 		int int_2 = Math.max(2, this.cutsceneClient.options.viewDistance + -2) + 2;
 		int int_3;
 		int int_4;
-		if (int_1 != int_2)
+		if (loadDistance != int_2)
 		{
 			CutsceneChunkMap chunkMap = new CutsceneChunkMap(int_2);
 
-			for (int_3 = this.cutscenePlayerChunkZ - int_1; int_3 <= this.cutscenePlayerChunkZ + int_1; ++int_3)
+			for (int_3 = this.cutscenePlayerChunkZ - loadDistance; int_3 <= this.cutscenePlayerChunkZ + loadDistance; ++int_3)
 			{
-				for (int_4 = this.cutscenePlayerChunkX - int_1; int_4 <= this.cutscenePlayerChunkX + int_1; ++int_4)
+				for (int_4 = this.cutscenePlayerChunkX - loadDistance; int_4 <= this.cutscenePlayerChunkX + loadDistance; ++int_4)
 				{
 					CutsceneChunk chunk = this.cutsceneChunkMap.chunks.get(this.cutsceneChunkMap.index(int_4, int_3));
 					if (chunk != null)
@@ -127,8 +128,8 @@ public class CutsceneChunkManager extends ClientChunkManager
 		}
 
 		Entity cameraEntity = this.cutsceneClient.cameraEntity;
-		int int_5 = MathHelper.floor(cameraEntity != null ? cameraEntity.x : this.cutsceneClient.player.x) >> 4;
-		int_3 = MathHelper.floor(cameraEntity != null ? cameraEntity.z : this.cutsceneClient.player.z) >> 4;
+		int int_5 = MathHelper.floor(cameraEntity instanceof CutsceneCameraEntity ? cameraEntity.x : this.cutsceneClient.player.x) >> 4;
+		int_3 = MathHelper.floor(cameraEntity instanceof CutsceneCameraEntity ? cameraEntity.z : this.cutsceneClient.player.z) >> 4;
 		if (this.cutscenePlayerChunkX != int_5 || this.cutscenePlayerChunkZ != int_3)
 		{
 			for (int_4 = this.cutscenePlayerChunkZ - int_2; int_4 <= this.cutscenePlayerChunkZ + int_2; ++int_4)

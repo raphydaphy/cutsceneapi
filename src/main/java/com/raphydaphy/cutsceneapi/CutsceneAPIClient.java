@@ -121,11 +121,10 @@ public class CutsceneAPIClient implements ClientModInitializer
 		voidworld.setWorldType(CutsceneWorldType.EMPTY);
 		voidworld.setInitCallback((cutscene) ->
 		{
-			BlockPos player = MinecraftClient.getInstance().player.getBlockPos();
 			ClientCutscene clientCutscene = (ClientCutscene) cutscene;
 			clientCutscene.setCameraPath(Path.builder()
-					.with(player.getX() - 150, 70, player.getZ())
-					.with(player.getX() + 40, 50, player.getZ())
+					.with(150, 70, 0)
+					.with(40, 50, 0)
 					.build());
 			CutsceneWorld world = clientCutscene.getWorld();
 			Random rand = new Random(world.getSeed());
@@ -135,7 +134,7 @@ public class CutsceneAPIClient implements ClientModInitializer
 				{
 					for (int z = -10; z < 10; z++)
 					{
-						BlockPos pos = new BlockPos(player.getX() + x, y, player.getZ() + z);
+						BlockPos pos = new BlockPos(x, y, z);
 						if (y == 40)
 						{
 							if (rand.nextInt(5) == 0)
