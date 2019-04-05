@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientChunkManager;
+import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
@@ -125,8 +126,9 @@ public class CutsceneChunkManager extends ClientChunkManager
 			this.cutsceneChunkMap = chunkMap;
 		}
 
-		int int_5 = MathHelper.floor(this.cutsceneClient.player.x) >> 4;
-		int_3 = MathHelper.floor(this.cutsceneClient.player.z) >> 4;
+		Entity cameraEntity = this.cutsceneClient.cameraEntity;
+		int int_5 = MathHelper.floor(cameraEntity != null ? cameraEntity.x : this.cutsceneClient.player.x) >> 4;
+		int_3 = MathHelper.floor(cameraEntity != null ? cameraEntity.z : this.cutsceneClient.player.z) >> 4;
 		if (this.cutscenePlayerChunkX != int_5 || this.cutscenePlayerChunkZ != int_3)
 		{
 			for (int_4 = this.cutscenePlayerChunkZ - int_2; int_4 <= this.cutscenePlayerChunkZ + int_2; ++int_4)
