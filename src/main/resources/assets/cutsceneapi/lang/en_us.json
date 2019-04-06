@@ -1,3 +1,4 @@
 {
-  "arguments.cutsceneapi.invalid": "That cutscene does not exist!"
+  "arguments.cutsceneapi.invalid": "That cutscene does not exist!",
+  "command.cutsceneapi.serializedchunk": "Serialized chunk!"
 }

@@ -52,8 +52,8 @@ public class CutsceneChunkRegion implements IWorld
 	private final Random random;
 	private final Dimension dimension;
 	private final ChunkGeneratorConfig generatorSettings;
-	private final TickScheduler<Block> blockTickScheduler = new MultiTickScheduler((pos) -> this.getChunk((BlockPos)pos).getBlockTickScheduler());
-	private final TickScheduler<Fluid> fluidTickScheduler = new MultiTickScheduler((pos) -> this.getChunk((BlockPos)pos).getFluidTickScheduler());
+	private final TickScheduler<Block> blockTickScheduler = new MultiTickScheduler<>((pos) -> this.getChunk(pos).getBlockTickScheduler());
+	private final TickScheduler<Fluid> fluidTickScheduler = new MultiTickScheduler<>((pos) -> this.getChunk(pos).getFluidTickScheduler());
 
 	public CutsceneChunkRegion(CutsceneWorld cutsceneWorld, List<Chunk> list_1, ChunkGeneratorConfig chunkGenConfig)
 	{

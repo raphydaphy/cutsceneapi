@@ -68,16 +68,19 @@ public class CutsceneAPI implements ModInitializer
 					return -1;
 				})))).then(ServerCommandManager.literal("world").then(ServerCommandManager.literal("join").then(ServerCommandManager.literal("copy").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) ->
 		{
-			PacketHandler.sendToClient(new WorldTestPacket(true, true), EntityArgumentType.getServerPlayerArgument(command, "target"));
+			PacketHandler.sendToClient(new WorldTestPacket(WorldTestPacket.WorldTest.JOIN_COPY), EntityArgumentType.getServerPlayerArgument(command, "target"));
 			return 1;
 		}))).then(ServerCommandManager.literal("empty").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) ->
 		{
-			PacketHandler.sendToClient(new WorldTestPacket(true, false), EntityArgumentType.getServerPlayerArgument(command, "target"));
+			PacketHandler.sendToClient(new WorldTestPacket(WorldTestPacket.WorldTest.JOIN_VOID), EntityArgumentType.getServerPlayerArgument(command, "target"));
 			return 1;
 		})))).then(ServerCommandManager.literal("leave").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) ->
 		{
-			PacketHandler.sendToClient(new WorldTestPacket(false, false), EntityArgumentType.getServerPlayerArgument(command, "target"));
+			PacketHandler.sendToClient(new WorldTestPacket(WorldTestPacket.WorldTest.LEAVE), EntityArgumentType.getServerPlayerArgument(command, "target"));
 			return 1;
-		}))))));
+		})))).then(ServerCommandManager.literal("serializechunk").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) -> {
+			PacketHandler.sendToClient(new WorldTestPacket(WorldTestPacket.WorldTest.SERIALIZE), EntityArgumentType.getServerPlayerArgument(command, "target"));
+			return 1;
+	})))));
 	}
 }

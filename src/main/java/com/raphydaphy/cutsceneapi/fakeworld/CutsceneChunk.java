@@ -22,6 +22,13 @@ public class CutsceneChunk extends WorldChunk
 {
 	public BlockState[] blockStates;
 
+	public CutsceneChunk(CutsceneWorld world, ChunkPos pos, Biome[] biomes, BlockState[] blockStates)
+	{
+		super(world, pos, biomes);
+
+		this.blockStates = blockStates;
+	}
+
 	public CutsceneChunk(CutsceneWorld world, ChunkPos pos, Biome[] biomes)
 	{
 		super(world, pos, biomes);
