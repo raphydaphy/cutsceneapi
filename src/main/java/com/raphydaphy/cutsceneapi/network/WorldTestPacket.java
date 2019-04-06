@@ -21,6 +21,9 @@ import net.minecraft.world.storage.RegionFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class WorldTestPacket implements IPacket
 {
@@ -88,31 +91,39 @@ public class WorldTestPacket implements IPacket
 				CutsceneManager.stopFakeWorld();
 			} else if (test == WorldTest.SERIALIZE)
 			{
-				File file = new File("cutscene_chunk.mca");
-				try
+				int radius = 15;
+				for (int x = - radius; x <= radius; x++)
 				{
-					if (!file.exists())
+					for (int z = - radius; z <= radius; z++)
 					{
-						file.createNewFile();
+						File file = new File("cutscene_chunks.mca");
+						try
+						{
+							if (!file.exists())
+							{
+								file.createNewFile();
+							}
+						} catch (IOException e)
+						{
+							CutsceneAPI.getLogger().error("Failed to serialize cutscene chunk! Printing stack trace...");
+							e.printStackTrace();
+							return;
+						}
+						Chunk chunk = client.world.getChunk(new BlockPos(x * 16, 0, z * 16));
+						CutsceneChunkSerializer.serializeAndSave(file, client.world, chunk);
 					}
-				} catch (IOException e)
-				{
-					CutsceneAPI.getLogger().error("Failed to serialize cutscene chunk! Printing stack trace...");
-					e.printStackTrace();
-					return;
 				}
 				client.player.addChatMessage(new TranslatableTextComponent("command.cutsceneapi.serializedchunk"), false);
-				CutsceneChunkSerializer.serializeAndSave(file, client.world, client.world.getChunk(client.player.getBlockPos()));
 			} else if (test == WorldTest.DESERIALIZE)
 			{
-				File file = new File("cutscene_chunk.mca");
+				File file = new File("cutscene_chunks.mca");
 				if (file.exists())
 				{
 					CompoundTag tag;
 					ChunkPos pos = new ChunkPos(0, 0);
 					try
 					{
-						tag = CutsceneChunkSerializer.getTagFromFile(file, pos);
+						tag = CutsceneChunkSerializer.getTagFromFile(file, pos, false);
 					} catch (IOException e)
 					{
 						CutsceneAPI.getLogger().error("Failed to deserialize cutscene chunk! Printing stack trace...");

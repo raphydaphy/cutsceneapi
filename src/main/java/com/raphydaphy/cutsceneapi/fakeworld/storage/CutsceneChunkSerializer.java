@@ -48,7 +48,7 @@ import java.util.*;
  */
 public class CutsceneChunkSerializer
 {
-	public static CompoundTag getTagFromFile(File file, ChunkPos pos) throws IOException
+	public static CompoundTag getTagFromFile(File file, ChunkPos pos, boolean keepOpen) throws IOException
 	{
 		RegionFile regionFile;
 		try
@@ -63,7 +63,7 @@ public class CutsceneChunkSerializer
 		DataInputStream inputStream = regionFile.getChunkDataInputStream(pos);
 		Throwable exception = null;
 
-		Object var6;
+		CompoundTag tag;
 		try
 		{
 			if (inputStream != null)
@@ -71,20 +71,20 @@ public class CutsceneChunkSerializer
 				return NbtIo.read(inputStream);
 			}
 
-			var6 = null;
+			tag = new CompoundTag();
 		} catch (Throwable e)
 		{
 			exception = e;
 			throw e;
 		} finally
 		{
-			handleException(inputStream, exception);
+			handleException(inputStream, exception, keepOpen);
 		}
 
-		return (CompoundTag) var6;
+		return tag;
 	}
 
-	private static void handleException(Closeable closable, Throwable exception) throws IOException
+	private static void handleException(Closeable closable, Throwable exception, boolean keepOpen) throws IOException
 	{
 		if (closable != null)
 		{
@@ -97,7 +97,7 @@ public class CutsceneChunkSerializer
 				{
 					exception.addSuppressed(var15);
 				}
-			} else
+			} else if (!keepOpen)
 			{
 				closable.close();
 			}
@@ -109,7 +109,7 @@ public class CutsceneChunkSerializer
 		CompoundTag chunkData = serialize(world, chunk);
 		try
 		{
-			saveRegion(file, chunk.getPos(), chunkData);
+			saveRegion(file, chunk.getPos(), chunkData, false);
 		} catch (IOException e)
 		{
 			CutsceneAPI.getLogger().error("Failed to save chunk for cutscene storage! Printing stack trace...");
@@ -117,9 +117,52 @@ public class CutsceneChunkSerializer
 		}
 	}
 
-	private static void saveRegion(File file, ChunkPos chunkPos, CompoundTag chunkData) throws IOException
+	// This produces and empty file for some reason...
+	public static void serializeAndSaveAll(File file, World world, List<Chunk> chunks)
 	{
-		RegionFile regionFile = new RegionFile(file);
+		RegionFile regionFile;
+
+		try
+		{
+			regionFile = new RegionFile(file);
+		} catch (IOException e)
+		{
+			CutsceneAPI.getLogger().error("Failed to create RegionFile for cutscene chunk serialization! Printing stack trace...");
+			e.printStackTrace();
+			return;
+		}
+
+		for (Chunk chunk : chunks)
+		{
+			CompoundTag chunkData = serialize(world, chunk);
+			try
+			{
+				saveRegion(regionFile, chunk.getPos(), chunkData, true);
+			} catch (IOException e)
+			{
+				CutsceneAPI.getLogger().error("Failed to save cutscene chunk data to region file! Printing stack trace...");
+				e.printStackTrace();
+				return;
+			}
+		}
+
+		try
+		{
+			regionFile.close();
+		} catch (IOException e)
+		{
+			CutsceneAPI.getLogger().error("Failed to close cutscene chunk region file! Printing stack trace...");
+			e.printStackTrace();
+		}
+	}
+
+	private static void saveRegion(File file, ChunkPos chunkPos, CompoundTag chunkData, boolean keepOpen) throws IOException
+	{
+		saveRegion(new RegionFile(file), chunkPos, chunkData, keepOpen);
+	}
+
+	public static void saveRegion(RegionFile regionFile, ChunkPos chunkPos, CompoundTag chunkData, boolean keepOpen) throws IOException
+	{
 		DataOutputStream outputStream = regionFile.getChunkDataOutputStream(chunkPos);
 		Throwable exception = null;
 
@@ -132,16 +175,14 @@ public class CutsceneChunkSerializer
 			throw e;
 		} finally
 		{
-			handleException(outputStream, exception);
+			handleException(outputStream, exception, keepOpen);
 		}
 		regionFile.close();
 	}
 
 	public static Chunk deserialize(World world_1, ChunkPos chunkPos, CompoundTag chunkTag)
 	{
-		ChunkGenerator<?> chunkGenerator_1 = world_1.getChunkManager().getChunkGenerator();
-
-		// TODO: biome source
+		// TODO: get actual biome source
 		LevelInfo levelInfo = new LevelInfo(0, GameMode.SPECTATOR, false, false, LevelGeneratorType.DEFAULT);
 		OverworldChunkGeneratorConfig chunkGenConfig = new OverworldChunkGeneratorConfig();
 		VanillaLayeredBiomeSourceConfig biomeConfig = new VanillaLayeredBiomeSourceConfig();

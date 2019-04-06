@@ -5,7 +5,9 @@ import com.raphydaphy.cutsceneapi.cutscene.CutsceneWorldType;
 import com.raphydaphy.cutsceneapi.cutscene.DefaultClientCutscene;
 import com.raphydaphy.cutsceneapi.cutscene.Path;
 import com.raphydaphy.cutsceneapi.cutscene.Transition;
+import com.raphydaphy.cutsceneapi.fakeworld.CutsceneChunk;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
+import com.raphydaphy.cutsceneapi.fakeworld.storage.CutsceneChunkSerializer;
 import com.raphydaphy.cutsceneapi.network.CutsceneStartPacket;
 import com.raphydaphy.cutsceneapi.network.WorldTestPacket;
 import net.fabricmc.api.ClientModInitializer;
@@ -15,11 +17,16 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.fluid.Fluids;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkPos;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
 public class CutsceneAPIClient implements ClientModInitializer
@@ -33,6 +40,7 @@ public class CutsceneAPIClient implements ClientModInitializer
 		CutsceneAPI.FAKEWORLD_CUTSCENE_2 = new DefaultClientCutscene(CutsceneAPI.FAKEWORLD_CUTSCENE_2.getLength());
 		CutsceneAPI.VOIDWORLD_CUTSCENE = new DefaultClientCutscene(CutsceneAPI.VOIDWORLD_CUTSCENE.getLength());
 		CutsceneAPI.GENERATEDWORLD_CUTSCENE = new DefaultClientCutscene(CutsceneAPI.GENERATEDWORLD_CUTSCENE.getLength());
+		CutsceneAPI.CACHEDWORLD_CUTSCENE = new DefaultClientCutscene(CutsceneAPI.CACHEDWORLD_CUTSCENE.getLength());
 	}
 
 	@Override
@@ -168,5 +176,56 @@ public class CutsceneAPIClient implements ClientModInitializer
             clientCutscene.setWorld(GENERATED);
 	        clientCutscene.setCameraPath(new Path.Builder().with(-200, 90, 0).with(200, 100, 30).build());
         });
+
+		ClientCutscene cachedWorld = (ClientCutscene)CutsceneAPI.CACHEDWORLD_CUTSCENE;
+		cachedWorld.setIntroTransition(new Transition.DipTo(20, 50, 1, 1, 1));
+		cachedWorld.setOutroTransition(new Transition.FadeTo(20, 1, 1, 1));
+		cachedWorld.setWorldType(CutsceneWorldType.CUSTOM);
+		cachedWorld.setInitCallback((cutscene) -> {
+			MinecraftClient client = MinecraftClient.getInstance();
+			ClientCutscene clientCutscene = (ClientCutscene)cutscene;
+			clientCutscene.setCameraPath(new Path.Builder().with(-200, 90, 0).with(200, 100, 30).build());
+			CutsceneWorld cutsceneWorld = new CutsceneWorld(client, client.world, null, false);
+			int radius = 15;
+			for (int chunkX = - radius; chunkX <= radius; chunkX++)
+			{
+				for (int chunkZ = -radius; chunkZ <= radius; chunkZ++)
+				{
+					File file = new File("cutscene_chunks.mca");
+					if (file.exists())
+					{
+						ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
+						CompoundTag chunkData;
+						try
+						{
+							chunkData = CutsceneChunkSerializer.getTagFromFile(file, chunkPos, false);
+						} catch (IOException e)
+						{
+							CutsceneAPI.getLogger().error("Failed to deserialize cutscene chunk! Printing stack trace...");
+							e.printStackTrace();
+							continue;
+						}
+						Chunk chunk = CutsceneChunkSerializer.deserialize(cutsceneWorld, chunkPos, chunkData);
+						BlockState[] blockStates = new BlockState[16 * cutsceneWorld.getHeight() * 16];
+						int x, y, z, index;
+						for (x = 0; x < 16; x++)
+						{
+							for (y = 0; y < cutsceneWorld.getHeight(); y++)
+							{
+								for (z = 0; z < 16; z++)
+								{
+									index = z * 16 * cutsceneWorld.getHeight() + y * 16 + x;
+									blockStates[index] = chunk.getBlockState(new BlockPos(chunk.getPos().x + x, y, chunk.getPos().z + z));
+								}
+							}
+						}
+						CutsceneChunk cutsceneChunk = new CutsceneChunk(cutsceneWorld, chunkPos, chunk.getBiomeArray(), blockStates);
+						cutsceneWorld.putChunk(cutsceneChunk);
+					}
+				}
+			}
+			clientCutscene.setWorld(cutsceneWorld);
+		});
+
 	}
 }

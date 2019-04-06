@@ -37,6 +37,7 @@ public class CutsceneAPI implements ModInitializer
 	public static Cutscene FAKEWORLD_CUTSCENE_2 = new DefaultCutscene(200);
 	public static Cutscene VOIDWORLD_CUTSCENE = new DefaultCutscene(150);
 	public static Cutscene GENERATEDWORLD_CUTSCENE = new DefaultCutscene(300);
+	public static Cutscene CACHEDWORLD_CUTSCENE = new DefaultCutscene(500);
 
 	public static Logger getLogger()
 	{
@@ -51,6 +52,7 @@ public class CutsceneAPI implements ModInitializer
 		CutsceneRegistry.register(new Identifier(DOMAIN, "fake_world_2"), FAKEWORLD_CUTSCENE_2);
 		CutsceneRegistry.register(new Identifier(DOMAIN, "void_world"), VOIDWORLD_CUTSCENE);
 		CutsceneRegistry.register(new Identifier(DOMAIN, "generated_world"), GENERATEDWORLD_CUTSCENE);
+		CutsceneRegistry.register(new Identifier(DOMAIN, "cached_world"), CACHEDWORLD_CUTSCENE);
 
 		CUTSCENE_CAMERA_ENTITY = Registry.register(Registry.ENTITY_TYPE, new Identifier(DOMAIN, "cutscene_camera"), FabricEntityTypeBuilder.create(EntityCategory.MISC, CutsceneCameraEntity::new).size(new EntitySize(1, 1, true)).build());
 		ServerSidePacketRegistry.INSTANCE.register(CutsceneFinishPacket.ID, new CutsceneFinishPacket.Handler());
