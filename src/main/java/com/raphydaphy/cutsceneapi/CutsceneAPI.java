@@ -78,9 +78,12 @@ public class CutsceneAPI implements ModInitializer
 		{
 			PacketHandler.sendToClient(new WorldTestPacket(WorldTestPacket.WorldTest.LEAVE), EntityArgumentType.getServerPlayerArgument(command, "target"));
 			return 1;
-		})))).then(ServerCommandManager.literal("serializechunk").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) -> {
+		}))).then(ServerCommandManager.literal("serialize").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) -> {
 			PacketHandler.sendToClient(new WorldTestPacket(WorldTestPacket.WorldTest.SERIALIZE), EntityArgumentType.getServerPlayerArgument(command, "target"));
 			return 1;
-	})))));
+		}))).then(ServerCommandManager.literal("deserialize").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) -> {
+			PacketHandler.sendToClient(new WorldTestPacket(WorldTestPacket.WorldTest.DESERIALIZE), EntityArgumentType.getServerPlayerArgument(command, "target"));
+			return 1;
+		}))))));
 	}
 }

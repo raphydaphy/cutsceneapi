@@ -3,13 +3,21 @@ package com.raphydaphy.cutsceneapi.network;
 import com.raphydaphy.crochet.network.IPacket;
 import com.raphydaphy.crochet.network.MessageHandler;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
+import com.raphydaphy.cutsceneapi.CutsceneAPIClient;
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
 import com.raphydaphy.cutsceneapi.fakeworld.storage.CutsceneChunkSerializer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.text.TranslatableTextComponent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkPos;
+import net.minecraft.world.storage.RegionFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,6 +66,7 @@ public class WorldTestPacket implements IPacket
 		return ID;
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static class Handler extends MessageHandler<WorldTestPacket>
 	{
 		@Override
@@ -94,12 +103,35 @@ public class WorldTestPacket implements IPacket
 				}
 				client.player.addChatMessage(new TranslatableTextComponent("command.cutsceneapi.serializedchunk"), false);
 				CutsceneChunkSerializer.serializeAndSave(file, client.world, client.world.getChunk(client.player.getBlockPos()));
+			} else if (test == WorldTest.DESERIALIZE)
+			{
+				File file = new File("cutscene_chunk.mca");
+				if (file.exists())
+				{
+					CompoundTag tag;
+					ChunkPos pos = new ChunkPos(0, 0);
+					try
+					{
+						tag = CutsceneChunkSerializer.getTagFromFile(file, pos);
+					} catch (IOException e)
+					{
+						CutsceneAPI.getLogger().error("Failed to deserialize cutscene chunk! Printing stack trace...");
+						e.printStackTrace();
+						return;
+					}
+					Chunk chunk = CutsceneChunkSerializer.deserialize(client.world, pos, tag);
+					CutsceneAPI.getLogger().info("Got chunk! Block at {0, 0, 0}: " + chunk.getBlockState(new BlockPos(pos.x * 16, 0, pos.z * 16)).getBlock());
+					client.player.addChatMessage(new TranslatableTextComponent("command.cutsceneapi.deserialized"), false);
+				} else
+				{
+					client.player.addChatMessage(new TranslatableTextComponent("command.cutsceneapi.didntserialize"), false);
+				}
 			}
 		}
 	}
 
 	public enum WorldTest
 	{
-		JOIN_VOID, JOIN_COPY, LEAVE, SERIALIZE
+		JOIN_VOID, JOIN_COPY, LEAVE, SERIALIZE, DESERIALIZE
 	}
 }

@@ -24,7 +24,7 @@ import java.util.Random;
 
 public class CutsceneAPIClient implements ClientModInitializer
 {
-	private CutsceneWorld GENERATED;
+	public static CutsceneWorld GENERATED;
 
 	public CutsceneAPIClient()
 	{

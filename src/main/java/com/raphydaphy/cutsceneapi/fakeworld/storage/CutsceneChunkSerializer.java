@@ -16,20 +16,25 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.ChunkTickScheduler;
+import net.minecraft.world.GameMode;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeSource;
+import net.minecraft.world.biome.source.VanillaLayeredBiomeSource;
+import net.minecraft.world.biome.source.VanillaLayeredBiomeSourceConfig;
 import net.minecraft.world.chunk.*;
 import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.gen.chunk.OverworldChunkGeneratorConfig;
+import net.minecraft.world.level.LevelGeneratorType;
+import net.minecraft.world.level.LevelInfo;
+import net.minecraft.world.level.LevelProperties;
 import net.minecraft.world.storage.RegionFile;
 
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -43,6 +48,62 @@ import java.util.*;
  */
 public class CutsceneChunkSerializer
 {
+	public static CompoundTag getTagFromFile(File file, ChunkPos pos) throws IOException
+	{
+		RegionFile regionFile;
+		try
+		{
+			regionFile = new RegionFile(file);
+		} catch (IOException e)
+		{
+			CutsceneAPI.getLogger().error("Failed to create RegionFile when deserializeing cutscene chunk! Printing stack trace...");
+			e.printStackTrace();
+			return new CompoundTag();
+		}
+		DataInputStream inputStream = regionFile.getChunkDataInputStream(pos);
+		Throwable exception = null;
+
+		Object var6;
+		try
+		{
+			if (inputStream != null)
+			{
+				return NbtIo.read(inputStream);
+			}
+
+			var6 = null;
+		} catch (Throwable e)
+		{
+			exception = e;
+			throw e;
+		} finally
+		{
+			handleException(inputStream, exception);
+		}
+
+		return (CompoundTag) var6;
+	}
+
+	private static void handleException(Closeable closable, Throwable exception) throws IOException
+	{
+		if (closable != null)
+		{
+			if (exception != null)
+			{
+				try
+				{
+					closable.close();
+				} catch (Throwable var15)
+				{
+					exception.addSuppressed(var15);
+				}
+			} else
+			{
+				closable.close();
+			}
+		}
+	}
+
 	public static void serializeAndSave(File file, World world, Chunk chunk)
 	{
 		CompoundTag chunkData = serialize(world, chunk);
@@ -59,42 +120,36 @@ public class CutsceneChunkSerializer
 	private static void saveRegion(File file, ChunkPos chunkPos, CompoundTag chunkData) throws IOException
 	{
 		RegionFile regionFile = new RegionFile(file);
-		DataOutputStream dataOutputStream_1 = regionFile.getChunkDataOutputStream(chunkPos);
-		Throwable var5 = null;
+		DataOutputStream outputStream = regionFile.getChunkDataOutputStream(chunkPos);
+		Throwable exception = null;
 
 		try
 		{
-			NbtIo.write(chunkData, dataOutputStream_1);
-		} catch (Throwable var14)
+			NbtIo.write(chunkData, outputStream);
+		} catch (Throwable e)
 		{
-			var5 = var14;
-			throw var14;
+			exception = e;
+			throw e;
 		} finally
 		{
-			if (dataOutputStream_1 != null)
-			{
-				if (var5 != null)
-				{
-					try
-					{
-						dataOutputStream_1.close();
-					} catch (Throwable var13)
-					{
-						var5.addSuppressed(var13);
-					}
-				} else
-				{
-					dataOutputStream_1.close();
-				}
-			}
-
+			handleException(outputStream, exception);
 		}
+		regionFile.close();
 	}
 
-	public static Chunk deserialize(CutsceneWorld world_1, ChunkPos chunkPos, CompoundTag chunkTag)
+	public static Chunk deserialize(World world_1, ChunkPos chunkPos, CompoundTag chunkTag)
 	{
 		ChunkGenerator<?> chunkGenerator_1 = world_1.getChunkManager().getChunkGenerator();
-		BiomeSource biomeSource_1 = chunkGenerator_1.getBiomeSource();
+
+		// TODO: biome source
+		LevelInfo levelInfo = new LevelInfo(0, GameMode.SPECTATOR, false, false, LevelGeneratorType.DEFAULT);
+		OverworldChunkGeneratorConfig chunkGenConfig = new OverworldChunkGeneratorConfig();
+		VanillaLayeredBiomeSourceConfig biomeConfig = new VanillaLayeredBiomeSourceConfig();
+		biomeConfig.setLevelProperties(new LevelProperties(levelInfo, "Deserialized Cutscene Chunk"));
+		biomeConfig.setGeneratorSettings(chunkGenConfig);
+		BiomeSource biomeSource_1 = new VanillaLayeredBiomeSource(biomeConfig);
+
+
 		CompoundTag compoundTag_2 = chunkTag.getCompound("Level");
 		ChunkPos storedPos = new ChunkPos(compoundTag_2.getInt("xPos"), compoundTag_2.getInt("zPos"));
 		if (!Objects.equals(chunkPos, storedPos))
@@ -169,8 +224,9 @@ public class CutsceneChunkSerializer
 		{
 			BlockState[] blockStates = new BlockState[16 * world_1.getHeight() * 16];
 
-			chunk_2 = new CutsceneChunk(world_1, chunkPos, biomes, blockStates);
-			//chunk_2 = new WorldChunk(world_1.getWorld(), chunkPos, biomes, upgradeData_1, chunkTickScheduler_1, chunkTickScheduler_2, long_1, chunkSections_1, (worldChunk_1) -> {writeEntities(compoundTag_2, worldChunk_1); });
+			// TODO: convert to cutscene chunk
+			//chunk_2 = new CutsceneChunk(world_1, chunkPos, biomes, blockStates);
+			chunk_2 = new WorldChunk(world_1.getWorld(), chunkPos, biomes, upgradeData_1, chunkTickScheduler_1, chunkTickScheduler_2, 0, chunkSections_1, (worldChunk_1) -> {writeEntities(compoundTag_2, worldChunk_1); });
 		} else
 		{
 			ProtoChunk protoChunk_1 = new ProtoChunk(chunkPos, upgradeData_1, chunkSections_1, chunkTickScheduler_1, chunkTickScheduler_2);
@@ -235,7 +291,7 @@ public class CutsceneChunkSerializer
 
 		if (chunkStatus$ChunkType_1 == ChunkStatus.ChunkType.LEVELCHUNK)
 		{
-			return (CutsceneChunk) chunk_2;
+			return chunk_2;
 		} else
 		{
 			ProtoChunk protoChunk_2 = (ProtoChunk) chunk_2;
