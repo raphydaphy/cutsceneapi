@@ -1,8 +1,6 @@
 package com.raphydaphy.cutsceneapi.fakeworld.storage;
 
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
-import com.raphydaphy.cutsceneapi.fakeworld.CutsceneChunk;
-import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
 import it.unimi.dsi.fastutil.shorts.ShortList;
 import it.unimi.dsi.fastutil.shorts.ShortListIterator;
 import net.minecraft.SharedConstants;
@@ -27,7 +25,6 @@ import net.minecraft.world.chunk.*;
 import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.OverworldChunkGeneratorConfig;
 import net.minecraft.world.level.LevelGeneratorType;
 import net.minecraft.world.level.LevelInfo;
@@ -60,28 +57,34 @@ public class CutsceneChunkSerializer
 			e.printStackTrace();
 			return new CompoundTag();
 		}
-		DataInputStream inputStream = regionFile.getChunkDataInputStream(pos);
-		Throwable exception = null;
-
-		CompoundTag tag;
-		try
+		if (regionFile.hasChunk(pos))
 		{
-			if (inputStream != null)
+			DataInputStream inputStream = regionFile.getChunkDataInputStream(pos);
+			Throwable exception = null;
+
+			CompoundTag tag;
+			try
 			{
-				return NbtIo.read(inputStream);
+				if (inputStream != null)
+				{
+					return NbtIo.read(inputStream);
+				}
+
+				tag = new CompoundTag();
+			} catch (Throwable e)
+			{
+				exception = e;
+				throw e;
+			} finally
+			{
+				handleException(inputStream, exception, keepOpen);
 			}
 
-			tag = new CompoundTag();
-		} catch (Throwable e)
+			return tag;
+		} else
 		{
-			exception = e;
-			throw e;
-		} finally
-		{
-			handleException(inputStream, exception, keepOpen);
+			return new CompoundTag();
 		}
-
-		return tag;
 	}
 
 	private static void handleException(Closeable closable, Throwable exception, boolean keepOpen) throws IOException
@@ -106,14 +109,17 @@ public class CutsceneChunkSerializer
 
 	public static void serializeAndSave(File file, World world, Chunk chunk)
 	{
-		CompoundTag chunkData = serialize(world, chunk);
-		try
+		if (!(chunk instanceof EmptyChunk))
 		{
-			saveRegion(file, chunk.getPos(), chunkData, false);
-		} catch (IOException e)
-		{
-			CutsceneAPI.getLogger().error("Failed to save chunk for cutscene storage! Printing stack trace...");
-			e.printStackTrace();
+			CompoundTag chunkData = serialize(world, chunk);
+			try
+			{
+				saveRegion(file, chunk.getPos(), chunkData, false);
+			} catch (IOException e)
+			{
+				CutsceneAPI.getLogger().error("Failed to save chunk for cutscene storage! Printing stack trace...");
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -189,7 +195,6 @@ public class CutsceneChunkSerializer
 		biomeConfig.setLevelProperties(new LevelProperties(levelInfo, "Deserialized Cutscene Chunk"));
 		biomeConfig.setGeneratorSettings(chunkGenConfig);
 		BiomeSource biomeSource_1 = new VanillaLayeredBiomeSource(biomeConfig);
-
 
 		CompoundTag compoundTag_2 = chunkTag.getCompound("Level");
 		ChunkPos storedPos = new ChunkPos(compoundTag_2.getInt("xPos"), compoundTag_2.getInt("zPos"));
@@ -368,6 +373,7 @@ public class CutsceneChunkSerializer
 		CompoundTag compoundTag_2 = new CompoundTag();
 		compoundTag_1.putInt("DataVersion", SharedConstants.getGameVersion().getWorldVersion());
 		compoundTag_1.put("Level", compoundTag_2);
+		System.out.println("Serializing x pos: " + chunkPos_1.x);
 		compoundTag_2.putInt("xPos", chunkPos_1.x);
 		compoundTag_2.putInt("zPos", chunkPos_1.z);
 		compoundTag_2.putLong("LastUpdate", world_1.getTime());

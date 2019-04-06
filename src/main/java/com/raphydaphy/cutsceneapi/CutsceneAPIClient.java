@@ -205,22 +205,25 @@ public class CutsceneAPIClient implements ClientModInitializer
 							e.printStackTrace();
 							continue;
 						}
-						Chunk chunk = CutsceneChunkSerializer.deserialize(cutsceneWorld, chunkPos, chunkData);
-						BlockState[] blockStates = new BlockState[16 * cutsceneWorld.getHeight() * 16];
-						int x, y, z, index;
-						for (x = 0; x < 16; x++)
+						if (!chunkData.isEmpty())
 						{
-							for (y = 0; y < cutsceneWorld.getHeight(); y++)
+							Chunk chunk = CutsceneChunkSerializer.deserialize(cutsceneWorld, chunkPos, chunkData);
+							BlockState[] blockStates = new BlockState[16 * cutsceneWorld.getHeight() * 16];
+							int x, y, z, index;
+							for (x = 0; x < 16; x++)
 							{
-								for (z = 0; z < 16; z++)
+								for (y = 0; y < cutsceneWorld.getHeight(); y++)
 								{
-									index = z * 16 * cutsceneWorld.getHeight() + y * 16 + x;
-									blockStates[index] = chunk.getBlockState(new BlockPos(chunk.getPos().x + x, y, chunk.getPos().z + z));
+									for (z = 0; z < 16; z++)
+									{
+										index = z * 16 * cutsceneWorld.getHeight() + y * 16 + x;
+										blockStates[index] = chunk.getBlockState(new BlockPos(chunk.getPos().x + x, y, chunk.getPos().z + z));
+									}
 								}
 							}
+							CutsceneChunk cutsceneChunk = new CutsceneChunk(cutsceneWorld, chunkPos, chunk.getBiomeArray(), blockStates);
+							cutsceneWorld.putChunk(cutsceneChunk);
 						}
-						CutsceneChunk cutsceneChunk = new CutsceneChunk(cutsceneWorld, chunkPos, chunk.getBiomeArray(), blockStates);
-						cutsceneWorld.putChunk(cutsceneChunk);
 					}
 				}
 			}
