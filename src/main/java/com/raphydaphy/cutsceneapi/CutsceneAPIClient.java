@@ -8,6 +8,7 @@ import com.raphydaphy.cutsceneapi.cutscene.Transition;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneChunk;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
 import com.raphydaphy.cutsceneapi.fakeworld.storage.CutsceneChunkSerializer;
+import com.raphydaphy.cutsceneapi.fakeworld.storage.CutsceneWorldStorage;
 import com.raphydaphy.cutsceneapi.network.CutsceneStartPacket;
 import com.raphydaphy.cutsceneapi.network.WorldTestPacket;
 import net.fabricmc.api.ClientModInitializer;
@@ -32,6 +33,7 @@ import java.util.Random;
 public class CutsceneAPIClient implements ClientModInitializer
 {
 	public static CutsceneWorld GENERATED;
+	public static CutsceneWorldStorage STORAGE;
 
 	public CutsceneAPIClient()
 	{
@@ -46,6 +48,8 @@ public class CutsceneAPIClient implements ClientModInitializer
 	@Override
 	public void onInitializeClient()
 	{
+		STORAGE = new CutsceneWorldStorage("cutscene_worlds");
+
 		ClientSidePacketRegistry.INSTANCE.register(CutsceneStartPacket.ID, new CutsceneStartPacket.Handler());
 		ClientSidePacketRegistry.INSTANCE.register(WorldTestPacket.ID, new WorldTestPacket.Handler());
 
@@ -182,53 +186,50 @@ public class CutsceneAPIClient implements ClientModInitializer
 		cachedWorld.setOutroTransition(new Transition.FadeTo(20, 1, 1, 1));
 		cachedWorld.setWorldType(CutsceneWorldType.CUSTOM);
 		cachedWorld.setInitCallback((cutscene) -> {
-			MinecraftClient client = MinecraftClient.getInstance();
 			ClientCutscene clientCutscene = (ClientCutscene)cutscene;
 			clientCutscene.setCameraPath(new Path.Builder().with(-200, 90, 0).with(200, 100, 30).build());
+		});
+		cachedWorld.setWorldInitCallback((cutscene) -> {
+			MinecraftClient client = MinecraftClient.getInstance();
 			CutsceneWorld cutsceneWorld = new CutsceneWorld(client, client.world, null, false);
 			int radius = 15;
 			for (int chunkX = - radius; chunkX <= radius; chunkX++)
 			{
 				for (int chunkZ = -radius; chunkZ <= radius; chunkZ++)
 				{
-					File file = new File("cutscene_chunks.mca");
-					if (file.exists())
+					ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
+					CompoundTag chunkData;
+					try
 					{
-						ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
-						CompoundTag chunkData;
-						try
+						chunkData = CutsceneAPIClient.STORAGE.getChunkData(chunkPos);
+					} catch (IOException e)
+					{
+						CutsceneAPI.getLogger().error("Failed to deserialize cutscene chunk! Printing stack trace...");
+						e.printStackTrace();
+						continue;
+					}
+					if (!chunkData.isEmpty())
+					{
+						Chunk chunk = CutsceneChunkSerializer.deserialize(cutsceneWorld, chunkPos, chunkData);
+						BlockState[] blockStates = new BlockState[16 * cutsceneWorld.getHeight() * 16];
+						int x, y, z, index;
+						for (x = 0; x < 16; x++)
 						{
-							chunkData = CutsceneChunkSerializer.getTagFromFile(file, chunkPos, false);
-						} catch (IOException e)
-						{
-							CutsceneAPI.getLogger().error("Failed to deserialize cutscene chunk! Printing stack trace...");
-							e.printStackTrace();
-							continue;
-						}
-						if (!chunkData.isEmpty())
-						{
-							Chunk chunk = CutsceneChunkSerializer.deserialize(cutsceneWorld, chunkPos, chunkData);
-							BlockState[] blockStates = new BlockState[16 * cutsceneWorld.getHeight() * 16];
-							int x, y, z, index;
-							for (x = 0; x < 16; x++)
+							for (y = 0; y < cutsceneWorld.getHeight(); y++)
 							{
-								for (y = 0; y < cutsceneWorld.getHeight(); y++)
+								for (z = 0; z < 16; z++)
 								{
-									for (z = 0; z < 16; z++)
-									{
-										index = z * 16 * cutsceneWorld.getHeight() + y * 16 + x;
-										blockStates[index] = chunk.getBlockState(new BlockPos(chunk.getPos().x + x, y, chunk.getPos().z + z));
-									}
+									index = z * 16 * cutsceneWorld.getHeight() + y * 16 + x;
+									blockStates[index] = chunk.getBlockState(new BlockPos(chunk.getPos().x + x, y, chunk.getPos().z + z));
 								}
 							}
-							CutsceneChunk cutsceneChunk = new CutsceneChunk(cutsceneWorld, chunkPos, chunk.getBiomeArray(), blockStates);
-							cutsceneWorld.putChunk(cutsceneChunk);
 						}
+						CutsceneChunk cutsceneChunk = new CutsceneChunk(cutsceneWorld, chunkPos, chunk.getBiomeArray(), blockStates);
+						cutsceneWorld.putChunk(cutsceneChunk);
 					}
 				}
 			}
-			clientCutscene.setWorld(cutsceneWorld);
+			cutscene.setWorld(cutsceneWorld);
 		});
-
 	}
 }

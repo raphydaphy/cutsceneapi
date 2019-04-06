@@ -1,6 +1,7 @@
 package com.raphydaphy.cutsceneapi.fakeworld.storage;
 
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
+import com.raphydaphy.cutsceneapi.CutsceneAPIClient;
 import it.unimi.dsi.fastutil.shorts.ShortList;
 import it.unimi.dsi.fastutil.shorts.ShortListIterator;
 import net.minecraft.SharedConstants;
@@ -107,58 +108,20 @@ public class CutsceneChunkSerializer
 		}
 	}
 
-	public static void serializeAndSave(File file, World world, Chunk chunk)
+	public static void serializeAndSave(World world, Chunk chunk)
 	{
 		if (!(chunk instanceof EmptyChunk))
 		{
 			CompoundTag chunkData = serialize(world, chunk);
 			try
 			{
-				saveRegion(file, chunk.getPos(), chunkData, false);
+				CutsceneAPIClient.STORAGE.setChunkData(chunk.getPos(), chunkData);
+				//saveRegion(file, chunk.getPos(), chunkData, false);
 			} catch (IOException e)
 			{
 				CutsceneAPI.getLogger().error("Failed to save chunk for cutscene storage! Printing stack trace...");
 				e.printStackTrace();
 			}
-		}
-	}
-
-	// This produces and empty file for some reason...
-	public static void serializeAndSaveAll(File file, World world, List<Chunk> chunks)
-	{
-		RegionFile regionFile;
-
-		try
-		{
-			regionFile = new RegionFile(file);
-		} catch (IOException e)
-		{
-			CutsceneAPI.getLogger().error("Failed to create RegionFile for cutscene chunk serialization! Printing stack trace...");
-			e.printStackTrace();
-			return;
-		}
-
-		for (Chunk chunk : chunks)
-		{
-			CompoundTag chunkData = serialize(world, chunk);
-			try
-			{
-				saveRegion(regionFile, chunk.getPos(), chunkData, true);
-			} catch (IOException e)
-			{
-				CutsceneAPI.getLogger().error("Failed to save cutscene chunk data to region file! Printing stack trace...");
-				e.printStackTrace();
-				return;
-			}
-		}
-
-		try
-		{
-			regionFile.close();
-		} catch (IOException e)
-		{
-			CutsceneAPI.getLogger().error("Failed to close cutscene chunk region file! Printing stack trace...");
-			e.printStackTrace();
 		}
 	}
 
@@ -272,7 +235,8 @@ public class CutsceneChunkSerializer
 
 			// TODO: convert to cutscene chunk
 			//chunk_2 = new CutsceneChunk(world_1, chunkPos, biomes, blockStates);
-			chunk_2 = new WorldChunk(world_1.getWorld(), chunkPos, biomes, upgradeData_1, chunkTickScheduler_1, chunkTickScheduler_2, 0, chunkSections_1, (worldChunk_1) -> {writeEntities(compoundTag_2, worldChunk_1); });
+			chunk_2 = new WorldChunk(world_1.getWorld(), chunkPos, biomes, upgradeData_1, chunkTickScheduler_1, chunkTickScheduler_2, 0, chunkSections_1, (worldChunk_1) ->
+			{writeEntities(compoundTag_2, worldChunk_1); });
 		} else
 		{
 			ProtoChunk protoChunk_1 = new ProtoChunk(chunkPos, upgradeData_1, chunkSections_1, chunkTickScheduler_1, chunkTickScheduler_2);
@@ -373,7 +337,6 @@ public class CutsceneChunkSerializer
 		CompoundTag compoundTag_2 = new CompoundTag();
 		compoundTag_1.putInt("DataVersion", SharedConstants.getGameVersion().getWorldVersion());
 		compoundTag_1.put("Level", compoundTag_2);
-		System.out.println("Serializing x pos: " + chunkPos_1.x);
 		compoundTag_2.putInt("xPos", chunkPos_1.x);
 		compoundTag_2.putInt("zPos", chunkPos_1.z);
 		compoundTag_2.putLong("LastUpdate", world_1.getTime());

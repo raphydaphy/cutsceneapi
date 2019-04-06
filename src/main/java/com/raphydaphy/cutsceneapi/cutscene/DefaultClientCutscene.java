@@ -26,6 +26,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 	private Transition introTransition;
 	private Transition outroTransition;
 	private Identifier shader;
+	private Consumer<ClientCutscene> worldInitCallback;
 	private Consumer<CutsceneChunk> chunkGenCallback;
 	private Consumer<ClientCutscene> renderCallback;
 	private Path path;
@@ -96,6 +97,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 				{
 					if (!(client.world instanceof CutsceneWorld))
 					{
+						if (worldInitCallback != null) worldInitCallback.accept(this);
 						client.player.setWorld(cutsceneWorld);
 						client.world = cutsceneWorld;
 						((MinecraftClientHooks) client).setCutsceneWorld(cutsceneWorld);
@@ -338,6 +340,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 		cutscene.outroTransition = this.outroTransition;
 		cutscene.shader = this.shader;
 		cutscene.initCallback = this.initCallback;
+		cutscene.worldInitCallback = this.worldInitCallback;
 		cutscene.chunkGenCallback = this.chunkGenCallback;
 		cutscene.tickCallback = this.tickCallback;
 		cutscene.renderCallback = this.renderCallback;
@@ -371,6 +374,12 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 	public void setNextCutscene(ClientCutscene nextCutscene)
 	{
 		this.nextCutscene = nextCutscene;
+	}
+
+	@Override
+	public void setWorldInitCallback(Consumer<ClientCutscene> worldInitCallback)
+	{
+		this.worldInitCallback = worldInitCallback;
 	}
 
 	@Override

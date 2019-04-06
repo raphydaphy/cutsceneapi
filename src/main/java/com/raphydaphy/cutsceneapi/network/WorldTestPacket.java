@@ -17,13 +17,9 @@ import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPos;
-import net.minecraft.world.storage.RegionFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 public class WorldTestPacket implements IPacket
 {
@@ -92,44 +88,30 @@ public class WorldTestPacket implements IPacket
 			} else if (test == WorldTest.SERIALIZE)
 			{
 				int radius = 15;
-				for (int x = - radius; x <= radius; x++)
+				for (int x = -radius; x <= radius; x++)
 				{
-					for (int z = - radius; z <= radius; z++)
+					for (int z = -radius; z <= radius; z++)
 					{
-						File file = new File("cutscene_chunks.mca");
-						try
-						{
-							if (!file.exists())
-							{
-								file.createNewFile();
-							}
-						} catch (IOException e)
-						{
-							CutsceneAPI.getLogger().error("Failed to serialize cutscene chunk! Printing stack trace...");
-							e.printStackTrace();
-							return;
-						}
 						Chunk chunk = client.world.getChunk(new BlockPos(x * 16, 0, z * 16));
-						CutsceneChunkSerializer.serializeAndSave(file, client.world, chunk);
+						CutsceneChunkSerializer.serializeAndSave(client.world, chunk);
 					}
 				}
 				client.player.addChatMessage(new TranslatableTextComponent("command.cutsceneapi.serializedchunk"), false);
 			} else if (test == WorldTest.DESERIALIZE)
 			{
-				File file = new File("cutscene_chunks.mca");
-				if (file.exists())
+				CompoundTag tag;
+				ChunkPos pos = new ChunkPos(0, 0);
+				try
 				{
-					CompoundTag tag;
-					ChunkPos pos = new ChunkPos(0, 0);
-					try
-					{
-						tag = CutsceneChunkSerializer.getTagFromFile(file, pos, false);
-					} catch (IOException e)
-					{
-						CutsceneAPI.getLogger().error("Failed to deserialize cutscene chunk! Printing stack trace...");
-						e.printStackTrace();
-						return;
-					}
+					tag = CutsceneAPIClient.STORAGE.getChunkData(pos);
+				} catch (IOException e)
+				{
+					CutsceneAPI.getLogger().error("Failed to deserialize cutscene chunk! Printing stack trace...");
+					e.printStackTrace();
+					return;
+				}
+				if (!tag.isEmpty())
+				{
 					Chunk chunk = CutsceneChunkSerializer.deserialize(client.world, pos, tag);
 					CutsceneAPI.getLogger().info("Got chunk! Block at {0, 0, 0}: " + chunk.getBlockState(new BlockPos(pos.x * 16, 0, pos.z * 16)).getBlock());
 					client.player.addChatMessage(new TranslatableTextComponent("command.cutsceneapi.deserialized"), false);

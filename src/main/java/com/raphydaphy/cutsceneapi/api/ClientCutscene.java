@@ -77,6 +77,11 @@ public interface ClientCutscene extends Cutscene
 	void setNextCutscene(ClientCutscene nextCutscene);
 
 	/**
+	 * @param worldInitCallback A function which is called immediately after initializing the cutscene's world (if fake)
+	 */
+	void setWorldInitCallback(Consumer<ClientCutscene> worldInitCallback);
+
+	/**
 	 * @param chunkGenCallback A function which will be called whenever a fake world chunk is generated for the cutscene
 	 */
 	void setChunkGenCallback(Consumer<CutsceneChunk> chunkGenCallback);
