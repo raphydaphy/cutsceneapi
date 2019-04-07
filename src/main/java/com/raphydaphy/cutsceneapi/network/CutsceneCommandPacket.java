@@ -8,6 +8,7 @@ import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneChunk;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
 import com.raphydaphy.cutsceneapi.fakeworld.storage.CutsceneChunkSerializer;
+import com.raphydaphy.cutsceneapi.fakeworld.storage.CutsceneWorldLoader;
 import com.raphydaphy.cutsceneapi.path.PathRecorder;
 import com.raphydaphy.cutsceneapi.path.RecordedPath;
 import net.fabricmc.api.EnvType;
@@ -97,7 +98,7 @@ public class CutsceneCommandPacket implements IPacket
 							CompoundTag chunkData;
 							try
 							{
-								chunkData = CutsceneAPIClient.STORAGE.getChunkData(chunkPos);
+								chunkData = CutsceneAPIClient.STORAGE.getChunkData("serialized.cworld", chunkPos);
 							} catch (IOException e)
 							{
 								CutsceneAPI.getLogger().error("Failed to deserialize cutscene chunk! Printing stack trace...");
@@ -107,20 +108,7 @@ public class CutsceneCommandPacket implements IPacket
 							if (!chunkData.isEmpty())
 							{
 								Chunk chunk = CutsceneChunkSerializer.deserialize(cutsceneWorld, chunkPos, chunkData);
-								BlockState[] blockStates = new BlockState[16 * cutsceneWorld.getHeight() * 16];
-								int x, y, z, index;
-								for (x = 0; x < 16; x++)
-								{
-									for (y = 0; y < cutsceneWorld.getHeight(); y++)
-									{
-										for (z = 0; z < 16; z++)
-										{
-											index = z * 16 * cutsceneWorld.getHeight() + y * 16 + x;
-											blockStates[index] = chunk.getBlockState(new BlockPos(chunk.getPos().getStartX() + x, y, chunk.getPos().getStartZ() + z));
-										}
-									}
-								}
-								CutsceneChunk cutsceneChunk = new CutsceneChunk(cutsceneWorld, chunkPos, chunk.getBiomeArray(), blockStates);
+								CutsceneChunk cutsceneChunk = new CutsceneChunk(cutsceneWorld, chunkPos, chunk.getBiomeArray(), CutsceneWorldLoader.getBlockStates(chunk));
 								cutsceneWorld.putChunk(chunkPos, cutsceneChunk);
 							}
 						}
@@ -160,7 +148,7 @@ public class CutsceneCommandPacket implements IPacket
 				ChunkPos pos = new ChunkPos(0, 0);
 				try
 				{
-					tag = CutsceneAPIClient.STORAGE.getChunkData(pos);
+					tag = CutsceneAPIClient.STORAGE.getChunkData("serialized.cworld", pos);
 				} catch (IOException e)
 				{
 					CutsceneAPI.getLogger().error("Failed to deserialize cutscene chunk! Printing stack trace...");

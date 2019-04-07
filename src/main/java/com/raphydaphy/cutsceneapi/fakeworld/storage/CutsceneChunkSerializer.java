@@ -54,7 +54,7 @@ public class CutsceneChunkSerializer
 			CompoundTag chunkData = serialize(world, chunk);
 			try
 			{
-				CutsceneAPIClient.STORAGE.setChunkData(chunk.getPos(), chunkData);
+				CutsceneAPIClient.STORAGE.setChunkData("serialized.cworld", chunk.getPos(), chunkData);
 				//saveRegion(file, chunk.getPos(), chunkData, false);
 			} catch (IOException e)
 			{

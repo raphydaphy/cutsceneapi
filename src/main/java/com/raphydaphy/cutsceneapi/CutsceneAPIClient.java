@@ -3,41 +3,35 @@ package com.raphydaphy.cutsceneapi;
 import com.raphydaphy.cutsceneapi.api.ClientCutscene;
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneWorldType;
 import com.raphydaphy.cutsceneapi.cutscene.DefaultClientCutscene;
+import com.raphydaphy.cutsceneapi.fakeworld.storage.CutsceneWorldLoader;
 import com.raphydaphy.cutsceneapi.path.PathRecorder;
 import com.raphydaphy.cutsceneapi.path.RecordedPath;
 import com.raphydaphy.cutsceneapi.path.SplinePath;
 import com.raphydaphy.cutsceneapi.cutscene.Transition;
-import com.raphydaphy.cutsceneapi.fakeworld.CutsceneChunk;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
-import com.raphydaphy.cutsceneapi.fakeworld.storage.CutsceneChunkSerializer;
 import com.raphydaphy.cutsceneapi.fakeworld.storage.CutsceneWorldStorage;
 import com.raphydaphy.cutsceneapi.network.CutsceneStartPacket;
 import com.raphydaphy.cutsceneapi.network.CutsceneCommandPacket;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.fabric.api.event.client.ClientTickCallback;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkPos;
 
-import java.io.IOException;
 import java.util.Random;
 
 public class CutsceneAPIClient implements ClientModInitializer
 {
 	public static CutsceneWorld GENERATED;
-	public static CutsceneWorldStorage STORAGE;
-	public static RecordedPath CACHED_PATH = RecordedPath.builder().with(new Vector3f(0, 80, 0), 0, 0).build();
+	public static CutsceneWorldStorage STORAGE = new CutsceneWorldStorage();
 
 	public CutsceneAPIClient()
 	{
@@ -46,15 +40,18 @@ public class CutsceneAPIClient implements ClientModInitializer
 		CutsceneAPI.FAKEWORLD_CUTSCENE_2 = new DefaultClientCutscene(CutsceneAPI.FAKEWORLD_CUTSCENE_2.getLength());
 		CutsceneAPI.VOIDWORLD_CUTSCENE = new DefaultClientCutscene(CutsceneAPI.VOIDWORLD_CUTSCENE.getLength());
 		CutsceneAPI.GENERATEDWORLD_CUTSCENE = new DefaultClientCutscene(CutsceneAPI.GENERATEDWORLD_CUTSCENE.getLength());
-		CutsceneAPI.CACHEDWORLD_CUTSCENE = new DefaultClientCutscene(CutsceneAPI.CACHEDWORLD_CUTSCENE.getLength());
+		CutsceneAPI.DRAGONSTONE_CUTSCENE = new DefaultClientCutscene(CutsceneAPI.DRAGONSTONE_CUTSCENE.getLength());
 	}
 
 	@Override
 	public void onInitializeClient()
 	{
-		STORAGE = new CutsceneWorldStorage("cutscene_worlds");
-
 		ClientTickCallback.EVENT.register((callback) -> PathRecorder.tick());
+
+		ClientSpriteRegistryCallback.registerBlockAtlas((atlasTexture, registry) ->
+        {
+            CutsceneWorldLoader.copyCutsceneWorld(new Identifier(CutsceneAPI.DOMAIN, "cutscenes/worlds/dragonstone.cworld"), "dragonstone.cworld");
+        });
 
 		ClientSidePacketRegistry.INSTANCE.register(CutsceneStartPacket.ID, new CutsceneStartPacket.Handler());
 		ClientSidePacketRegistry.INSTANCE.register(CutsceneCommandPacket.ID, new CutsceneCommandPacket.Handler());
@@ -187,54 +184,18 @@ public class CutsceneAPIClient implements ClientModInitializer
 	        clientCutscene.setCameraPath(new SplinePath.Builder().with(-200, 90, 0).with(200, 100, 30).build());
         });
 
-		ClientCutscene cachedWorld = (ClientCutscene)CutsceneAPI.CACHEDWORLD_CUTSCENE;
+		ClientCutscene cachedWorld = (ClientCutscene)CutsceneAPI.DRAGONSTONE_CUTSCENE;
 		cachedWorld.setIntroTransition(new Transition.DipTo(20, 50, 1, 1, 1));
 		cachedWorld.setOutroTransition(new Transition.FadeTo(20, 1, 1, 1));
 		cachedWorld.setWorldType(CutsceneWorldType.CUSTOM);
 		cachedWorld.setInitCallback((cutscene) -> {
 			ClientCutscene clientCutscene = (ClientCutscene)cutscene;
-			clientCutscene.setCameraPath(RecordedPath.fromFile("dragonstone_1.cpath"));
+			clientCutscene.setCameraPath(RecordedPath.fromDataPack(new Identifier(CutsceneAPI.DOMAIN, "cutscenes/paths/dragonstone_1.cpath")));
 		});
 		cachedWorld.setWorldInitCallback((cutscene) -> {
 			MinecraftClient client = MinecraftClient.getInstance();
 			CutsceneWorld cutsceneWorld = new CutsceneWorld(client, client.world, null, false);
-			int radius = 15;
-			for (int chunkX = - radius; chunkX <= radius; chunkX++)
-			{
-				for (int chunkZ = -radius; chunkZ <= radius; chunkZ++)
-				{
-					ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
-					CompoundTag chunkData;
-					try
-					{
-						chunkData = CutsceneAPIClient.STORAGE.getChunkData(chunkPos);
-					} catch (IOException e)
-					{
-						CutsceneAPI.getLogger().error("Failed to deserialize cutscene chunk! Printing stack trace...");
-						e.printStackTrace();
-						continue;
-					}
-					if (!chunkData.isEmpty())
-					{
-						Chunk chunk = CutsceneChunkSerializer.deserialize(cutsceneWorld, chunkPos, chunkData);
-						BlockState[] blockStates = new BlockState[16 * cutsceneWorld.getHeight() * 16];
-						int x, y, z, index;
-						for (x = 0; x < 16; x++)
-						{
-							for (y = 0; y < cutsceneWorld.getHeight(); y++)
-							{
-								for (z = 0; z < 16; z++)
-								{
-									index = z * 16 * cutsceneWorld.getHeight() + y * 16 + x;
-									blockStates[index] = chunk.getBlockState(new BlockPos(chunk.getPos().getStartX() + x, y, chunk.getPos().getStartZ() + z));
-								}
-							}
-						}
-						CutsceneChunk cutsceneChunk = new CutsceneChunk(cutsceneWorld, chunkPos, chunk.getBiomeArray(), blockStates);
-						cutsceneWorld.putChunk(chunkPos, cutsceneChunk);
-					}
-				}
-			}
+			CutsceneWorldLoader.addChunks("dragonstone.cworld", cutsceneWorld, 15);
 			cutsceneWorld.cutsceneTime = 18000;
 			cutscene.setWorld(cutsceneWorld);
 		});

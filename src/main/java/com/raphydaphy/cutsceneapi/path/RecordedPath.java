@@ -2,9 +2,12 @@ package com.raphydaphy.cutsceneapi.path;
 
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.utils.CutsceneUtils;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.resource.Resource;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 
 import java.io.File;
@@ -66,38 +69,74 @@ public class RecordedPath implements Path
 		return new Pair<>(CutsceneUtils.lerp(pitch[prev], pitch[cur], time), CutsceneUtils.lerp(yaw[prev], yaw[cur], time));
 	}
 
+	public static RecordedPath fromDataPack(Identifier id)
+	{
+		InputStream stream = null;
+		try
+		{
+			Resource resource = MinecraftClient.getInstance().getResourceManager().getResource(id);
+			stream = resource.getInputStream();
+		} catch(IOException e)
+		{
+			CutsceneAPI.getLogger().error("Failed to load cutscene path with ID " + id + "! Printing stack trace...");
+			e.printStackTrace();
+			return null;
+		}
+		if (stream != null)
+		{
+			return fromInputStream(stream);
+		}
+		return null;
+	}
+
+	public static RecordedPath fromInputStream(InputStream stream)
+	{
+		CompoundTag tag = null;
+		try
+		{
+			tag = NbtIo.readCompressed(stream);
+		} catch (IOException e)
+		{
+			CutsceneAPI.getLogger().error("Failed to read cutscene path! Printing stack trace...");
+			e.printStackTrace();
+		} finally
+		{
+			if (stream != null)
+			{
+				try
+				{
+					stream.close();
+				} catch (IOException e)
+				{
+					CutsceneAPI.getLogger().error("Failed to close input stream! Printing stack trace...");
+					e.printStackTrace();
+				}
+			}
+		}
+		if (tag != null)
+		{
+			return fromTag(tag);
+		}
+		return null;
+	}
+
 	public static RecordedPath fromFile(String filename)
 	{
 		File dir = new File("cutscene_paths");
 		if (dir.exists())
 		{
 			InputStream stream = null;
-			CompoundTag tag = null;
 			try
 			{
 				stream = new FileInputStream(new File(dir, filename));
-				tag = NbtIo.readCompressed(stream);
 			} catch (IOException e)
 			{
-				CutsceneAPI.getLogger().error("Failed to read cutscene path! Printing stack trace...");
+				CutsceneAPI.getLogger().error("Failed to create stream! Printing stack trace...");
 				e.printStackTrace();
-			} finally
-			{
-				if (stream != null)
-				{
-					try
-					{
-						stream.close();
-					} catch (IOException e)
-					{
-						CutsceneAPI.getLogger().error("Failed to close input stream! Printing stack trace...");
-						e.printStackTrace();
-					}
-				}
 			}
-			if (tag != null)
+			if (stream != null)
 			{
-				return fromTag(tag);
+				return fromInputStream(stream);
 			}
 		}
 		return null;

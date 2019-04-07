@@ -6,38 +6,45 @@ import net.minecraft.world.chunk.ChunkPos;
 import net.minecraft.world.storage.RegionFile;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CutsceneWorldStorage implements AutoCloseable
 {
 	private File directory;
-	private RegionFile regionFile;
+	private Map<String, RegionFile> regionFiles;
 
-	public CutsceneWorldStorage(String directory)
+	public CutsceneWorldStorage()
 	{
-		this.directory = new File(directory);
+		this.directory = new File( "cutscenes/worlds");
+		this.regionFiles = new HashMap<>();
 	}
 
-	private RegionFile getRegionFile() throws IOException
+	public File getDirectory()
 	{
-		if (this.regionFile != null)
+		if (!this.directory.exists())
 		{
-			return this.regionFile;
+			this.directory.mkdirs();
+		}
+		return directory;
+	}
+
+	private RegionFile getRegionFile(String filename) throws IOException
+	{
+		if (this.regionFiles.containsKey(filename))
+		{
+			return this.regionFiles.get(filename);
 		} else
 		{
-			if (!this.directory.exists())
-			{
-				this.directory.mkdirs();
-			}
-
-			File file = new File(this.directory, "cutscene_chunks.mca");
-			this.regionFile = new RegionFile(file);
-			return regionFile;
+			File file = new File(getDirectory(), filename);
+			this.regionFiles.put(filename, new RegionFile(file));
+			return regionFiles.get(filename);
 		}
 	}
 
-	public CompoundTag getChunkData(ChunkPos pos) throws IOException
+	public CompoundTag getChunkData(String filename, ChunkPos pos) throws IOException
 	{
-		RegionFile regionFile = getRegionFile();
+		RegionFile regionFile = getRegionFile(filename);
 		if (regionFile.hasChunk(pos))
 		{
 			DataInputStream inputStream = regionFile.getChunkDataInputStream(pos);
@@ -68,9 +75,9 @@ public class CutsceneWorldStorage implements AutoCloseable
 		}
 	}
 
-	public void setChunkData(ChunkPos chunkPos, CompoundTag chunkData) throws IOException
+	public void setChunkData(String filename, ChunkPos chunkPos, CompoundTag chunkData) throws IOException
 	{
-		RegionFile regionFile = this.getRegionFile();
+		RegionFile regionFile = this.getRegionFile(filename);
 		DataOutputStream outputStream = regionFile.getChunkDataOutputStream(chunkPos);
 		Throwable exception = null;
 		try
@@ -107,10 +114,14 @@ public class CutsceneWorldStorage implements AutoCloseable
 	}
 
 	@Override
-	public void close() throws IOException {
-		if (regionFile != null)
+	public void close() throws IOException
+	{
+		for (Map.Entry<String, RegionFile> entry : regionFiles.entrySet())
 		{
-			regionFile.close();
+			if (entry.getValue() != null)
+			{
+				entry.getValue().close();
+			}
 		}
 	}
 }
