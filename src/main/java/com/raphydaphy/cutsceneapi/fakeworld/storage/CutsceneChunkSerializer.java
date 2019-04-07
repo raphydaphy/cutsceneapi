@@ -46,47 +46,6 @@ import java.util.*;
  */
 public class CutsceneChunkSerializer
 {
-	public static CompoundTag getTagFromFile(File file, ChunkPos pos, boolean keepOpen) throws IOException
-	{
-		RegionFile regionFile;
-		try
-		{
-			regionFile = new RegionFile(file);
-		} catch (IOException e)
-		{
-			CutsceneAPI.getLogger().error("Failed to create RegionFile when deserializeing cutscene chunk! Printing stack trace...");
-			e.printStackTrace();
-			return new CompoundTag();
-		}
-		if (regionFile.hasChunk(pos))
-		{
-			DataInputStream inputStream = regionFile.getChunkDataInputStream(pos);
-			Throwable exception = null;
-
-			CompoundTag tag;
-			try
-			{
-				if (inputStream != null)
-				{
-					return NbtIo.read(inputStream);
-				}
-
-				tag = new CompoundTag();
-			} catch (Throwable e)
-			{
-				exception = e;
-				throw e;
-			} finally
-			{
-				handleException(inputStream, exception, keepOpen);
-			}
-
-			return tag;
-		} else
-		{
-			return new CompoundTag();
-		}
-	}
 
 	private static void handleException(Closeable closable, Throwable exception, boolean keepOpen) throws IOException
 	{
@@ -123,30 +82,6 @@ public class CutsceneChunkSerializer
 				e.printStackTrace();
 			}
 		}
-	}
-
-	private static void saveRegion(File file, ChunkPos chunkPos, CompoundTag chunkData, boolean keepOpen) throws IOException
-	{
-		saveRegion(new RegionFile(file), chunkPos, chunkData, keepOpen);
-	}
-
-	public static void saveRegion(RegionFile regionFile, ChunkPos chunkPos, CompoundTag chunkData, boolean keepOpen) throws IOException
-	{
-		DataOutputStream outputStream = regionFile.getChunkDataOutputStream(chunkPos);
-		Throwable exception = null;
-
-		try
-		{
-			NbtIo.write(chunkData, outputStream);
-		} catch (Throwable e)
-		{
-			exception = e;
-			throw e;
-		} finally
-		{
-			handleException(outputStream, exception, keepOpen);
-		}
-		regionFile.close();
 	}
 
 	public static Chunk deserialize(World world_1, ChunkPos chunkPos, CompoundTag chunkTag)
