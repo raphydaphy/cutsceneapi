@@ -47,26 +47,6 @@ import java.util.*;
 public class CutsceneChunkSerializer
 {
 
-	private static void handleException(Closeable closable, Throwable exception, boolean keepOpen) throws IOException
-	{
-		if (closable != null)
-		{
-			if (exception != null)
-			{
-				try
-				{
-					closable.close();
-				} catch (Throwable var15)
-				{
-					exception.addSuppressed(var15);
-				}
-			} else if (!keepOpen)
-			{
-				closable.close();
-			}
-		}
-	}
-
 	public static void serializeAndSave(World world, Chunk chunk)
 	{
 		if (!(chunk instanceof EmptyChunk))
