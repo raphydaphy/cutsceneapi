@@ -75,6 +75,23 @@ The recommended way to load a custom fake world is to serialize the chunks you w
 ```mcfunction
 /cutscene world serialize @p
 ```
-This will serialize a 30x30 chunk area and save it in `.minecraft/cutscenes/worlds/serialized.cworld`. You should rename this file and move it to your mod assets directory.
-
-TODO: the rest
+This will serialize a 30x30 chunk area and save it in `.minecraft/cutscenes/worlds/serialized.cworld`. You should rename this file and move it to your mod assets directory. In order to make the region accessible ingame, use the method provided by the API to copy in your client mod initializer. Using the sprite registry callback for this is silly but it is an easy way to ensure that your region is copied at the correct time during the loading process.
+```java
+@Override
+public void onInitializeClient()
+{
+  ClientSpriteRegistryCallback.registerBlockAtlas((atlasTexture, registry) ->
+  {
+    CutsceneWorldLoader.copyCutsceneWorld(new Identifier("modid", "serialized.cworld"), "serialized.cworld");
+  });
+}
+```
+Once your region has been copied, you can easily use it in any cutscene which uses the `CUSTOM` world type.
+```java
+cachedWorld.setWorldInitCallback((cutscene) -> {
+  MinecraftClient client = MinecraftClient.getInstance();
+  CutsceneWorld cutsceneWorld = new CutsceneWorld(client, client.world, null, false);
+  CutsceneWorldLoader.addChunks("serialized.cworld", cutsceneWorld, 15);
+  cutscene.setWorld(cutsceneWorld);
+});
+```

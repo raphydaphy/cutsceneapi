@@ -43,15 +43,15 @@ public class CutsceneAPIClient implements ClientModInitializer
 		CutsceneAPI.DRAGONSTONE_CUTSCENE = new DefaultClientCutscene(CutsceneAPI.DRAGONSTONE_CUTSCENE.getLength());
 	}
 
-	@Override
-	public void onInitializeClient()
-	{
-		ClientTickCallback.EVENT.register((callback) -> PathRecorder.tick());
+		@Override
+		public void onInitializeClient()
+		{
+			ClientTickCallback.EVENT.register((callback) -> PathRecorder.tick());
 
 		ClientSpriteRegistryCallback.registerBlockAtlas((atlasTexture, registry) ->
-        {
-            CutsceneWorldLoader.copyCutsceneWorld(new Identifier(CutsceneAPI.DOMAIN, "cutscenes/worlds/dragonstone.cworld"), "dragonstone.cworld");
-        });
+		{
+			CutsceneWorldLoader.copyCutsceneWorld(new Identifier(CutsceneAPI.DOMAIN, "cutscenes/worlds/dragonstone.cworld"), "dragonstone.cworld");
+		});
 
 		ClientSidePacketRegistry.INSTANCE.register(CutsceneStartPacket.ID, new CutsceneStartPacket.Handler());
 		ClientSidePacketRegistry.INSTANCE.register(CutsceneCommandPacket.ID, new CutsceneCommandPacket.Handler());
