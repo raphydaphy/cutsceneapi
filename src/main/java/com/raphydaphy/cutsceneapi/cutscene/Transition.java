@@ -116,7 +116,7 @@ public abstract class Transition
 
 		public boolean isFirstHalf()
 		{
-			return ticks < (length - hold) / 2f;
+			return ticks - 1 < (length - hold) / 2f;
 		}
 	}
 }

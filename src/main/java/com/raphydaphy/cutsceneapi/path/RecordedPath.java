@@ -3,8 +3,14 @@ package com.raphydaphy.cutsceneapi.path;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.utils.CutsceneUtils;
 import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.util.Pair;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +66,56 @@ public class RecordedPath implements Path
 		return new Pair<>(CutsceneUtils.lerp(pitch[prev], pitch[cur], time), CutsceneUtils.lerp(yaw[prev], yaw[cur], time));
 	}
 
+	public static RecordedPath fromFile(String filename)
+	{
+		File dir = new File("cutscene_paths");
+		if (dir.exists())
+		{
+			InputStream stream = null;
+			CompoundTag tag = null;
+			try
+			{
+				stream = new FileInputStream(new File(dir, filename));
+				tag = NbtIo.readCompressed(stream);
+			} catch (IOException e)
+			{
+				CutsceneAPI.getLogger().error("Failed to read cutscene path! Printing stack trace...");
+				e.printStackTrace();
+			} finally
+			{
+				if (stream != null)
+				{
+					try
+					{
+						stream.close();
+					} catch (IOException e)
+					{
+						CutsceneAPI.getLogger().error("Failed to close input stream! Printing stack trace...");
+						e.printStackTrace();
+					}
+				}
+			}
+			if (tag != null)
+			{
+				return fromTag(tag);
+			}
+		}
+		return null;
+	}
+
+	public static RecordedPath fromTag(CompoundTag tag)
+	{
+		int length = tag.getInt("Length");
+		RecordedPath.Builder builder = builder();
+		for (int i = 0; i < length; i++)
+		{
+			CompoundTag entry = (CompoundTag)tag.getTag("Entry" + i);
+			if (entry == null) continue;
+			builder.with(new Vector3f(entry.getFloat("PosX"), entry.getFloat("PosY"), entry.getFloat("PosZ")), entry.getFloat("Pitch"), entry.getFloat("Yaw"));
+		}
+		return builder.build();
+	}
+
 	public static class Builder
 	{
 		// One position/pitch/yaw per tick
@@ -80,6 +136,24 @@ public class RecordedPath implements Path
 			this.pitch.add(pitch);
 			this.yaw.add(yaw);
 			return this;
+		}
+
+		public CompoundTag toTag()
+		{
+			CompoundTag tag = new CompoundTag();
+			tag.putInt("Length", positions.size());
+			for (int i = 0; i < positions.size(); i++)
+			{
+				CompoundTag entry = new CompoundTag();
+				Vector3f pos = positions.get(i);
+				entry.putFloat("PosX", pos.x());
+				entry.putFloat("PosY", pos.y());
+				entry.putFloat("PosZ", pos.z());
+				entry.putFloat("Pitch", pitch.get(i));
+				entry.putFloat("Yaw", yaw.get(i));
+				tag.put("Entry" + i, entry);
+			}
+			return tag;
 		}
 
 		public RecordedPath build()
