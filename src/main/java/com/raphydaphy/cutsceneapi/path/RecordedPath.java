@@ -69,7 +69,7 @@ public class RecordedPath implements Path
 		return new Pair<>(CutsceneUtils.lerp(pitch[prev], pitch[cur], time), CutsceneUtils.lerp(yaw[prev], yaw[cur], time));
 	}
 
-	public static RecordedPath fromDataPack(Identifier id)
+	public static RecordedPath fromFile(Identifier id)
 	{
 		InputStream stream = null;
 		try

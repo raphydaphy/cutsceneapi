@@ -190,7 +190,7 @@ public class CutsceneAPIClient implements ClientModInitializer
 		cachedWorld.setWorldType(CutsceneWorldType.CUSTOM);
 		cachedWorld.setInitCallback((cutscene) -> {
 			ClientCutscene clientCutscene = (ClientCutscene)cutscene;
-			clientCutscene.setCameraPath(RecordedPath.fromDataPack(new Identifier(CutsceneAPI.DOMAIN, "cutscenes/paths/dragonstone_1.cpath")));
+			clientCutscene.setCameraPath(RecordedPath.fromFile(new Identifier(CutsceneAPI.DOMAIN, "cutscenes/paths/dragonstone_1.cpath")));
 		});
 		cachedWorld.setWorldInitCallback((cutscene) -> {
 			MinecraftClient client = MinecraftClient.getInstance();
