@@ -57,6 +57,11 @@ public interface ClientCutscene extends Cutscene
 	void setWorld(CutsceneWorld world);
 
 	/**
+	 * Makes the cutscene render black bars to improve immersin (TM)
+	 */
+	void enableBlackBars();
+
+	/**
 	 * @return The fake world used by the cutscene, if any
 	 */
 	CutsceneWorld getWorld();

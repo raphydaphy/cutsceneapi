@@ -188,6 +188,7 @@ public class CutsceneAPIClient implements ClientModInitializer
 		cachedWorld.setIntroTransition(new Transition.DipTo(20, 50, 1, 1, 1));
 		cachedWorld.setOutroTransition(new Transition.FadeTo(20, 1, 1, 1));
 		cachedWorld.setWorldType(CutsceneWorldType.CUSTOM);
+		cachedWorld.enableBlackBars();
 		cachedWorld.setInitCallback((cutscene) -> {
 			ClientCutscene clientCutscene = (ClientCutscene)cutscene;
 			clientCutscene.setCameraPath(RecordedPath.fromFile(new Identifier(CutsceneAPI.DOMAIN, "cutscenes/paths/dragonstone_1.cpath")));

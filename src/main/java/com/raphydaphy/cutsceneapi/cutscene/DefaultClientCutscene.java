@@ -9,6 +9,7 @@ import com.raphydaphy.cutsceneapi.mixin.client.ClientPlayNetworkHandlerHooks;
 import com.raphydaphy.cutsceneapi.mixin.client.GameRendererHooks;
 import com.raphydaphy.cutsceneapi.mixin.client.MinecraftClientHooks;
 import com.raphydaphy.cutsceneapi.path.Path;
+import com.raphydaphy.cutsceneapi.utils.CutsceneUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -31,6 +32,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 	private Path path;
 	private CutsceneWorldType worldType = CutsceneWorldType.REAL;
 	private ClientCutscene nextCutscene;
+	private boolean renderBars;
 
 	// Client Data
 	private CutsceneCameraEntity camera;
@@ -202,6 +204,20 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 		{
 			MinecraftClient client = MinecraftClient.getInstance();
 
+			// Render Black Bars
+			if (shouldHideHud() && renderBars)
+			{
+				int screenWidth = client.window.getScaledWidth();
+				int screenHeight = client.window.getScaledHeight();
+
+				int desiredHeight = screenWidth / 16 * 9;
+				int minBarHeight = screenHeight / 16;
+				int barHeight = (screenHeight - desiredHeight) / 2;
+				if (barHeight < minBarHeight) barHeight = minBarHeight;
+				CutsceneUtils.drawRect(0, 0, screenWidth, barHeight, 1, 0, 0, 0);
+				CutsceneUtils.drawRect(0, screenHeight - barHeight, screenWidth, screenHeight, 1, 0, 0, 0);
+			}
+
 			// Render Transitions
 			if (introTransition != null && ticks < introTransition.length)
 			{
@@ -325,6 +341,12 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 	}
 
 	@Override
+	public void enableBlackBars()
+	{
+		this.renderBars = true;
+	}
+
+	@Override
 	public Cutscene copy()
 	{
 		DefaultClientCutscene cutscene = new DefaultClientCutscene(length);
@@ -342,6 +364,7 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 		cutscene.path = this.path;
 		cutscene.worldType = this.worldType;
 		cutscene.nextCutscene = this.nextCutscene;
+		cutscene.renderBars = this.renderBars;
 
 		return cutscene;
 	}
