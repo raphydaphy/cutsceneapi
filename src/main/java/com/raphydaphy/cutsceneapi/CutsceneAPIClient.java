@@ -220,12 +220,12 @@ public class CutsceneAPIClient implements ClientModInitializer
 								for (z = 0; z < 16; z++)
 								{
 									index = z * 16 * cutsceneWorld.getHeight() + y * 16 + x;
-									blockStates[index] = chunk.getBlockState(new BlockPos(chunk.getPos().x + x, y, chunk.getPos().z + z));
+									blockStates[index] = chunk.getBlockState(new BlockPos(chunk.getPos().getStartX() + x, y, chunk.getPos().getStartZ() + z));
 								}
 							}
 						}
 						CutsceneChunk cutsceneChunk = new CutsceneChunk(cutsceneWorld, chunkPos, chunk.getBiomeArray(), blockStates);
-						cutsceneWorld.putChunk(cutsceneChunk);
+						cutsceneWorld.putChunk(chunkPos, cutsceneChunk);
 					}
 				}
 			}

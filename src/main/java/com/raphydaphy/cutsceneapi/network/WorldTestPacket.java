@@ -88,7 +88,7 @@ public class WorldTestPacket implements IPacket
 				{
 					CutsceneWorld cutsceneWorld = new CutsceneWorld(client, client.world, null, false);
 					int radius = 15;
-					for (int chunkX = - radius; chunkX <= radius; chunkX++)
+					for (int chunkX = -radius; chunkX <= radius; chunkX++)
 					{
 						for (int chunkZ = -radius; chunkZ <= radius; chunkZ++)
 						{
@@ -115,12 +115,12 @@ public class WorldTestPacket implements IPacket
 										for (z = 0; z < 16; z++)
 										{
 											index = z * 16 * cutsceneWorld.getHeight() + y * 16 + x;
-											blockStates[index] = chunk.getBlockState(new BlockPos(chunk.getPos().x + x, y, chunk.getPos().z + z));
+											blockStates[index] = chunk.getBlockState(new BlockPos(chunk.getPos().getStartX() + x, y, chunk.getPos().getStartZ() + z));
 										}
 									}
 								}
 								CutsceneChunk cutsceneChunk = new CutsceneChunk(cutsceneWorld, chunkPos, chunk.getBiomeArray(), blockStates);
-								cutsceneWorld.putChunk(cutsceneChunk);
+								cutsceneWorld.putChunk(chunkPos, cutsceneChunk);
 							}
 						}
 					}

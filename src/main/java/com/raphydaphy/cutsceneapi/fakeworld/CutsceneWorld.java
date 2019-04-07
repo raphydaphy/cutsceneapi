@@ -117,7 +117,7 @@ public class CutsceneWorld extends ClientWorld
 					}
 
 					// Save cutscene chunk to world
-					cutsceneWorld.putChunk(cutsceneChunk);
+					cutsceneWorld.putChunk(chunkPos, cutsceneChunk);
 				}
 			}
 		}
@@ -176,9 +176,9 @@ public class CutsceneWorld extends ClientWorld
 		return chunk;
 	}
 
-	public void putChunk(CutsceneChunk chunk)
+	public void putChunk(ChunkPos pos, CutsceneChunk chunk)
 	{
-		chunkMap.put(chunk.getPos(), chunk);
+		chunkMap.put(pos, chunk);
 	}
 
 	public void addPlayer(ClientPlayerEntity player)
