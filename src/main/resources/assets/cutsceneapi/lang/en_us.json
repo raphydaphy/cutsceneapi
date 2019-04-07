@@ -2,5 +2,7 @@
   "arguments.cutsceneapi.invalid": "That cutscene does not exist!",
   "command.cutsceneapi.serializedchunk": "Serialized chunk!",
   "command.cutsceneapi.didntserialize": "You need to serialize a chunk first!",
-  "command.cutsceneapi.deserialized": "Successfully deserialized the chunk!"
+  "command.cutsceneapi.deserialized": "Successfully deserialized the chunk!",
+  "command.cutsceneapi.startrecording": "Started Recording!",
+  "command.cutsceneapi.stoprecording": "Stopped Recording!"
 }

@@ -8,6 +8,8 @@ import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneChunk;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
 import com.raphydaphy.cutsceneapi.fakeworld.storage.CutsceneChunkSerializer;
+import com.raphydaphy.cutsceneapi.path.PathRecorder;
+import com.raphydaphy.cutsceneapi.path.RecordedPath;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
@@ -21,21 +23,20 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPos;
 
-import java.io.File;
 import java.io.IOException;
 
-public class WorldTestPacket implements IPacket
+public class CutsceneCommandPacket implements IPacket
 {
 	public static final Identifier ID = new Identifier(CutsceneAPI.DOMAIN, "world_test");
 
-	private WorldTest test;
+	private Command test;
 
-	private WorldTestPacket()
+	private CutsceneCommandPacket()
 	{
 
 	}
 
-	public WorldTestPacket(WorldTest test)
+	public CutsceneCommandPacket(Command test)
 	{
 		this.test = test;
 	}
@@ -43,16 +44,16 @@ public class WorldTestPacket implements IPacket
 	@Override
 	public void read(PacketByteBuf buf)
 	{
-		test = WorldTest.values()[buf.readInt()];
+		test = Command.values()[buf.readInt()];
 	}
 
 	@Override
 	public void write(PacketByteBuf buf)
 	{
 		int id = 0;
-		for (WorldTest worldTest : WorldTest.values())
+		for (Command command : Command.values())
 		{
-			if (worldTest == this.test)
+			if (command == this.test)
 			{
 				buf.writeInt(id);
 				return;
@@ -69,22 +70,22 @@ public class WorldTestPacket implements IPacket
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static class Handler extends MessageHandler<WorldTestPacket>
+	public static class Handler extends MessageHandler<CutsceneCommandPacket>
 	{
 		@Override
-		protected WorldTestPacket create()
+		protected CutsceneCommandPacket create()
 		{
-			return new WorldTestPacket();
+			return new CutsceneCommandPacket();
 		}
 
 		@Override
-		public void handle(PacketContext ctx, WorldTestPacket message)
+		public void handle(PacketContext ctx, CutsceneCommandPacket message)
 		{
 			MinecraftClient client = MinecraftClient.getInstance();
-			WorldTest test = message.test;
-			if (test == WorldTest.JOIN_COPY || test == WorldTest.JOIN_VOID || test == WorldTest.JOIN_CACHED)
+			Command command = message.test;
+			if (command == Command.JOIN_COPY_WORLD || command == Command.JOIN_VOID_WORLD || command == Command.JOIN_CACHED_WORLD)
 			{
-				if (test == WorldTest.JOIN_CACHED)
+				if (command == Command.JOIN_CACHED_WORLD)
 				{
 					CutsceneWorld cutsceneWorld = new CutsceneWorld(client, client.world, null, false);
 					int radius = 15;
@@ -127,13 +128,21 @@ public class WorldTestPacket implements IPacket
 					CutsceneManager.startFakeWorld(cutsceneWorld, false);
 				} else
 				{
-					boolean copy = test == WorldTest.JOIN_COPY;
+					boolean copy = command == Command.JOIN_COPY_WORLD;
 					CutsceneManager.startFakeWorld(new CutsceneWorld(client, client.world, null, copy), !copy);
 				}
-			} else if (test == WorldTest.LEAVE)
+			} else if (command == Command.LEAVE_WORLD)
 			{
 				CutsceneManager.stopFakeWorld();
-			} else if (test == WorldTest.SERIALIZE)
+			} else if (command == Command.RECORD_CAMERA)
+			{
+				PathRecorder.start();
+				client.player.addChatMessage(new TranslatableTextComponent("command.cutsceneapi.startrecording"), true);
+			} else if (command == Command.STOP_RECORDING)
+			{
+				PathRecorder.stop();
+				client.player.addChatMessage(new TranslatableTextComponent("command.cutsceneapi.stoprecording"), true);
+			} else if (command == Command.SERIALIZE_WORLD)
 			{
 				int radius = 15;
 				for (int x = -radius; x <= radius; x++)
@@ -145,7 +154,7 @@ public class WorldTestPacket implements IPacket
 					}
 				}
 				client.player.addChatMessage(new TranslatableTextComponent("command.cutsceneapi.serializedchunk"), false);
-			} else if (test == WorldTest.DESERIALIZE)
+			} else if (command == Command.DESERIALIZE_WORLD)
 			{
 				CompoundTag tag;
 				ChunkPos pos = new ChunkPos(0, 0);
@@ -171,8 +180,8 @@ public class WorldTestPacket implements IPacket
 		}
 	}
 
-	public enum WorldTest
+	public enum Command
 	{
-		JOIN_VOID, JOIN_COPY, JOIN_CACHED, LEAVE, SERIALIZE, DESERIALIZE
+		JOIN_VOID_WORLD, JOIN_COPY_WORLD, JOIN_CACHED_WORLD, LEAVE_WORLD, SERIALIZE_WORLD, DESERIALIZE_WORLD, RECORD_CAMERA, STOP_RECORDING
 	}
 }

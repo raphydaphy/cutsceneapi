@@ -8,7 +8,7 @@ import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneRegistry;
 import com.raphydaphy.cutsceneapi.cutscene.DefaultCutscene;
 import com.raphydaphy.cutsceneapi.network.CutsceneFinishPacket;
-import com.raphydaphy.cutsceneapi.network.WorldTestPacket;
+import com.raphydaphy.cutsceneapi.network.CutsceneCommandPacket;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
@@ -58,37 +58,47 @@ public class CutsceneAPI implements ModInitializer
 		ServerSidePacketRegistry.INSTANCE.register(CutsceneFinishPacket.ID, new CutsceneFinishPacket.Handler());
 
 		CommandRegistry.INSTANCE.register(false, dispatcher -> dispatcher.register((ServerCommandManager.literal("cutscene").requires((command) -> command.hasPermissionLevel(2))
-				.then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).then(ServerCommandManager.argument("cutscene", CutsceneArgumentType.create()).executes(command ->
-				{
-					Identifier cutscene = CutsceneArgumentType.get(command, "cutscene").getID();
-					if (cutscene != null)
-					{
-						ServerPlayerEntity player = EntityArgumentType.getServerPlayerArgument(command, "target");
-						CutsceneManager.startServer(player, cutscene);
-						return 1;
-					}
-					return -1;
-				})))).then(ServerCommandManager.literal("world").then(ServerCommandManager.literal("join").then(ServerCommandManager.literal("copy").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) ->
+		.then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).then(ServerCommandManager.argument("cutscene", CutsceneArgumentType.create()).executes(command ->
 		{
-			PacketHandler.sendToClient(new WorldTestPacket(WorldTestPacket.WorldTest.JOIN_COPY), EntityArgumentType.getServerPlayerArgument(command, "target"));
+			Identifier cutscene = CutsceneArgumentType.get(command, "cutscene").getID();
+			if (cutscene != null)
+			{
+				ServerPlayerEntity player = EntityArgumentType.getServerPlayerArgument(command, "target");
+				CutsceneManager.startServer(player, cutscene);
+				return 1;
+			}
+			return -1;
+		})))).then(ServerCommandManager.literal("record").then(ServerCommandManager.literal("stop")
+        .then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) ->
+        {
+	        PacketHandler.sendToClient(new CutsceneCommandPacket(CutsceneCommandPacket.Command.STOP_RECORDING), EntityArgumentType.getServerPlayerArgument(command, "target"));
+            return 1;
+        }))).then(ServerCommandManager.literal("camera")
+        .then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) ->
+        {
+	        PacketHandler.sendToClient(new CutsceneCommandPacket(CutsceneCommandPacket.Command.RECORD_CAMERA), EntityArgumentType.getServerPlayerArgument(command, "target"));
+       	    return 1;
+        })))).then(ServerCommandManager.literal("world").then(ServerCommandManager.literal("join").then(ServerCommandManager.literal("copy").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) ->
+		{
+			PacketHandler.sendToClient(new CutsceneCommandPacket(CutsceneCommandPacket.Command.JOIN_COPY_WORLD), EntityArgumentType.getServerPlayerArgument(command, "target"));
 			return 1;
 		}))).then(ServerCommandManager.literal("empty").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) ->
 		{
-			PacketHandler.sendToClient(new WorldTestPacket(WorldTestPacket.WorldTest.JOIN_VOID), EntityArgumentType.getServerPlayerArgument(command, "target"));
+			PacketHandler.sendToClient(new CutsceneCommandPacket(CutsceneCommandPacket.Command.JOIN_VOID_WORLD), EntityArgumentType.getServerPlayerArgument(command, "target"));
 			return 1;
 		}))).then(ServerCommandManager.literal("cached").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) ->
         {
-	        PacketHandler.sendToClient(new WorldTestPacket(WorldTestPacket.WorldTest.JOIN_CACHED), EntityArgumentType.getServerPlayerArgument(command, "target"));
+	        PacketHandler.sendToClient(new CutsceneCommandPacket(CutsceneCommandPacket.Command.JOIN_CACHED_WORLD), EntityArgumentType.getServerPlayerArgument(command, "target"));
         	return 1;
         })))).then(ServerCommandManager.literal("leave").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) ->
 		{
-			PacketHandler.sendToClient(new WorldTestPacket(WorldTestPacket.WorldTest.LEAVE), EntityArgumentType.getServerPlayerArgument(command, "target"));
+			PacketHandler.sendToClient(new CutsceneCommandPacket(CutsceneCommandPacket.Command.LEAVE_WORLD), EntityArgumentType.getServerPlayerArgument(command, "target"));
 			return 1;
 		}))).then(ServerCommandManager.literal("serialize").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) -> {
-			PacketHandler.sendToClient(new WorldTestPacket(WorldTestPacket.WorldTest.SERIALIZE), EntityArgumentType.getServerPlayerArgument(command, "target"));
+			PacketHandler.sendToClient(new CutsceneCommandPacket(CutsceneCommandPacket.Command.SERIALIZE_WORLD), EntityArgumentType.getServerPlayerArgument(command, "target"));
 			return 1;
 		}))).then(ServerCommandManager.literal("deserialize").then(ServerCommandManager.argument("target", EntityArgumentType.onePlayer()).executes((command) -> {
-			PacketHandler.sendToClient(new WorldTestPacket(WorldTestPacket.WorldTest.DESERIALIZE), EntityArgumentType.getServerPlayerArgument(command, "target"));
+			PacketHandler.sendToClient(new CutsceneCommandPacket(CutsceneCommandPacket.Command.DESERIALIZE_WORLD), EntityArgumentType.getServerPlayerArgument(command, "target"));
 			return 1;
 		}))))));
 	}

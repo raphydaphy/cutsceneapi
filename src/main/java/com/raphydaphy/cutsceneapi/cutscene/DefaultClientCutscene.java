@@ -1,7 +1,6 @@
 package com.raphydaphy.cutsceneapi.cutscene;
 
 import com.mojang.blaze3d.platform.GLX;
-import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.api.ClientCutscene;
 import com.raphydaphy.cutsceneapi.api.Cutscene;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneChunk;
@@ -9,13 +8,14 @@ import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
 import com.raphydaphy.cutsceneapi.mixin.client.ClientPlayNetworkHandlerHooks;
 import com.raphydaphy.cutsceneapi.mixin.client.GameRendererHooks;
 import com.raphydaphy.cutsceneapi.mixin.client.MinecraftClientHooks;
+import com.raphydaphy.cutsceneapi.path.Path;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.util.math.Vector3f;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 
 import java.util.function.Consumer;
 
@@ -127,16 +127,11 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
 				// Set Camera Look
 				float percent = ticks / (float) length;
 
-				Vector3f direction = path.getPoint(percent);
-				direction.subtract(path.getPoint(percent >= 0.99f ? 0.9999f : percent + 0.01f));
-				float lengthSquared = direction.x() * direction.x() + direction.y() * direction.y() + direction.z() * direction.z();
-				if (lengthSquared != 0 && lengthSquared != 1) direction.scale(1 / (float) Math.sqrt(lengthSquared));
-
+				Pair<Float, Float> rotation = path.getRotation(percent);
 				camera.prevYaw = camera.yaw;
 				camera.prevPitch = camera.pitch;
-
-				camera.pitch = (float) Math.toDegrees(Math.asin(direction.y()));
-				camera.yaw = (float) Math.toDegrees(Math.atan2(direction.x(), direction.z()));
+				camera.pitch = rotation.getLeft();
+				camera.yaw = rotation.getRight();
 			} else
 			{
 				// Restore real world

@@ -1,21 +1,22 @@
-package com.raphydaphy.cutsceneapi.cutscene;
+package com.raphydaphy.cutsceneapi.path;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.util.Pair;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 import java.util.function.Function;
 
-public class Path
+public class SplinePath implements Path
 {
 	private final List<Vector3f> points;
 	private final List<Cubic> xCubics;
 	private final List<Cubic> yCubics;
 	private final List<Cubic> zCubics;
 
-	private Path(List<Vector3f> points, List<Cubic> xCubics, List<Cubic> yCubics, List<Cubic> zCubics)
+	private SplinePath(List<Vector3f> points, List<Cubic> xCubics, List<Cubic> yCubics, List<Cubic> zCubics)
 	{
 		this.points = points;
 		this.xCubics = xCubics;
@@ -33,6 +34,7 @@ public class Path
 		return points;
 	}
 
+	@Override
 	public Vector3f getPoint(float position)
 	{
 		if (this.points.size() > 1)
@@ -51,6 +53,17 @@ public class Path
 			return new Vector3f(this.points.get(this.points.size() - 1));
 		}
 		return new Vector3f(this.points.get(0));
+	}
+
+	@Override
+	public Pair<Float, Float> getRotation(float time)
+	{
+		Vector3f direction = getPoint(time);
+		Vector3f currentPos = getPoint(time >= 0.99f ? 0.9999f : time + 0.01f);
+		direction.subtract(currentPos);
+		float lengthSquared = direction.x() * direction.x() + direction.y() * direction.y() + direction.z() * direction.z();
+		if (lengthSquared != 0 && lengthSquared != 1) direction.scale(1 / (float) Math.sqrt(lengthSquared));
+		return new Pair<>( (float) Math.toDegrees(Math.asin(direction.y())), (float) Math.toDegrees(Math.atan2(direction.x(), direction.z())));
 	}
 
 	public static class Builder
@@ -72,12 +85,12 @@ public class Path
 			return with(new Vector3f(x, y, z));
 		}
 
-		public Path build()
+		public SplinePath build()
 		{
-			return new Path(ImmutableList.copyOf(this.points),
-					Cubic.calcNatural(points, Vector3f::y, xCubics),
-					Cubic.calcNatural(points, Vector3f::y, yCubics),
-					Cubic.calcNatural(points, Vector3f::z, zCubics)
+			return new SplinePath(ImmutableList.copyOf(this.points),
+			                      Cubic.calcNatural(points, Vector3f::y, xCubics),
+			                      Cubic.calcNatural(points, Vector3f::y, yCubics),
+			                      Cubic.calcNatural(points, Vector3f::z, zCubics)
 			);
 		}
 	}

@@ -3,20 +3,24 @@ package com.raphydaphy.cutsceneapi;
 import com.raphydaphy.cutsceneapi.api.ClientCutscene;
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneWorldType;
 import com.raphydaphy.cutsceneapi.cutscene.DefaultClientCutscene;
-import com.raphydaphy.cutsceneapi.cutscene.Path;
+import com.raphydaphy.cutsceneapi.path.PathRecorder;
+import com.raphydaphy.cutsceneapi.path.RecordedPath;
+import com.raphydaphy.cutsceneapi.path.SplinePath;
 import com.raphydaphy.cutsceneapi.cutscene.Transition;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneChunk;
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
 import com.raphydaphy.cutsceneapi.fakeworld.storage.CutsceneChunkSerializer;
 import com.raphydaphy.cutsceneapi.fakeworld.storage.CutsceneWorldStorage;
 import com.raphydaphy.cutsceneapi.network.CutsceneStartPacket;
-import com.raphydaphy.cutsceneapi.network.WorldTestPacket;
+import com.raphydaphy.cutsceneapi.network.CutsceneCommandPacket;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.event.client.ClientTickCallback;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sound.SoundEvents;
@@ -26,7 +30,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPos;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
@@ -34,6 +37,7 @@ public class CutsceneAPIClient implements ClientModInitializer
 {
 	public static CutsceneWorld GENERATED;
 	public static CutsceneWorldStorage STORAGE;
+	public static RecordedPath CACHED_PATH = RecordedPath.builder().with(new Vector3f(0, 80, 0), 0, 0).build();
 
 	public CutsceneAPIClient()
 	{
@@ -50,8 +54,10 @@ public class CutsceneAPIClient implements ClientModInitializer
 	{
 		STORAGE = new CutsceneWorldStorage("cutscene_worlds");
 
+		ClientTickCallback.EVENT.register((callback) -> PathRecorder.tick());
+
 		ClientSidePacketRegistry.INSTANCE.register(CutsceneStartPacket.ID, new CutsceneStartPacket.Handler());
-		ClientSidePacketRegistry.INSTANCE.register(WorldTestPacket.ID, new WorldTestPacket.Handler());
+		ClientSidePacketRegistry.INSTANCE.register(CutsceneCommandPacket.ID, new CutsceneCommandPacket.Handler());
 
 		ClientCutscene realWorld = (ClientCutscene) CutsceneAPI.REALWORLD_CUTSCENE;
 		//realWorld.setIntroTransition(new Transition.DipTo(40, 5, 0, 0, 0));
@@ -64,10 +70,10 @@ public class CutsceneAPIClient implements ClientModInitializer
 			float playerX = (float) client.player.x;
 			float playerY = (float) client.player.y;
 			float playerZ = (float) client.player.z;
-			clientCutscene.setCameraPath(Path.builder()
-					.with(playerX - 40, playerY + 35, playerZ)
-					.with(playerX + 70, playerY + 10, playerZ)
-					.build());
+			clientCutscene.setCameraPath(SplinePath.builder()
+			                                       .with(playerX - 40, playerY + 35, playerZ)
+			                                       .with(playerX + 70, playerY + 10, playerZ)
+			                                       .build());
 			client.player.playSound(SoundEvents.ENTITY_WITHER_SPAWN, 1, 1);
 		});
 
@@ -82,10 +88,10 @@ public class CutsceneAPIClient implements ClientModInitializer
 			float playerX = (float) client.player.x;
 			float playerY = (float) client.player.y;
 			float playerZ = (float) client.player.z;
-			clientCutscene.setCameraPath(Path.builder()
-					.with(playerX - 30, playerY + 40, playerZ + 30)
-					.with(playerX + 20, playerY + 10, playerZ + -20)
-					.build());
+			clientCutscene.setCameraPath(SplinePath.builder()
+			                                       .with(playerX - 30, playerY + 40, playerZ + 30)
+			                                       .with(playerX + 20, playerY + 10, playerZ + -20)
+			                                       .build());
 		});
 
 		ClientCutscene fakeWorld1 = (ClientCutscene) CutsceneAPI.FAKEWORLD_CUTSCENE_1;
@@ -100,10 +106,10 @@ public class CutsceneAPIClient implements ClientModInitializer
 			float playerX = (float) client.player.x;
 			float playerY = (float) client.player.y;
 			float playerZ = (float) client.player.z;
-			clientCutscene.setCameraPath(Path.builder()
-					.with(playerX - 30, playerY + 20, playerZ - 10)
-					.with(playerX + 30, playerY + 5, playerZ + 30)
-					.build());
+			clientCutscene.setCameraPath(SplinePath.builder()
+			                                       .with(playerX - 30, playerY + 20, playerZ - 10)
+			                                       .with(playerX + 30, playerY + 5, playerZ + 30)
+			                                       .build());
 			client.player.playSound(SoundEvents.ENTITY_ENDER_DRAGON_SHOOT, 1, 1);
 			clientCutscene.getWorld().cutsceneTime = 18000;
 		});
@@ -137,10 +143,10 @@ public class CutsceneAPIClient implements ClientModInitializer
 		voidWorld.setInitCallback((cutscene) ->
 		{
 			ClientCutscene clientCutscene = (ClientCutscene) cutscene;
-			clientCutscene.setCameraPath(Path.builder()
-					.with(150, 70, 0)
-					.with(40, 50, 0)
-					.build());
+			clientCutscene.setCameraPath(SplinePath.builder()
+			                                       .with(150, 70, 0)
+			                                       .with(40, 50, 0)
+			                                       .build());
 			CutsceneWorld world = clientCutscene.getWorld();
 			Random rand = new Random(world.getSeed());
 			for (int x = -10; x < 10; x++)
@@ -178,7 +184,7 @@ public class CutsceneAPIClient implements ClientModInitializer
             ClientCutscene clientCutscene = (ClientCutscene)cutscene;
             GENERATED.setupFrom(client.world);
             clientCutscene.setWorld(GENERATED);
-	        clientCutscene.setCameraPath(new Path.Builder().with(-200, 90, 0).with(200, 100, 30).build());
+	        clientCutscene.setCameraPath(new SplinePath.Builder().with(-200, 90, 0).with(200, 100, 30).build());
         });
 
 		ClientCutscene cachedWorld = (ClientCutscene)CutsceneAPI.CACHEDWORLD_CUTSCENE;
@@ -187,12 +193,12 @@ public class CutsceneAPIClient implements ClientModInitializer
 		cachedWorld.setWorldType(CutsceneWorldType.CUSTOM);
 		cachedWorld.setInitCallback((cutscene) -> {
 			ClientCutscene clientCutscene = (ClientCutscene)cutscene;
-			clientCutscene.setCameraPath(new Path.Builder().with(0, 100, 0).with(0, 100, -10).build());
+			clientCutscene.setCameraPath(CACHED_PATH);
 		});
 		cachedWorld.setWorldInitCallback((cutscene) -> {
 			MinecraftClient client = MinecraftClient.getInstance();
 			CutsceneWorld cutsceneWorld = new CutsceneWorld(client, client.world, null, false);
-			int radius = 3;
+			int radius = 15;
 			for (int chunkX = - radius; chunkX <= radius; chunkX++)
 			{
 				for (int chunkZ = -radius; chunkZ <= radius; chunkZ++)
