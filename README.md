@@ -43,11 +43,11 @@ Check Cutscene and ClientCutscene for comments on all of the properties.
 ## Recording Camera Paths
 If you want more control over the camera movement during your cutscene, you can record movement ingame and save it as a file. To begin recording, navigate to a suitable starting position ingame and run the command.
 ```mcfunction
-/cutscene record camera @p
+cutscene record camera @p
 ```
 Once the recording has started, move around in the world and your movements will be recorded. Once you have finished, stop the recording.
 ```mcfunction
-/cutscene record stop @p
+cutscene record stop @p
 ```
 This will place a `.cpath` file in your Minecraft folder, in the `cutscenes/paths` directory. Move this file into your mod assets and give it a suitable name. You can use it in your cutscene by setting the path during the init callback on the client-side.
 ```java
@@ -73,7 +73,7 @@ It is best to cache these worlds when the game is loaded instead of generating t
 ### Loading a Serialized World
 The recommended way to load a custom fake world is to serialize the chunks you want to use, and load them from a file at the start of the cutscene. To serialize chunks, travel to `0, ~, 0` in a world and run the command.
 ```mcfunction
-/cutscene world serialize @p
+cutscene world serialize @p
 ```
 This will serialize a 30x30 chunk area and save it in `.minecraft/cutscenes/worlds/serialized.cworld`. You should rename this file and move it to your mod assets directory. In order to make the region accessible ingame, use the method provided by the API to copy in your client mod initializer. Using the sprite registry callback for this is silly but it is an easy way to ensure that your region is copied at the correct time during the loading process.
 ```java
