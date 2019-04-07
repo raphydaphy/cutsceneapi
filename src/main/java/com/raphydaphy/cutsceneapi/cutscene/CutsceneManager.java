@@ -66,10 +66,10 @@ public class CutsceneManager
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static void startFakeWorld(boolean copy)
+	public static void startFakeWorld(CutsceneWorld cutsceneWorld, boolean skyblock)
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
-		CutsceneWorld cutsceneWorld = new CutsceneWorld(client, client.world, null, copy);
+		//CutsceneWorld cutsceneWorld = new CutsceneWorld(client, client.world, null, copy);
 		client.player.setWorld(cutsceneWorld);
 		client.world = cutsceneWorld;
 		((MinecraftClientHooks) client).setCutsceneWorld(cutsceneWorld);
@@ -81,7 +81,7 @@ public class CutsceneManager
 
 		BlockPos playerPos = client.player.getBlockPos();
 
-		if (!copy)
+		if (skyblock)
 		{
 			for (int x = -2; x <= 2; x++)
 			{

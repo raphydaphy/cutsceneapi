@@ -5,10 +5,13 @@ import com.raphydaphy.crochet.network.MessageHandler;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.CutsceneAPIClient;
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
+import com.raphydaphy.cutsceneapi.fakeworld.CutsceneChunk;
+import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
 import com.raphydaphy.cutsceneapi.fakeworld.storage.CutsceneChunkSerializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.text.TranslatableTextComponent;
@@ -79,9 +82,54 @@ public class WorldTestPacket implements IPacket
 		{
 			MinecraftClient client = MinecraftClient.getInstance();
 			WorldTest test = message.test;
-			if (test == WorldTest.JOIN_COPY || test == WorldTest.JOIN_VOID)
+			if (test == WorldTest.JOIN_COPY || test == WorldTest.JOIN_VOID || test == WorldTest.JOIN_CACHED)
 			{
-				CutsceneManager.startFakeWorld(test == WorldTest.JOIN_COPY);
+				if (test == WorldTest.JOIN_CACHED)
+				{
+					CutsceneWorld cutsceneWorld = new CutsceneWorld(client, client.world, null, false);
+					int radius = 15;
+					for (int chunkX = - radius; chunkX <= radius; chunkX++)
+					{
+						for (int chunkZ = -radius; chunkZ <= radius; chunkZ++)
+						{
+							ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
+							CompoundTag chunkData;
+							try
+							{
+								chunkData = CutsceneAPIClient.STORAGE.getChunkData(chunkPos);
+							} catch (IOException e)
+							{
+								CutsceneAPI.getLogger().error("Failed to deserialize cutscene chunk! Printing stack trace...");
+								e.printStackTrace();
+								continue;
+							}
+							if (!chunkData.isEmpty())
+							{
+								Chunk chunk = CutsceneChunkSerializer.deserialize(cutsceneWorld, chunkPos, chunkData);
+								BlockState[] blockStates = new BlockState[16 * cutsceneWorld.getHeight() * 16];
+								int x, y, z, index;
+								for (x = 0; x < 16; x++)
+								{
+									for (y = 0; y < cutsceneWorld.getHeight(); y++)
+									{
+										for (z = 0; z < 16; z++)
+										{
+											index = z * 16 * cutsceneWorld.getHeight() + y * 16 + x;
+											blockStates[index] = chunk.getBlockState(new BlockPos(chunk.getPos().x + x, y, chunk.getPos().z + z));
+										}
+									}
+								}
+								CutsceneChunk cutsceneChunk = new CutsceneChunk(cutsceneWorld, chunkPos, chunk.getBiomeArray(), blockStates);
+								cutsceneWorld.putChunk(cutsceneChunk);
+							}
+						}
+					}
+					CutsceneManager.startFakeWorld(cutsceneWorld, false);
+				} else
+				{
+					boolean copy = test == WorldTest.JOIN_COPY;
+					CutsceneManager.startFakeWorld(new CutsceneWorld(client, client.world, null, copy), !copy);
+				}
 			} else if (test == WorldTest.LEAVE)
 			{
 				CutsceneManager.stopFakeWorld();
@@ -125,6 +173,6 @@ public class WorldTestPacket implements IPacket
 
 	public enum WorldTest
 	{
-		JOIN_VOID, JOIN_COPY, LEAVE, SERIALIZE, DESERIALIZE
+		JOIN_VOID, JOIN_COPY, JOIN_CACHED, LEAVE, SERIALIZE, DESERIALIZE
 	}
 }

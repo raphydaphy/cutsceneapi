@@ -187,12 +187,12 @@ public class CutsceneAPIClient implements ClientModInitializer
 		cachedWorld.setWorldType(CutsceneWorldType.CUSTOM);
 		cachedWorld.setInitCallback((cutscene) -> {
 			ClientCutscene clientCutscene = (ClientCutscene)cutscene;
-			clientCutscene.setCameraPath(new Path.Builder().with(-200, 90, 0).with(200, 100, 30).build());
+			clientCutscene.setCameraPath(new Path.Builder().with(0, 100, 0).with(0, 100, -10).build());
 		});
 		cachedWorld.setWorldInitCallback((cutscene) -> {
 			MinecraftClient client = MinecraftClient.getInstance();
 			CutsceneWorld cutsceneWorld = new CutsceneWorld(client, client.world, null, false);
-			int radius = 15;
+			int radius = 3;
 			for (int chunkX = - radius; chunkX <= radius; chunkX++)
 			{
 				for (int chunkZ = -radius; chunkZ <= radius; chunkZ++)
