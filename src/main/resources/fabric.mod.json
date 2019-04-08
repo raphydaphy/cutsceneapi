@@ -1,19 +1,34 @@
 {
+  "schemaVersion": 1,
   "id": "cutsceneapi",
   "name": "Cutscene API",
-  "description": "Tools to help developers add Cutscenes to their mods.",
   "version": "${version}",
+
   "side": "universal",
-  "initializers": [
-    "com.raphydaphy.cutsceneapi.CutsceneAPI",
-    "com.raphydaphy.cutsceneapi.CutsceneAPIClient"
-  ],
+  "entrypoints": {
+    "main": [
+      "com.raphydaphy.cutsceneapi.CutsceneAPI"
+    ],
+    "client": [
+      "com.raphydaphy.cutsceneapi.CutsceneAPIClient"
+    ]
+  },
   "requires": {
+    "fabricloader": ">=0.4.0",
     "fabric": "*",
     "crochet": "*"
   },
-  "mixins": {
-    "client": "cutsceneapi.client.json",
-    "common": "cutsceneapi.common.json"
+  "mixins": [
+    "mixins.cutsceneapi.json"
+  ],
+
+  "authors": [
+    "raphydaphy"
+  ],
+  "licence": "MIT",
+  "description": "Tools to help developers add Cutscenes to their mods.",
+  "icon": "assets/cutsceneapi/icon.png",
+  "custom": {
+    "modmenu:api": true
   }
 }

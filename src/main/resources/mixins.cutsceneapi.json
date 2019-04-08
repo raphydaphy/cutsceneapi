@@ -1,0 +1,26 @@
+{
+  "required": true,
+  "package": "com.raphydaphy.cutsceneapi.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.7.11-SNAPSHOT",
+  "mixins": [
+    "PlayerEntityMixin"
+  ],
+  "client": [
+    "client.ClientPlayerEntityMixin",
+    "client.ClientPlayerInteractionManagerMixin",
+    "client.ClientPlayNetworkHandlerHooks",
+    "client.ClientPlayNetworkHandlerMixin",
+    "client.ClientWorldHooks",
+    "client.GameRendererHooks",
+    "client.GameRendererMixin",
+    "client.InGameHudMixin",
+    "client.MinecraftClientHooks",
+    "client.MinecraftClientMixin",
+    "client.WorldRendererMixin",
+    "client.WorldHooks"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
