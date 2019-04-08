@@ -14,11 +14,11 @@
     "client.ClientWorldHooks",
     "client.GameRendererHooks",
     "client.GameRendererMixin",
+    "client.WorldHooks",
     "client.InGameHudMixin",
     "client.MinecraftClientHooks",
     "client.MinecraftClientMixin",
-    "client.WorldRendererMixin",
-    "client.WorldHooks"
+    "client.WorldRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
