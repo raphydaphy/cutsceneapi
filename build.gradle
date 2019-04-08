@@ -6,10 +6,14 @@ buildscript {
     }
     dependencies {
         classpath 'net.fabricmc:fabric-loom:0.2.1-SNAPSHOT'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
     }
 }
 
 apply plugin: 'fabric-loom'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -23,7 +27,7 @@ minecraft {
 
 repositories {
     maven { url 'https://maven.fabricmc.net' }
-    maven { url "https://jitpack.io" }
+    maven { url  "https://dl.bintray.com/raphydaphy/Fabric" }
 }
 
 dependencies {
@@ -34,11 +38,11 @@ dependencies {
 
     // Dependencies
     modCompile "net.fabricmc:fabric:${project.fabric_version}"
-    modCompile "com.github.raphydaphy:Crochet:${project.crochet_version}"
+    modCompile "com.raphydaphy:Crochet:${project.crochet_version}"
 
     // Nested Jars
     include "net.fabricmc:fabric:${project.fabric_version}"
-    include "com.github.raphydaphy:Crochet:${project.crochet_version}"
+    include "com.raphydaphy:Crochet:${project.crochet_version}"
 }
 
 processResources {
@@ -76,4 +80,34 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 jar {
     from "LICENSE"
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    publications = ['mavenJava' ]
+    configurations = [ 'archives' ]
+    pkg {
+        repo = 'Fabric'
+        name = 'CutsceneAPI'
+        licenses = ['MIT']
+        vcsUrl = 'https://github.com/raphydaphy/CutsceneAPI.git'
+        version {
+            name = project.mod_version;
+            released = new Date()
+        }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact(jar) {
+                builtBy remapJar
+            }
+            artifact(sourcesJar) {
+                builtBy remapSourcesJar
+            }
+        }
+    }
 }
