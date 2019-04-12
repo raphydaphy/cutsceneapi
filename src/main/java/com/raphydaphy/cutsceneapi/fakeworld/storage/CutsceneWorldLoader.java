@@ -56,7 +56,6 @@ public class CutsceneWorldLoader
 				outFile.createNewFile();
 				outStream = new FileOutputStream(outFile);
 				outStream.write(buffer);
-				System.out.println("wow we did it success ville");
 			} catch (FileNotFoundException e)
 			{
 				CutsceneAPI.getLogger().error("Couldn't find file to copy cutscene world to... this shouldn't happen! Printing stack trace...");

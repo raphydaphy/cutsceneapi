@@ -45,11 +45,6 @@ public class CutsceneManager
 		}
 	}
 
-	public static boolean showFakeWorld()
-	{
-		return false;
-	}
-
 	@Environment(EnvType.CLIENT)
 	public static void renderHud()
 	{
