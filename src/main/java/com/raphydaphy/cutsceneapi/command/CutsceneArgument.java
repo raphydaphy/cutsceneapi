@@ -4,23 +4,19 @@ import net.minecraft.util.Identifier;
 
 import java.util.function.Predicate;
 
-public class CutsceneArgument implements Predicate<Identifier>
-{
-	private final Identifier id;
+public class CutsceneArgument implements Predicate<Identifier> {
+    private final Identifier id;
 
-	public CutsceneArgument(Identifier id)
-	{
-		this.id = id;
-	}
+    public CutsceneArgument(Identifier id) {
+        this.id = id;
+    }
 
-	public Identifier getID()
-	{
-		return id;
-	}
+    public Identifier getID() {
+        return id;
+    }
 
-	@Override
-	public boolean test(Identifier identifier)
-	{
-		return id.equals(identifier);
-	}
+    @Override
+    public boolean test(Identifier identifier) {
+        return id.equals(identifier);
+    }
 }

@@ -13,18 +13,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
-public class GameRendererMixin
-{
-	@Shadow
-	@Final
-	private MinecraftClient client;
+public class GameRendererMixin {
+    @Shadow
+    @Final
+    private MinecraftClient client;
 
-	@Inject(at = @At(value = "HEAD"), method = "renderHand", cancellable = true)
-	private void renderHand(Camera camera_1, float float_1, CallbackInfo info)
-	{
-		if (CutsceneManager.hideHud(client.player))
-		{
-			info.cancel();
-		}
-	}
+    @Inject(at = @At(value = "HEAD"), method = "renderHand", cancellable = true)
+    private void renderHand(Camera camera_1, float float_1, CallbackInfo info) {
+        if (CutsceneManager.hideHud(client.player)) {
+            info.cancel();
+        }
+    }
 }

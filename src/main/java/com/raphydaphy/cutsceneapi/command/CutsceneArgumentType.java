@@ -15,38 +15,32 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
-public class CutsceneArgumentType implements ArgumentType<CutsceneArgument>
-{
-	private static final Collection<String> EXAMPLES = Collections.singletonList("cutsceneapi:demo");
+public class CutsceneArgumentType implements ArgumentType<CutsceneArgument> {
+    private static final Collection<String> EXAMPLES = Collections.singletonList("cutsceneapi:demo");
 
-	public static CutsceneArgumentType create()
-	{
-		return new CutsceneArgumentType();
-	}
+    public static CutsceneArgumentType create() {
+        return new CutsceneArgumentType();
+    }
 
-	public static CutsceneArgument get(final CommandContext<?> context, final String name)
-	{
-		return context.getArgument(name, CutsceneArgument.class);
-	}
+    public static CutsceneArgument get(final CommandContext<?> context, final String name) {
+        return context.getArgument(name, CutsceneArgument.class);
+    }
 
-	@Override
-	public CutsceneArgument parse(StringReader reader) throws CommandSyntaxException
-	{
-		Identifier id = Identifier.parse(reader);
-		if (!CutsceneRegistry.getIDs().contains(id))
-			throw new CommandSyntaxException(CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument(), new TranslatableTextComponent("arguments.cutsceneapi.invalid"));
-		return new CutsceneArgument(id);
-	}
+    @Override
+    public CutsceneArgument parse(StringReader reader) throws CommandSyntaxException {
+        Identifier id = Identifier.parse(reader);
+        if (!CutsceneRegistry.getIDs().contains(id))
+            throw new CommandSyntaxException(CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument(), new TranslatableTextComponent("arguments.cutsceneapi.invalid"));
+        return new CutsceneArgument(id);
+    }
 
-	@Override
-	public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder)
-	{
-		return CommandSource.suggestIdentifiers(CutsceneRegistry.getIDs(), builder);
-	}
+    @Override
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+        return CommandSource.suggestIdentifiers(CutsceneRegistry.getIDs(), builder);
+    }
 
-	@Override
-	public Collection<String> getExamples()
-	{
-		return EXAMPLES;
-	}
+    @Override
+    public Collection<String> getExamples() {
+        return EXAMPLES;
+    }
 }

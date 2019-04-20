@@ -12,20 +12,19 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 import java.util.List;
 
 @Mixin(ClientWorld.class)
-public interface ClientWorldHooks
-{
-	@Accessor("netHandler")
-	ClientPlayNetworkHandler getCutsceneNetHandler();
+public interface ClientWorldHooks {
+    @Accessor("netHandler")
+    ClientPlayNetworkHandler getCutsceneNetHandler();
 
-	@Accessor("netHandler")
-	void setCutsceneNetHandler(ClientPlayNetworkHandler handler);
+    @Accessor("netHandler")
+    void setCutsceneNetHandler(ClientPlayNetworkHandler handler);
 
-	@Accessor("worldRenderer")
-	void setWorldRenderer(WorldRenderer renderer);
+    @Accessor("worldRenderer")
+    void setWorldRenderer(WorldRenderer renderer);
 
-	@Accessor("globalEntities")
-	List<Entity> getCutsceneEntities();
+    @Accessor("globalEntities")
+    List<Entity> getCutsceneEntities();
 
-	@Invoker("method_2939")
-	void updateCutsceneLighting();
+    @Invoker("tickCaveAmbientSound")
+    void updateCutsceneLighting();
 }

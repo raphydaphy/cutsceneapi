@@ -15,37 +15,29 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerEntity.class)
-public abstract class PlayerEntityMixin extends LivingEntity
-{
-	protected PlayerEntityMixin(EntityType<? extends LivingEntity> type, World world)
-	{
-		super(type, world);
-	}
+public abstract class PlayerEntityMixin extends LivingEntity {
+    protected PlayerEntityMixin(EntityType<? extends LivingEntity> type, World world) {
+        super(type, world);
+    }
 
-	@Inject(at = @At("HEAD"), method = "tick")
-	private void tick(CallbackInfo info)
-	{
-		if (CutsceneManager.isActive((PlayerEntity) (Object) this))
-		{
-			this.onGround = false;
-			if (world.isClient)
-			{
-				cutsceneAPIClientTick();
-			}
-		}
-	}
+    @Inject(at = @At("HEAD"), method = "tick")
+    private void tick(CallbackInfo info) {
+        if (CutsceneManager.isActive((PlayerEntity) (Object) this)) {
+            this.onGround = false;
+            if (world.isClient) {
+                cutsceneAPIClientTick();
+            }
+        }
+    }
 
-	@Inject(at = @At("HEAD"), method = "interact", cancellable = true)
-	private void interact(Entity entity, Hand hand, CallbackInfoReturnable<ActionResult> info)
-	{
-		if (CutsceneManager.isActive((PlayerEntity) (Object) this))
-		{
-			info.setReturnValue(ActionResult.PASS);
-		}
-	}
+    @Inject(at = @At("HEAD"), method = "interact", cancellable = true)
+    private void interact(Entity entity, Hand hand, CallbackInfoReturnable<ActionResult> info) {
+        if (CutsceneManager.isActive((PlayerEntity) (Object) this)) {
+            info.setReturnValue(ActionResult.PASS);
+        }
+    }
 
-	private void cutsceneAPIClientTick()
-	{
-		CutsceneManager.updateClient();
-	}
+    private void cutsceneAPIClientTick() {
+        CutsceneManager.updateClient();
+    }
 }
