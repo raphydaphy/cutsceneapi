@@ -28,9 +28,7 @@ import net.minecraft.util.math.BlockPos;
 import java.util.Random;
 
 public class CutsceneAPIClient implements ClientModInitializer {
-    public static CutsceneWorld GENERATED;
     public static CutsceneWorldStorage STORAGE = new CutsceneWorldStorage();
-
 
     @Override
     public void onInitializeClient() {
@@ -144,23 +142,6 @@ public class CutsceneAPIClient implements ClientModInitializer {
                     }
                 }
             }
-        });
-
-        GENERATED = CutsceneWorld.createCached(4783, 15, false, (chunk) ->
-        {
-        });
-
-        ClientCutscene generatedWorld = (ClientCutscene) CutsceneAPI.GENERATEDWORLD_CUTSCENE;
-        generatedWorld.setIntroTransition(new Transition.DipTo(20, 50, 1, 1, 1));
-        generatedWorld.setOutroTransition(new Transition.FadeTo(20, 1, 1, 1));
-        generatedWorld.setWorldType(CutsceneWorldType.CUSTOM);
-        generatedWorld.setInitCallback((cutscene) ->
-        {
-            MinecraftClient client = MinecraftClient.getInstance();
-            ClientCutscene clientCutscene = (ClientCutscene) cutscene;
-            GENERATED.setupFrom(client.world);
-            clientCutscene.setWorld(GENERATED);
-            clientCutscene.setCameraPath(new SplinePath.Builder().with(-200, 90, 0).with(200, 100, 30).build());
         });
 
         ClientCutscene cachedWorld = (ClientCutscene) CutsceneAPI.DRAGONSTONE_CUTSCENE;

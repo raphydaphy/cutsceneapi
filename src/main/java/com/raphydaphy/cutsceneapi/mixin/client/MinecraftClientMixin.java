@@ -27,7 +27,6 @@ public class MinecraftClientMixin {
         CutsceneAPI.FAKEWORLD_CUTSCENE_1 = new DefaultClientCutscene(CutsceneAPI.FAKEWORLD_CUTSCENE_1.getLength());
         CutsceneAPI.FAKEWORLD_CUTSCENE_2 = new DefaultClientCutscene(CutsceneAPI.FAKEWORLD_CUTSCENE_2.getLength());
         CutsceneAPI.VOIDWORLD_CUTSCENE = new DefaultClientCutscene(CutsceneAPI.VOIDWORLD_CUTSCENE.getLength());
-        CutsceneAPI.GENERATEDWORLD_CUTSCENE = new DefaultClientCutscene(CutsceneAPI.GENERATEDWORLD_CUTSCENE.getLength());
         CutsceneAPI.DRAGONSTONE_CUTSCENE = new DefaultClientCutscene(CutsceneAPI.DRAGONSTONE_CUTSCENE.getLength());
     }
 
