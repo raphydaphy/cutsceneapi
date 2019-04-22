@@ -1,8 +1,10 @@
 package com.raphydaphy.cutsceneapi;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.raphydaphy.crochet.data.PlayerData;
 import com.raphydaphy.crochet.network.PacketHandler;
 import com.raphydaphy.cutsceneapi.api.Cutscene;
+import com.raphydaphy.cutsceneapi.command.CutsceneArgumentSerializer;
 import com.raphydaphy.cutsceneapi.command.CutsceneArgumentType;
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneCameraEntity;
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
@@ -14,7 +16,9 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.fabricmc.fabric.api.registry.CommandRegistry;
+import net.minecraft.command.arguments.ArgumentTypes;
 import net.minecraft.command.arguments.EntityArgumentType;
+import net.minecraft.command.arguments.serialize.StringArgumentSerializer;
 import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
@@ -50,13 +54,14 @@ public class CutsceneAPI implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ArgumentTypes.register(DOMAIN + ":cutscene", CutsceneArgumentType.class, new CutsceneArgumentSerializer());
+
         CutsceneRegistry.register(new Identifier(DOMAIN, "real_world"), REALWORLD_CUTSCENE);
         CutsceneRegistry.register(new Identifier(DOMAIN, "fake_world_1"), FAKEWORLD_CUTSCENE_1);
         CutsceneRegistry.register(new Identifier(DOMAIN, "fake_world_2"), FAKEWORLD_CUTSCENE_2);
         CutsceneRegistry.register(new Identifier(DOMAIN, "void_world"), VOIDWORLD_CUTSCENE);
         CutsceneRegistry.register(new Identifier(DOMAIN, "generated_world"), GENERATEDWORLD_CUTSCENE);
         CutsceneRegistry.register(new Identifier(DOMAIN, "dragonstone"), DRAGONSTONE_CUTSCENE);
-
 
         CUTSCENE_CAMERA_ENTITY = Registry.register(Registry.ENTITY_TYPE, new Identifier(DOMAIN, "cutscene_camera"), FabricEntityTypeBuilder.create(EntityCategory.MISC, CutsceneCameraEntity::new).size(new EntitySize(1, 1, true)).build());
         ServerSidePacketRegistry.INSTANCE.register(CutsceneFinishPacket.ID, new CutsceneFinishPacket.Handler());
@@ -110,6 +115,6 @@ public class CutsceneAPI implements ModInitializer {
             return 1;
         }))))));
 
-        log(Level.INFO, "Successfully Initialized");
+        log(Level.INFO, "Hello there");
     }
 }
