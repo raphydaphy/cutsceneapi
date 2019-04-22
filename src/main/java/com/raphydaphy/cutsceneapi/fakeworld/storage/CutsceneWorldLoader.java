@@ -13,6 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPos;
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.Level;
 
 import java.io.*;
 
@@ -23,7 +24,7 @@ public class CutsceneWorldLoader {
             Resource resource = MinecraftClient.getInstance().getResourceManager().getResource(from);
             inStream = resource.getInputStream();
         } catch (IOException e) {
-            CutsceneAPI.getLogger().error("Failed to copy cutscene world with ID " + from + "! Printing stack trace...");
+            CutsceneAPI.log(Level.ERROR, "Failed to copy cutscene world with ID " + from + "! Printing stack trace...");
             e.printStackTrace();
             return;
         }
@@ -33,7 +34,7 @@ public class CutsceneWorldLoader {
                 buffer = new byte[inStream.available()];
                 inStream.read(buffer);
             } catch (IOException e) {
-                CutsceneAPI.getLogger().error("Failed to copy cutscene world files! Printing stack trace...");
+                CutsceneAPI.log(Level.ERROR, "Failed to copy cutscene world files! Printing stack trace...");
                 e.printStackTrace();
                 IOUtils.closeQuietly(inStream);
                 return;
@@ -48,10 +49,10 @@ public class CutsceneWorldLoader {
                 outStream = new FileOutputStream(outFile);
                 outStream.write(buffer);
             } catch (FileNotFoundException e) {
-                CutsceneAPI.getLogger().error("Couldn't find file to copy cutscene world to... this shouldn't happen! Printing stack trace...");
+                CutsceneAPI.log(Level.ERROR, "Couldn't find file to copy cutscene world to... this shouldn't happen! Printing stack trace...");
                 e.printStackTrace();
             } catch (IOException e) {
-                CutsceneAPI.getLogger().error("Failed to copy cutscene world! Printing stack trace...");
+                CutsceneAPI.log(Level.ERROR, "Failed to copy cutscene world! Printing stack trace...");
                 e.printStackTrace();
             } finally {
                 IOUtils.closeQuietly(outStream);
@@ -68,7 +69,7 @@ public class CutsceneWorldLoader {
                 try {
                     chunkData = CutsceneAPIClient.STORAGE.getChunkData(filename, chunkPos);
                 } catch (IOException e) {
-                    CutsceneAPI.getLogger().error("Failed to deserialize cutscene chunk! Printing stack trace...");
+                    CutsceneAPI.log(Level.ERROR, "Failed to deserialize cutscene chunk! Printing stack trace...");
                     e.printStackTrace();
                     continue;
                 }

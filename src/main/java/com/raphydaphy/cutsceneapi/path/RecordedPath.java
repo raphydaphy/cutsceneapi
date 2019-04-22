@@ -9,6 +9,7 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
+import org.apache.logging.log4j.Level;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,7 +30,7 @@ public class RecordedPath implements Path {
     public RecordedPath(Vector3f[] positions, float[] pitch, float[] yaw) {
         int totalPositions = positions.length;
         if (totalPositions != pitch.length || totalPositions != yaw.length) {
-            CutsceneAPI.getLogger().error("Tried to create a RecordedPath with different length position/pitch/yaw arrays!");
+            CutsceneAPI.log(Level.ERROR, "Tried to create a RecordedPath with different length position/pitch/yaw arrays!");
         }
         this.length = totalPositions;
         this.positions = positions;
@@ -47,7 +48,7 @@ public class RecordedPath implements Path {
             Resource resource = MinecraftClient.getInstance().getResourceManager().getResource(id);
             stream = resource.getInputStream();
         } catch (IOException e) {
-            CutsceneAPI.getLogger().error("Failed to load cutscene path with ID " + id + "! Printing stack trace...");
+            CutsceneAPI.log(Level.ERROR, "Failed to load cutscene path with ID " + id + "! Printing stack trace...");
             e.printStackTrace();
             return null;
         }
@@ -62,14 +63,14 @@ public class RecordedPath implements Path {
         try {
             tag = NbtIo.readCompressed(stream);
         } catch (IOException e) {
-            CutsceneAPI.getLogger().error("Failed to read cutscene path! Printing stack trace...");
+            CutsceneAPI.log(Level.ERROR, "Failed to read cutscene path! Printing stack trace...");
             e.printStackTrace();
         } finally {
             if (stream != null) {
                 try {
                     stream.close();
                 } catch (IOException e) {
-                    CutsceneAPI.getLogger().error("Failed to close input stream! Printing stack trace...");
+                    CutsceneAPI.log(Level.ERROR, "Failed to close input stream! Printing stack trace...");
                     e.printStackTrace();
                 }
             }
@@ -87,7 +88,7 @@ public class RecordedPath implements Path {
             try {
                 stream = new FileInputStream(new File(dir, filename));
             } catch (IOException e) {
-                CutsceneAPI.getLogger().error("Failed to create stream! Printing stack trace...");
+                CutsceneAPI.log(Level.ERROR, "Failed to create stream! Printing stack trace...");
                 e.printStackTrace();
             }
             if (stream != null) {

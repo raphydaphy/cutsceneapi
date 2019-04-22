@@ -98,6 +98,14 @@ public class CutsceneManager {
     }
 
     @Environment(EnvType.CLIENT)
+    public static void stopCutscene() {
+        if (currentCutscene != null) {
+            ((ClientCutscene)currentCutscene).end();
+        }
+        finishClient();
+    }
+
+    @Environment(EnvType.CLIENT)
     public static Cutscene getCurrentCutscene() {
         return currentCutscene;
     }

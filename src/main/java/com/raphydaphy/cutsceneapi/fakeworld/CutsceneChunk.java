@@ -13,6 +13,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPos;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.chunk.light.LightingProvider;
+import org.apache.logging.log4j.Level;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
@@ -108,7 +109,7 @@ public class CutsceneChunk extends WorldChunk {
             if (index < blockStates.length && index >= 0) {
                 return blockStates[index];
             }
-            CutsceneAPI.getLogger().warn("Tried to get BlockState out of chunk with world position " + pos.toString() + " and index " + index);
+            CutsceneAPI.log(Level.WARN, "Tried to get BlockState out of chunk with world position " + pos.toString() + " and index " + index);
         }
         return Blocks.VOID_AIR.getDefaultState();
     }
@@ -125,7 +126,7 @@ public class CutsceneChunk extends WorldChunk {
                 blockStates[index] = state;
                 return state;
             }
-            CutsceneAPI.getLogger().warn("Tried to set BlockState out of chunk with position " + pos.toString());
+            CutsceneAPI.log(Level.WARN, "Tried to set BlockState out of chunk with position " + pos.toString());
         }
         return Blocks.VOID_AIR.getDefaultState();
     }
@@ -137,7 +138,7 @@ public class CutsceneChunk extends WorldChunk {
             if (index < blockStates.length && index >= 0) {
                 return blockStates[index].getFluidState();
             }
-            CutsceneAPI.getLogger().warn("Tried to get FluidState out of chunk with world position (" + x + ", " + y + ", " + z + ") and index " + index);
+            CutsceneAPI.log(Level.WARN, "Tried to get FluidState out of chunk with world position (" + x + ", " + y + ", " + z + ") and index " + index);
         }
         return Fluids.EMPTY.getDefaultState();
     }

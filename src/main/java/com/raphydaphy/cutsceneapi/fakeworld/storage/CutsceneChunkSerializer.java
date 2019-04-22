@@ -31,6 +31,7 @@ import net.minecraft.world.level.LevelGeneratorType;
 import net.minecraft.world.level.LevelInfo;
 import net.minecraft.world.level.LevelProperties;
 import net.minecraft.world.storage.RegionFile;
+import org.apache.logging.log4j.Level;
 
 import java.io.*;
 import java.util.*;
@@ -53,7 +54,7 @@ public class CutsceneChunkSerializer {
                 CutsceneAPIClient.STORAGE.setChunkData("serialized.cworld", chunk.getPos(), chunkData);
                 //saveRegion(file, chunk.getPos(), chunkData, false);
             } catch (IOException e) {
-                CutsceneAPI.getLogger().error("Failed to save chunk for cutscene storage! Printing stack trace...");
+                CutsceneAPI.log(Level.ERROR, "Failed to save chunk for cutscene storage! Printing stack trace...");
                 e.printStackTrace();
             }
         }
@@ -71,7 +72,7 @@ public class CutsceneChunkSerializer {
         CompoundTag compoundTag_2 = chunkTag.getCompound("Level");
         ChunkPos storedPos = new ChunkPos(compoundTag_2.getInt("xPos"), compoundTag_2.getInt("zPos"));
         if (!Objects.equals(chunkPos, storedPos)) {
-            CutsceneAPI.getLogger().error("Cutscene Chunk file at {} is in the wrong location; relocating. (Expected {}, got {})", chunkPos, chunkPos, storedPos);
+            CutsceneAPI.log(Level.ERROR, "Cutscene Chunk file at {} is in the wrong location; relocating. (Expected {}, got {})", chunkPos, chunkPos, storedPos);
         }
 
         Biome[] biomes = new Biome[256];

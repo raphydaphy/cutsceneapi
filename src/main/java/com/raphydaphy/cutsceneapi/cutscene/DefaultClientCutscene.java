@@ -213,7 +213,8 @@ public class DefaultClientCutscene extends DefaultCutscene implements ClientCuts
         }
     }
 
-    private void end() {
+    @Override
+    public void end() {
         MinecraftClient client = MinecraftClient.getInstance();
 
         if (nextCutscene == null || nextCutscene.getWorldType() != CutsceneWorldType.PREVIOUS) {

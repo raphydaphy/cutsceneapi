@@ -1,5 +1,6 @@
 package com.raphydaphy.cutsceneapi;
 
+import com.raphydaphy.crochet.data.PlayerData;
 import com.raphydaphy.crochet.network.PacketHandler;
 import com.raphydaphy.cutsceneapi.api.Cutscene;
 import com.raphydaphy.cutsceneapi.command.CutsceneArgumentType;
@@ -21,13 +22,14 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class CutsceneAPI implements ModInitializer {
     public static final String WATCHING_CUTSCENE_KEY = "WatchingCutscene";
     public static final String CUTSCENE_ID_KEY = "CutsceneID";
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger("Cutscene API");
     public static String DOMAIN = "cutsceneapi";
     public static EntityType<CutsceneCameraEntity> CUTSCENE_CAMERA_ENTITY;
 
@@ -38,8 +40,12 @@ public class CutsceneAPI implements ModInitializer {
     public static Cutscene GENERATEDWORLD_CUTSCENE = new DefaultCutscene(300);
     public static Cutscene DRAGONSTONE_CUTSCENE = new DefaultCutscene(500);
 
-    public static Logger getLogger() {
-        return LOGGER;
+    public static void log(Level level, String message, Object... data) {
+        LOGGER.log(level, "[Cutscene API] " + message, data);
+    }
+
+    public static void log(Level level, String message, Exception exception) {
+        LOGGER.log(level, "[Cutscene API] " + message, exception);
     }
 
     @Override
@@ -56,26 +62,31 @@ public class CutsceneAPI implements ModInitializer {
         ServerSidePacketRegistry.INSTANCE.register(CutsceneFinishPacket.ID, new CutsceneFinishPacket.Handler());
 
         CommandRegistry.INSTANCE.register(false, dispatcher -> dispatcher.register((CommandManager.literal("cutscene").requires((command) -> command.hasPermissionLevel(2))
-                .then(CommandManager.argument("target", EntityArgumentType.player()).then(CommandManager.argument("cutscene", CutsceneArgumentType.create()).executes(command ->
-                {
-                    Identifier cutscene = CutsceneArgumentType.get(command, "cutscene").getID();
-                    if (cutscene != null) {
-                        ServerPlayerEntity player = EntityArgumentType.getPlayer(command, "target");
-                        CutsceneManager.startServer(player, cutscene);
-                        return 1;
-                    }
-                    return -1;
-                })))).then(CommandManager.literal("record").then(CommandManager.literal("stop")
-                .then(CommandManager.argument("target", EntityArgumentType.player()).executes((command) ->
-                {
-                    PacketHandler.sendToClient(new CutsceneCommandPacket(CutsceneCommandPacket.Command.STOP_RECORDING), EntityArgumentType.getPlayer(command, "target"));
+        .then(CommandManager.literal("play").then(CommandManager.argument("target", EntityArgumentType.player()).then(CommandManager.argument("cutscene", CutsceneArgumentType.create()).executes(command ->
+        {
+                Identifier cutscene = CutsceneArgumentType.get(command, "cutscene").getID();
+                if (cutscene != null) {
+                    ServerPlayerEntity player = EntityArgumentType.getPlayer(command, "target");
+                    CutsceneManager.startServer(player, cutscene);
                     return 1;
-                }))).then(CommandManager.literal("camera")
-                .then(CommandManager.argument("target", EntityArgumentType.player()).executes((command) ->
-                {
-                    PacketHandler.sendToClient(new CutsceneCommandPacket(CutsceneCommandPacket.Command.RECORD_CAMERA), EntityArgumentType.getPlayer(command, "target"));
-                    return 1;
-                })))).then(CommandManager.literal("world").then(CommandManager.literal("join").then(CommandManager.literal("copy").then(CommandManager.argument("target", EntityArgumentType.player()).executes((command) ->
+                }
+                return -1;
+        }))))).then(CommandManager.literal("stop").then(CommandManager.argument("target", EntityArgumentType.player()).executes((command) -> {
+            ServerPlayerEntity player = EntityArgumentType.getPlayer(command, "target");
+            PlayerData.get(player, DOMAIN).putBoolean(WATCHING_CUTSCENE_KEY, false);
+            PacketHandler.sendToClient(new CutsceneCommandPacket(CutsceneCommandPacket.Command.STOP_PLAYING), player);
+            return 1;
+        }))).then(CommandManager.literal("record").then(CommandManager.literal("stop")
+            .then(CommandManager.argument("target", EntityArgumentType.player()).executes((command) ->
+            {
+                PacketHandler.sendToClient(new CutsceneCommandPacket(CutsceneCommandPacket.Command.STOP_RECORDING), EntityArgumentType.getPlayer(command, "target"));
+                return 1;
+            }))).then(CommandManager.literal("camera")
+            .then(CommandManager.argument("target", EntityArgumentType.player()).executes((command) ->
+            {
+                PacketHandler.sendToClient(new CutsceneCommandPacket(CutsceneCommandPacket.Command.RECORD_CAMERA), EntityArgumentType.getPlayer(command, "target"));
+                return 1;
+            })))).then(CommandManager.literal("world").then(CommandManager.literal("join").then(CommandManager.literal("copy").then(CommandManager.argument("target", EntityArgumentType.player()).executes((command) ->
         {
             PacketHandler.sendToClient(new CutsceneCommandPacket(CutsceneCommandPacket.Command.JOIN_COPY_WORLD), EntityArgumentType.getPlayer(command, "target"));
             return 1;
@@ -98,5 +109,7 @@ public class CutsceneAPI implements ModInitializer {
             PacketHandler.sendToClient(new CutsceneCommandPacket(CutsceneCommandPacket.Command.DESERIALIZE_WORLD), EntityArgumentType.getPlayer(command, "target"));
             return 1;
         }))))));
+
+        log(Level.INFO, "Successfully Initialized");
     }
 }

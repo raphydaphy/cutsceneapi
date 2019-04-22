@@ -7,6 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
+import org.apache.logging.log4j.Level;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,23 +39,23 @@ public class PathRecorder {
                     stream = new FileOutputStream(new File(dir, "recorded.cpath"));
                     NbtIo.writeCompressed(tag, stream);
                 } catch (IOException e) {
-                    CutsceneAPI.getLogger().error("Failed to serialize recorded cutscene path! Printing stack trace...");
+                    CutsceneAPI.log(Level.ERROR, "Failed to serialize recorded cutscene path! Printing stack trace...");
                     e.printStackTrace();
                 } finally {
                     if (stream != null) {
                         try {
                             stream.close();
                         } catch (IOException e) {
-                            CutsceneAPI.getLogger().error("Failed to close output stream! Printing stack trace...");
+                            CutsceneAPI.log(Level.ERROR, "Failed to close output stream! Printing stack trace...");
                             e.printStackTrace();
                         }
                     }
                 }
             } else {
-                CutsceneAPI.getLogger().error("Tried to stop a cutscene path recording without a valid path builder!");
+                CutsceneAPI.log(Level.ERROR, "Tried to stop a cutscene path recording without a valid path builder!");
             }
         } else {
-            CutsceneAPI.getLogger().error("Tried to stop a non-existent cutscene path recording!");
+            CutsceneAPI.log(Level.ERROR, "Tried to stop a non-existent cutscene path recording!");
         }
     }
 
@@ -66,7 +67,7 @@ public class PathRecorder {
         if (recording) {
             MinecraftClient client = MinecraftClient.getInstance();
             if (buildingPath == null) {
-                CutsceneAPI.getLogger().error("Tried to a cutscene path record without a valid path builder!");
+                CutsceneAPI.log(Level.ERROR, "Tried to a cutscene path record without a valid path builder!");
                 recording = false;
             } else {
                 buildingPath.with(new Vector3f((float) client.player.x, (float) client.player.y, (float) client.player.z), client.player.pitch, client.player.yaw);

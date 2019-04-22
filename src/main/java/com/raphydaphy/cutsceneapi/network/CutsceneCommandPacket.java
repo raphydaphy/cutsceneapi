@@ -23,6 +23,7 @@ import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPos;
+import org.apache.logging.log4j.Level;
 
 import java.io.IOException;
 
@@ -63,7 +64,7 @@ public class CutsceneCommandPacket implements IPacket {
     }
 
     public enum Command {
-        JOIN_VOID_WORLD, JOIN_COPY_WORLD, JOIN_CACHED_WORLD, LEAVE_WORLD, SERIALIZE_WORLD, DESERIALIZE_WORLD, RECORD_CAMERA, STOP_RECORDING
+        JOIN_VOID_WORLD, JOIN_COPY_WORLD, JOIN_CACHED_WORLD, LEAVE_WORLD, SERIALIZE_WORLD, DESERIALIZE_WORLD, RECORD_CAMERA, STOP_RECORDING, STOP_PLAYING
     }
 
     @Environment(EnvType.CLIENT)
@@ -88,7 +89,7 @@ public class CutsceneCommandPacket implements IPacket {
                             try {
                                 chunkData = CutsceneAPIClient.STORAGE.getChunkData("serialized.cworld", chunkPos);
                             } catch (IOException e) {
-                                CutsceneAPI.getLogger().error("Failed to deserialize cutscene chunk! Printing stack trace...");
+                                CutsceneAPI.log(Level.ERROR, "Failed to deserialize cutscene chunk! Printing stack trace...");
                                 e.printStackTrace();
                                 continue;
                             }
@@ -127,17 +128,19 @@ public class CutsceneCommandPacket implements IPacket {
                 try {
                     tag = CutsceneAPIClient.STORAGE.getChunkData("serialized.cworld", pos);
                 } catch (IOException e) {
-                    CutsceneAPI.getLogger().error("Failed to deserialize cutscene chunk! Printing stack trace...");
+                    CutsceneAPI.log(Level.ERROR, "Failed to deserialize cutscene chunk! Printing stack trace...");
                     e.printStackTrace();
                     return;
                 }
                 if (!tag.isEmpty()) {
                     Chunk chunk = CutsceneChunkSerializer.deserialize(client.world, pos, tag);
-                    CutsceneAPI.getLogger().info("Got chunk! Block at {0, 0, 0}: " + chunk.getBlockState(new BlockPos(pos.x * 16, 0, pos.z * 16)).getBlock());
+                    CutsceneAPI.log(Level.DEBUG, "Got chunk! Block at {0, 0, 0}: " + chunk.getBlockState(new BlockPos(pos.x * 16, 0, pos.z * 16)).getBlock());
                     client.player.addChatMessage(new TranslatableTextComponent("command.cutsceneapi.deserialized"), false);
                 } else {
                     client.player.addChatMessage(new TranslatableTextComponent("command.cutsceneapi.didntserialize"), false);
                 }
+            } else if (command == Command.STOP_PLAYING) {
+                CutsceneManager.stopCutscene();
             }
         }
     }

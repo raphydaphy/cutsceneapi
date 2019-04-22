@@ -20,6 +20,11 @@ public interface ClientCutscene extends Cutscene {
     void render();
 
     /**
+     * Forcibly stops the cutscene
+     */
+    void end();
+
+    /**
      * Called once per frame after the players look direction is set
      * Can be used to adjust this direction
      */

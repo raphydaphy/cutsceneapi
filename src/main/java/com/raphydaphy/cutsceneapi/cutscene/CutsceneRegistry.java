@@ -3,6 +3,7 @@ package com.raphydaphy.cutsceneapi.cutscene;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.api.Cutscene;
 import net.minecraft.util.Identifier;
+import org.apache.logging.log4j.Level;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,9 +16,10 @@ public class CutsceneRegistry {
         if (!REGISTRY.containsKey(id)) {
             cutscene.setID(id);
             REGISTRY.put(id, cutscene);
+            CutsceneAPI.log(Level.DEBUG, "Registering cutscene " + id);
             return;
         }
-        CutsceneAPI.getLogger().error("Tried to replace existing cutscene with ID " + id + "! Use CutsceneRegistry#replace if you wish to replace a cutscene.");
+        CutsceneAPI.log(Level.ERROR, "Tried to replace existing cutscene with ID " + id + "! Use CutsceneRegistry#replace if you wish to replace a cutscene.");
     }
 
     public static Cutscene get(Identifier id) {
