@@ -26,7 +26,6 @@ public class FakeWorldInteractionManager {
     public static ActionResult interactBlock(ClientPlayerEntity player, CutsceneWorld world, Hand hand, BlockHitResult hitResult) {
         MinecraftClient client = MinecraftClient.getInstance();
         BlockPos blockPos_1 = hitResult.getBlockPos();
-        Vec3d vec3d_1 = hitResult.getPos();
         if (!client.world.getWorldBorder().contains(blockPos_1)) {
             return ActionResult.FAIL;
         } else {
@@ -42,7 +41,7 @@ public class FakeWorldInteractionManager {
                     return ActionResult.SUCCESS;
                 } else {
                     handlePlayerInteractBlock(hand, hitResult);
-                    if (!itemStack_1.isEmpty() && !player.getItemCooldownManager().isCooldown(itemStack_1.getItem())) {
+                    if (!itemStack_1.isEmpty() && !player.getItemCooldownManager().isCoolingDown(itemStack_1.getItem())) {
                         ItemUsageContext itemUsageContext_1 = new ItemUsageContext(player, hand, hitResult);
                         ActionResult result;
                         if (player.isCreative()) {
@@ -91,7 +90,7 @@ public class FakeWorldInteractionManager {
             boolean boolean_2 = player.isSneaking() && boolean_1;
             if (!boolean_2 && blockState_1.activate(world, player, hand, hitResult)) {
                 return ActionResult.SUCCESS;
-            } else if (!stack.isEmpty() && !player.getItemCooldownManager().isCooldown(stack.getItem())) {
+            } else if (!stack.isEmpty() && !player.getItemCooldownManager().isCoolingDown(stack.getItem())) {
                 ItemUsageContext itemUsageContext_1 = new ItemUsageContext(player, hand, hitResult);
                 if (player.isCreative()) {
                     int int_1 = stack.getAmount();
@@ -112,7 +111,7 @@ public class FakeWorldInteractionManager {
             return ActionResult.PASS;
         } else {
             ItemStack itemStack_1 = player.getStackInHand(hand_1);
-            if (player.getItemCooldownManager().isCooldown(itemStack_1.getItem())) {
+            if (player.getItemCooldownManager().isCoolingDown(itemStack_1.getItem())) {
                 return ActionResult.PASS;
             } else {
                 int int_1 = itemStack_1.getAmount();

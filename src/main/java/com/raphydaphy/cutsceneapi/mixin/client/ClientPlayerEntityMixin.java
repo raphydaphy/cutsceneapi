@@ -16,7 +16,7 @@ public abstract class ClientPlayerEntityMixin {
     @Shadow
     public abstract void tickNewAi();
 
-    @Inject(at = @At("HEAD"), method = "updateMovement", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "updateState", cancellable = true)
     private void updateMovement(CallbackInfo info) {
         if (CutsceneManager.isActive((ClientPlayerEntity) (Object) this)) {
             if (!CutsceneManager.hideHud((ClientPlayerEntity) (Object) this)) {
