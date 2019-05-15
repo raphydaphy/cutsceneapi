@@ -124,7 +124,7 @@ public class CutsceneManager {
         MinecraftClient client = MinecraftClient.getInstance();
         if (isActive(client.player)) {
             if (currentCutscene == null && !stopping) {
-                currentCutscene = CutsceneRegistry.get(Identifier.create(PlayerData.get(client.player, CutsceneAPI.DOMAIN).getString(CutsceneAPI.CUTSCENE_ID_KEY)));
+                currentCutscene = CutsceneRegistry.get(new Identifier(PlayerData.get(client.player, CutsceneAPI.DOMAIN).getString(CutsceneAPI.CUTSCENE_ID_KEY)));
             }
             if (currentCutscene != null) {
                 stopping = false;

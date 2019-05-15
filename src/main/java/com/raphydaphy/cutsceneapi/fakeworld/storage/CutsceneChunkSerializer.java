@@ -12,6 +12,7 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.nbt.*;
 import net.minecraft.server.world.ServerTickScheduler;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.ChunkTickScheduler;
@@ -93,8 +94,9 @@ public class CutsceneChunkSerializer {
         }
 
         UpgradeData upgradeData_1 = compoundTag_2.containsKey("UpgradeData", 10) ? new UpgradeData(compoundTag_2.getCompound("UpgradeData")) : UpgradeData.NO_UPGRADE_DATA;
-        ChunkTickScheduler<Block> chunkTickScheduler_1 = new ChunkTickScheduler<>((block_1) -> block_1 == null || block_1.getDefaultState().isAir(), Registry.BLOCK::getId, Registry.BLOCK::get, chunkPos, compoundTag_2.getList("ToBeTicked", 9));
-        ChunkTickScheduler<Fluid> chunkTickScheduler_2 = new ChunkTickScheduler<>((fluid_1) -> fluid_1 == null || fluid_1 == Fluids.EMPTY, Registry.FLUID::getId, Registry.FLUID::get, chunkPos, compoundTag_2.getList("LiquidsToBeTicked", 9));
+
+        ChunkTickScheduler<Block> chunkTickScheduler_1 = new ChunkTickScheduler<>((block_1) -> block_1 == null || block_1.getDefaultState().isAir(), chunkPos, compoundTag_2.getList("ToBeTicked", 9));
+        ChunkTickScheduler<Fluid> chunkTickScheduler_2 = new ChunkTickScheduler<>((fluid_1) -> fluid_1 == null || fluid_1 == Fluids.EMPTY, chunkPos, compoundTag_2.getList("LiquidsToBeTicked", 9));
         boolean isLightOn = compoundTag_2.getBoolean("isLightOn");
         ListTag sections = compoundTag_2.getList("Sections", 10);
         ChunkSection[] chunkSections_1 = new ChunkSection[16];
@@ -332,12 +334,13 @@ public class CutsceneChunkSerializer {
     private static void writeEntities(CompoundTag compoundTag_1, WorldChunk worldChunk_1) {
         World world_1 = worldChunk_1.getWorld();
 
+        // TODO: i think i need this
         if (compoundTag_1.containsKey("TileTicks", 9) && world_1.getBlockTickScheduler() instanceof ServerTickScheduler) {
-            ((ServerTickScheduler) world_1.getBlockTickScheduler()).fromTag(compoundTag_1.getList("TileTicks", 10));
+            //((ServerTickScheduler) world_1.getBlockTickScheduler()).fromTag(compoundTag_1.getList("TileTicks", 10));
         }
 
         if (compoundTag_1.containsKey("LiquidTicks", 9) && world_1.getFluidTickScheduler() instanceof ServerTickScheduler) {
-            ((ServerTickScheduler) world_1.getFluidTickScheduler()).fromTag(compoundTag_1.getList("LiquidTicks", 10));
+            //((ServerTickScheduler) world_1.getFluidTickScheduler()).fromTag(compoundTag_1.getList("LiquidTicks", 10));
         }
     }
 

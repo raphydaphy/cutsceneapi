@@ -2,7 +2,7 @@ package com.raphydaphy.cutsceneapi.fakeworld.storage;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.world.chunk.ChunkPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.storage.RegionFile;
 
 import java.io.*;

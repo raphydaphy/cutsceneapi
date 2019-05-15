@@ -5,7 +5,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'net.fabricmc:fabric-loom:0.2.1-SNAPSHOT'
+        classpath 'net.fabricmc:fabric-loom:0.2.3-SNAPSHOT'
     }
 }
 
@@ -35,11 +35,11 @@ dependencies {
     modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
 
     // Dependencies
-    modCompile "net.fabricmc:fabric:${project.fabric_version}"
+    modCompile "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modCompile "crochet:Crochet:${project.crochet_version}"
 
     // Nested Jars
-    include "net.fabricmc:fabric:${project.fabric_version}"
+    include "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     include "crochet:Crochet:${project.crochet_version}"
 }
 

@@ -23,7 +23,7 @@ public class CutsceneStartPacket implements IPacket {
 
     @Override
     public void read(PacketByteBuf buf) {
-        this.cutscene = Identifier.create(buf.readString(buf.readInt()));
+        this.cutscene = new Identifier(buf.readString(buf.readInt()));
     }
 
     @Override

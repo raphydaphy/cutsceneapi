@@ -10,19 +10,17 @@ import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
 import com.raphydaphy.cutsceneapi.fakeworld.storage.CutsceneChunkSerializer;
 import com.raphydaphy.cutsceneapi.fakeworld.storage.CutsceneWorldLoader;
 import com.raphydaphy.cutsceneapi.path.PathRecorder;
-import com.raphydaphy.cutsceneapi.path.RecordedPath;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.text.TranslatableTextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkPos;
 import org.apache.logging.log4j.Level;
 
 import java.io.IOException;
@@ -109,10 +107,10 @@ public class CutsceneCommandPacket implements IPacket {
                 CutsceneManager.stopFakeWorld();
             } else if (command == Command.RECORD_CAMERA) {
                 PathRecorder.start();
-                client.player.addChatMessage(new TranslatableTextComponent("command.cutsceneapi.startrecording"), true);
+                client.player.addChatMessage(new TranslatableComponent("command.cutsceneapi.startrecording"), true);
             } else if (command == Command.STOP_RECORDING) {
                 PathRecorder.stop();
-                client.player.addChatMessage(new TranslatableTextComponent("command.cutsceneapi.stoprecording"), true);
+                client.player.addChatMessage(new TranslatableComponent("command.cutsceneapi.stoprecording"), true);
             } else if (command == Command.SERIALIZE_WORLD) {
                 int radius = 15;
                 for (int x = -radius; x <= radius; x++) {
@@ -121,7 +119,7 @@ public class CutsceneCommandPacket implements IPacket {
                         CutsceneChunkSerializer.serializeAndSave(client.world, chunk);
                     }
                 }
-                client.player.addChatMessage(new TranslatableTextComponent("command.cutsceneapi.serializedchunk"), false);
+                client.player.addChatMessage(new TranslatableComponent("command.cutsceneapi.serializedchunk"), false);
             } else if (command == Command.DESERIALIZE_WORLD) {
                 CompoundTag tag;
                 ChunkPos pos = new ChunkPos(0, 0);
@@ -135,9 +133,9 @@ public class CutsceneCommandPacket implements IPacket {
                 if (!tag.isEmpty()) {
                     Chunk chunk = CutsceneChunkSerializer.deserialize(client.world, pos, tag);
                     CutsceneAPI.log(Level.DEBUG, "Got chunk! Block at {0, 0, 0}: " + chunk.getBlockState(new BlockPos(pos.x * 16, 0, pos.z * 16)).getBlock());
-                    client.player.addChatMessage(new TranslatableTextComponent("command.cutsceneapi.deserialized"), false);
+                    client.player.addChatMessage(new TranslatableComponent("command.cutsceneapi.deserialized"), false);
                 } else {
-                    client.player.addChatMessage(new TranslatableTextComponent("command.cutsceneapi.didntserialize"), false);
+                    client.player.addChatMessage(new TranslatableComponent("command.cutsceneapi.didntserialize"), false);
                 }
             } else if (command == Command.STOP_PLAYING) {
                 CutsceneManager.stopCutscene();
