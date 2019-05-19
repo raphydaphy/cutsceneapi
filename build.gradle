@@ -39,7 +39,6 @@ dependencies {
     modCompile "crochet:Crochet:${project.crochet_version}"
 
     // Nested Jars
-    include "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     include "crochet:Crochet:${project.crochet_version}"
 }
 

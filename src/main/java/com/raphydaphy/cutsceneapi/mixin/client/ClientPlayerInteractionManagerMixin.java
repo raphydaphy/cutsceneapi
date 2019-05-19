@@ -48,7 +48,7 @@ public abstract class ClientPlayerInteractionManagerMixin {
     @Shadow
     private float field_3713;
     @Shadow
-    private ItemStack field_3718;
+    private ItemStack selectedStack;
 
     @Shadow
     protected abstract boolean isCurrentlyBreaking(BlockPos blockPos_1);
@@ -118,7 +118,7 @@ public abstract class ClientPlayerInteractionManagerMixin {
                     } else {
                         this.breakingBlock = true;
                         this.currentBreakingPos = blockPos_1;
-                        this.field_3718 = this.client.player.getMainHandStack();
+                        this.selectedStack = this.client.player.getMainHandStack();
                         this.currentBreakingProgress = 0.0F;
                         this.field_3713 = 0.0F;
                         this.client.world.setBlockBreakingProgress(this.client.player.getEntityId(), this.currentBreakingPos, (int) (this.currentBreakingProgress * 10.0F) - 1);
