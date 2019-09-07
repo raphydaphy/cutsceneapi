@@ -19,6 +19,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.tag.BlockTags;
@@ -34,7 +35,7 @@ public class CutsceneAPIClient implements ClientModInitializer {
     public void onInitializeClient() {
         ClientTickCallback.EVENT.register((callback) -> PathRecorder.tick());
 
-        ClientSpriteRegistryCallback.registerBlockAtlas((atlasTexture, registry) ->
+        ClientSpriteRegistryCallback.event(SpriteAtlasTexture.BLOCK_ATLAS_TEX).register((atlasTexture, registry) ->
         {
             CutsceneWorldLoader.copyCutsceneWorld(new Identifier(CutsceneAPI.DOMAIN, "cutscenes/worlds/dragonstone.cworld"), "dragonstone.cworld");
         });

@@ -118,7 +118,7 @@ public class RecordedPath implements Path {
         Vector3f curPos = positions[cur];
         Vector3f prevPos = positions[cur <= 0 ? cur : cur - 1];
 
-        return new Vector3f(CutsceneUtils.lerp(prevPos.x(), curPos.x(), time), CutsceneUtils.lerp(prevPos.y(), curPos.y(), time), CutsceneUtils.lerp(prevPos.z(), curPos.z(), time));
+        return new Vector3f(CutsceneUtils.lerp(prevPos.getX(), curPos.getX(), time), CutsceneUtils.lerp(prevPos.getY(), curPos.getY(), time), CutsceneUtils.lerp(prevPos.getZ(), curPos.getZ(), time));
     }
 
     @Override
@@ -156,9 +156,9 @@ public class RecordedPath implements Path {
             for (int i = 0; i < positions.size(); i++) {
                 CompoundTag entry = new CompoundTag();
                 Vector3f pos = positions.get(i);
-                entry.putFloat("PosX", pos.x());
-                entry.putFloat("PosY", pos.y());
-                entry.putFloat("PosZ", pos.z());
+                entry.putFloat("PosX", pos.getX());
+                entry.putFloat("PosY", pos.getY());
+                entry.putFloat("PosZ", pos.getZ());
                 entry.putFloat("Pitch", pitch.get(i));
                 entry.putFloat("Yaw", yaw.get(i));
                 tag.put("Entry" + i, entry);

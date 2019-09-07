@@ -7,8 +7,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneRegistry;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.command.CommandSource;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
 import java.util.Collection;
@@ -30,7 +30,7 @@ public class CutsceneArgumentType implements ArgumentType<CutsceneArgument> {
     public CutsceneArgument parse(StringReader reader) throws CommandSyntaxException {
         Identifier id = Identifier.fromCommandInput(reader);
         if (!CutsceneRegistry.getIDs().contains(id))
-            throw new CommandSyntaxException(CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument(), new TranslatableComponent("arguments.cutsceneapi.invalid"));
+            throw new CommandSyntaxException(CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument(), new TranslatableText("arguments.cutsceneapi.invalid"));
         return new CutsceneArgument(id);
     }
 

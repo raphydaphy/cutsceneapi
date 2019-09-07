@@ -76,21 +76,19 @@ public abstract class ClientPlayerInteractionManagerMixin {
             if (this.gameMode.shouldLimitWorldModification()) {
                 if (this.gameMode == GameMode.SPECTATOR) {
                     info.setReturnValue(false);
-                }
-
-                if (!this.client.player.canModifyWorld()) {
+                    return;
+                } else if (!this.client.player.canModifyWorld()) {
                     ItemStack itemStack_1 = this.client.player.getMainHandStack();
                     if (itemStack_1.isEmpty()) {
                         info.setReturnValue(false);
+                        return;
                     }
-
-                    CachedBlockPosition cachedBlockPosition_1 = new CachedBlockPosition(this.client.world, blockPos_1, false);
-                    if (!itemStack_1.getCustomCanHarvest(this.client.world.getTagManager(), cachedBlockPosition_1)) {
+                    if (!itemStack_1.canDestroy(this.client.world.getTagManager(), new CachedBlockPosition(this.client.world, blockPos_1, false))) {
                         info.setReturnValue(false);
+                        return;
                     }
                 }
             }
-
             if (!this.client.world.getWorldBorder().contains(blockPos_1)) {
                 info.setReturnValue(false);
             } else {

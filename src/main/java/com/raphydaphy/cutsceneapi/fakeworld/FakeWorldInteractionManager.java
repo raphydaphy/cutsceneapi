@@ -2,7 +2,6 @@ package com.raphydaphy.cutsceneapi.fakeworld;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.ChatFormat;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -11,8 +10,9 @@ import net.minecraft.container.NameableContainerProvider;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
@@ -46,9 +46,9 @@ public class FakeWorldInteractionManager {
                         ItemUsageContext itemUsageContext_1 = new ItemUsageContext(player, hand, hitResult);
                         ActionResult result;
                         if (player.isCreative()) {
-                            int int_1 = itemStack_1.getAmount();
+                            int int_1 = itemStack_1.getCount();
                             result = itemStack_1.useOnBlock(itemUsageContext_1);
-                            itemStack_1.setAmount(int_1);
+                            itemStack_1.setCount(int_1);
                         } else {
                             result = itemStack_1.useOnBlock(itemUsageContext_1);
                         }
@@ -69,7 +69,7 @@ public class FakeWorldInteractionManager {
         BlockPos blockPos_1 = hitResult.getBlockPos();
         Direction direction_1 = hitResult.getSide();
         if (blockPos_1.getY() >= world.getHeight() - 1 && (direction_1 == Direction.UP || blockPos_1.getY() >= world.getHeight())) {
-            client.player.addChatMessage(new TranslatableComponent("build.tooHigh", world.getHeight()).applyFormat(ChatFormat.RED), true);
+            client.player.addChatMessage(new TranslatableText("build.tooHigh", world.getHeight()).formatted(Formatting.RED), true);
         } else if (client.player.squaredDistanceTo((double) blockPos_1.getX() + 0.5D, (double) blockPos_1.getY() + 0.5D, (double) blockPos_1.getZ() + 0.5D) < 64.0D && world.getWorldBorder().contains(blockPos_1)) {
             interactBlock(client.player, world, stack, hand, hitResult);
         }
@@ -94,9 +94,9 @@ public class FakeWorldInteractionManager {
             } else if (!stack.isEmpty() && !player.getItemCooldownManager().isCoolingDown(stack.getItem())) {
                 ItemUsageContext itemUsageContext_1 = new ItemUsageContext(player, hand, hitResult);
                 if (player.isCreative()) {
-                    int int_1 = stack.getAmount();
+                    int int_1 = stack.getCount();
                     ActionResult actionResult_1 = stack.useOnBlock(itemUsageContext_1);
-                    stack.setAmount(int_1);
+                    stack.setCount(int_1);
                     return actionResult_1;
                 } else {
                     return stack.useOnBlock(itemUsageContext_1);
@@ -115,10 +115,10 @@ public class FakeWorldInteractionManager {
             if (player.getItemCooldownManager().isCoolingDown(itemStack_1.getItem())) {
                 return ActionResult.PASS;
             } else {
-                int int_1 = itemStack_1.getAmount();
+                int int_1 = itemStack_1.getCount();
                 TypedActionResult<ItemStack> typedActionResult_1 = itemStack_1.use(world_1, player, hand_1);
                 ItemStack itemStack_2 = typedActionResult_1.getValue();
-                if (itemStack_2 != itemStack_1 || itemStack_2.getAmount() != int_1) {
+                if (itemStack_2 != itemStack_1 || itemStack_2.getCount() != int_1) {
                     player.setStackInHand(hand_1, itemStack_2);
                 }
 

@@ -356,7 +356,7 @@ public class CutsceneChunkSerializer {
                 ShortListIterator var7 = shortList_1.iterator();
 
                 while (var7.hasNext()) {
-                    Short short_1 = var7.next();
+                    Short short_1 = var7.nextShort();
                     listTag_2.add(new ShortTag(short_1));
                 }
             }

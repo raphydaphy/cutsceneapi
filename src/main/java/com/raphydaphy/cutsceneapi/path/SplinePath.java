@@ -53,9 +53,9 @@ public class SplinePath implements Path {
         Vector3f direction = getPoint(time);
         Vector3f currentPos = getPoint(time >= 0.99f ? 0.9999f : time + 0.01f);
         direction.subtract(currentPos);
-        float lengthSquared = direction.x() * direction.x() + direction.y() * direction.y() + direction.z() * direction.z();
+        float lengthSquared = direction.getX() * direction.getX() + direction.getY() * direction.getY() + direction.getZ() * direction.getZ();
         if (lengthSquared != 0 && lengthSquared != 1) direction.scale(1 / (float) Math.sqrt(lengthSquared));
-        return new Pair<>((float) Math.toDegrees(Math.asin(direction.y())), (float) Math.toDegrees(Math.atan2(direction.x(), direction.z())));
+        return new Pair<>((float) Math.toDegrees(Math.asin(direction.getY())), (float) Math.toDegrees(Math.atan2(direction.getX(), direction.getZ())));
     }
 
     public static class Builder {
@@ -76,9 +76,9 @@ public class SplinePath implements Path {
 
         public SplinePath build() {
             return new SplinePath(ImmutableList.copyOf(this.points),
-                    Cubic.calcNatural(points, Vector3f::y, xCubics),
-                    Cubic.calcNatural(points, Vector3f::y, yCubics),
-                    Cubic.calcNatural(points, Vector3f::z, zCubics)
+                    Cubic.calcNatural(points, Vector3f::getX, xCubics),
+                    Cubic.calcNatural(points, Vector3f::getY, yCubics),
+                    Cubic.calcNatural(points, Vector3f::getZ, zCubics)
             );
         }
     }

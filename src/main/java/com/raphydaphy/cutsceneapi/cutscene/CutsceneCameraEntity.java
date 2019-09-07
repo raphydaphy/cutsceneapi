@@ -13,9 +13,9 @@ public class CutsceneCameraEntity extends Entity {
     }
 
     CutsceneCameraEntity withPos(Vector3f pos) {
-        this.x = pos.x();
-        this.y = pos.y();
-        this.z = pos.z();
+        this.x = pos.getX();
+        this.y = pos.getY();
+        this.z = pos.getZ();
         this.prevX = this.x;
         this.prevY = this.y;
         this.prevZ = this.z;
@@ -23,9 +23,9 @@ public class CutsceneCameraEntity extends Entity {
     }
 
     void moveTo(Vector3f pos) {
-        this.x = pos.x();
-        this.y = pos.y();
-        this.z = pos.z();
+        this.x = pos.getX();
+        this.y = pos.getY();
+        this.z = pos.getZ();
     }
 
     void update() {
