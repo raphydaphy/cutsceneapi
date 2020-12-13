@@ -15,11 +15,13 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.fabricmc.fabric.api.registry.CommandRegistry;
-import net.minecraft.command.arguments.ArgumentTypes;
-import net.minecraft.command.arguments.EntityArgumentType;
-import net.minecraft.entity.EntityCategory;
+import net.minecraft.command.argument.ArgumentTypes;
+import net.minecraft.command.argument.ArgumentTypes;
+import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnGroup;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -59,7 +61,7 @@ public class CutsceneAPI implements ModInitializer {
         CutsceneRegistry.register(new Identifier(DOMAIN, "void_world"), VOIDWORLD_CUTSCENE);
         CutsceneRegistry.register(new Identifier(DOMAIN, "dragonstone"), DRAGONSTONE_CUTSCENE);
 
-        CUTSCENE_CAMERA_ENTITY = Registry.register(Registry.ENTITY_TYPE, new Identifier(DOMAIN, "cutscene_camera"), FabricEntityTypeBuilder.create(EntityCategory.MISC, (t, w) -> new CutsceneCameraEntity(w)).size(new EntityDimensions(1, 1, true)).build());
+        CUTSCENE_CAMERA_ENTITY = Registry.register(Registry.ENTITY_TYPE, new Identifier(DOMAIN, "cutscene_camera"), FabricEntityTypeBuilder.create(SpawnGroup.MISC, (t, w) -> new CutsceneCameraEntity(w)).size(new EntityDimensions(1, 1, true)).build());
         ServerSidePacketRegistry.INSTANCE.register(CutsceneFinishPacket.ID, new CutsceneFinishPacket.Handler());
 
         CommandRegistry.INSTANCE.register(false, dispatcher -> dispatcher.register((CommandManager.literal("cutscene").requires((command) -> command.hasPermissionLevel(2))

@@ -5,8 +5,8 @@ import com.raphydaphy.crochet.network.MessageHandler;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.CutsceneManager;
 import net.fabricmc.fabric.api.network.PacketContext;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.PacketByteBuf;
 
 public class CutsceneFinishPacket implements IPacket {
     public static final Identifier ID = new Identifier(CutsceneAPI.DOMAIN, "cutscene_finish");

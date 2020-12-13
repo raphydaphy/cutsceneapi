@@ -11,6 +11,7 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.source.BiomeArray;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.chunk.light.LightingProvider;
 import org.apache.logging.log4j.Level;
@@ -22,13 +23,13 @@ import java.util.function.Consumer;
 public class CutsceneChunk extends WorldChunk {
     public BlockState[] blockStates;
 
-    public CutsceneChunk(CutsceneWorld world, ChunkPos pos, Biome[] biomes, BlockState[] blockStates) {
+    public CutsceneChunk(CutsceneWorld world, ChunkPos pos, BiomeArray biomes, BlockState[] blockStates) {
         super(world, pos, biomes);
 
         this.blockStates = blockStates;
     }
 
-    public CutsceneChunk(CutsceneWorld world, ChunkPos pos, Biome[] biomes) {
+    public CutsceneChunk(CutsceneWorld world, ChunkPos pos, BiomeArray biomes) {
         super(world, pos, biomes);
 
         blockStates = new BlockState[16 * world.getHeight() * 16];
@@ -58,7 +59,6 @@ public class CutsceneChunk extends WorldChunk {
         }
     }
 
-    @Override
     public boolean method_12228(int minY, int maxY) // Are all of the subchunks from minY to maxY empty?
     {
         if (minY < 0) {
@@ -121,7 +121,7 @@ public class CutsceneChunk extends WorldChunk {
             if (index < blockStates.length) {
                 LightingProvider lightProvider = getLightingProvider();
                 if (lightProvider != null) {
-                    lightProvider.enqueueLightUpdate(pos);
+                    lightProvider.getLight(pos, 0);
                 }
                 blockStates[index] = state;
                 return state;

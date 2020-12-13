@@ -42,13 +42,11 @@ public abstract class ClientPlayerInteractionManagerMixin {
     @Shadow
     private boolean breakingBlock;
     @Shadow
-    private int field_3716;
-    @Shadow
     private BlockPos currentBreakingPos;
     @Shadow
-    private float field_3713;
-    @Shadow
     private ItemStack selectedStack;
+    private float field_3716;
+    private float field_3713;
 
     @Shadow
     protected abstract boolean isCurrentlyBreaking(BlockPos blockPos_1);
@@ -73,11 +71,11 @@ public abstract class ClientPlayerInteractionManagerMixin {
     @Inject(at = @At("HEAD"), method = "attackBlock", cancellable = true)
     private void attackBlock(BlockPos blockPos_1, Direction direction_1, CallbackInfoReturnable<Boolean> info) {
         if (client.world instanceof CutsceneWorld) {
-            if (this.gameMode.shouldLimitWorldModification()) {
+            if (this.gameMode.isBlockBreakingRestricted()) {
                 if (this.gameMode == GameMode.SPECTATOR) {
                     info.setReturnValue(false);
                     return;
-                } else if (!this.client.player.canModifyWorld()) {
+                } else if (!this.client.player.canModifyBlocks()) {
                     ItemStack itemStack_1 = this.client.player.getMainHandStack();
                     if (itemStack_1.isEmpty()) {
                         info.setReturnValue(false);
@@ -95,7 +93,6 @@ public abstract class ClientPlayerInteractionManagerMixin {
                 if (this.gameMode.isCreative()) {
                     this.client.getTutorialManager().onBlockAttacked(this.client.world, blockPos_1, this.client.world.getBlockState(blockPos_1), 1.0F);
                     //this.networkHandler.sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, blockPos_1, direction_1));
-                    ClientPlayerInteractionManager.method_2921(this.client, (ClientPlayerInteractionManager) (Object) this, blockPos_1, direction_1);
                     this.field_3716 = 5;
                 } else if (!this.breakingBlock || !this.isCurrentlyBreaking(blockPos_1)) {
                     if (this.breakingBlock) {
@@ -119,7 +116,7 @@ public abstract class ClientPlayerInteractionManagerMixin {
                         this.selectedStack = this.client.player.getMainHandStack();
                         this.currentBreakingProgress = 0.0F;
                         this.field_3713 = 0.0F;
-                        this.client.world.setBlockBreakingProgress(this.client.player.getEntityId(), this.currentBreakingPos, (int) (this.currentBreakingProgress * 10.0F) - 1);
+                        this.client.world.setBlockBreakingInfo(this.client.player.getEntityId(), this.currentBreakingPos, (int) (this.currentBreakingProgress * 10.0F) - 1);
                     }
                 }
 

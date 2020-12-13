@@ -1,8 +1,8 @@
 package com.raphydaphy.cutsceneapi.command;
 
 import com.google.gson.JsonObject;
-import net.minecraft.command.arguments.serialize.ArgumentSerializer;
-import net.minecraft.util.PacketByteBuf;
+import net.minecraft.command.argument.serialize.ArgumentSerializer;
+import net.minecraft.network.PacketByteBuf;
 
 public class CutsceneArgumentSerializer implements ArgumentSerializer<CutsceneArgumentType> {
 

@@ -16,20 +16,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.biome.source.VanillaLayeredBiomeSource;
-import net.minecraft.world.biome.source.VanillaLayeredBiomeSourceConfig;
 import net.minecraft.world.chunk.*;
-import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.OverworldChunkGenerator;
-import net.minecraft.world.gen.chunk.OverworldChunkGeneratorConfig;
-import net.minecraft.world.level.LevelGeneratorType;
 import net.minecraft.world.level.LevelInfo;
 import net.minecraft.world.level.LevelProperties;
 
@@ -50,7 +45,7 @@ public class CutsceneWorld extends ClientWorld {
     private CutsceneChunkManager cutsceneChunkManager;
 
     public CutsceneWorld(MinecraftClient client, ClientWorld realWorld, Consumer<CutsceneChunk> chunkGenCallback, boolean cloneExisting) {
-        this(((ClientWorldHooks) realWorld).getCutsceneNetHandler(), new LevelInfo(realWorld.getLevelProperties()), DimensionType.OVERWORLD, 1, client.getProfiler(), client.worldRenderer, chunkGenCallback);
+        this((((ClientWorldHooks) realWorld)).getCutsceneNetHandler(), new LevelInfo(realWorld.get), DimensionType.OVERWORLD_ID, 1, client.getProfiler(), client.worldRenderer, chunkGenCallback);
         this.realWorld = realWorld;
         this.cloneExisting = cloneExisting;
     }

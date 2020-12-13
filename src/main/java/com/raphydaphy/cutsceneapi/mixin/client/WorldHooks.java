@@ -7,6 +7,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(World.class)
 public interface WorldHooks {
-    @Accessor("profiler")
     void setCutsceneProfiler(Profiler profiler);
 }

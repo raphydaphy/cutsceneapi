@@ -2,8 +2,8 @@ package com.raphydaphy.cutsceneapi.mixin.client;
 
 import com.raphydaphy.cutsceneapi.fakeworld.CutsceneWorld;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.packet.*;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.network.packet.s2c.play.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

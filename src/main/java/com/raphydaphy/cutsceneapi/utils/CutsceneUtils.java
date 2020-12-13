@@ -29,10 +29,13 @@ public class CutsceneUtils {
         }
 
         Tessellator tessellator_1 = Tessellator.getInstance();
-        BufferBuilder bufferBuilder_1 = tessellator_1.getBufferBuilder();
+        BufferBuilder bufferBuilder_1 = tessellator_1.getBuffer();
         GlStateManager.enableBlend();
         GlStateManager.disableTexture();
-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA.field_22545,
+                GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA.field_22528,
+                GlStateManager.SrcFactor.ONE.field_22545,
+                GlStateManager.DstFactor.ZERO.field_22528);
         GlStateManager.color4f(red, green, blue, alpha);
         bufferBuilder_1.begin(7, VertexFormats.POSITION);
         bufferBuilder_1.vertex((double) x, (double) height, 0.0D).next();

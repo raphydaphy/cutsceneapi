@@ -3,6 +3,7 @@ package com.raphydaphy.cutsceneapi.path;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.util.Pair;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,9 +44,9 @@ public class SplinePath implements Path {
                         yCubics.get(cubicNum).eval(cubicPos),
                         zCubics.get(cubicNum).eval(cubicPos));
             }
-            return new Vector3f(this.points.get(this.points.size() - 1));
+            return this.points.get(this.points.size() - 1);
         }
-        return new Vector3f(this.points.get(0));
+        return this.points.get(0);
     }
 
     @Override

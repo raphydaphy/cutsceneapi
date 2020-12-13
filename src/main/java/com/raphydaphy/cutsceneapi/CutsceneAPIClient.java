@@ -35,7 +35,7 @@ public class CutsceneAPIClient implements ClientModInitializer {
     public void onInitializeClient() {
         ClientTickCallback.EVENT.register((callback) -> PathRecorder.tick());
 
-        ClientSpriteRegistryCallback.event(SpriteAtlasTexture.BLOCK_ATLAS_TEX).register((atlasTexture, registry) ->
+        ClientSpriteRegistryCallback.event(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).register((atlasTexture, registry) ->
         {
             CutsceneWorldLoader.copyCutsceneWorld(new Identifier(CutsceneAPI.DOMAIN, "cutscenes/worlds/dragonstone.cworld"), "dragonstone.cworld");
         });
@@ -51,9 +51,9 @@ public class CutsceneAPIClient implements ClientModInitializer {
         {
             MinecraftClient client = MinecraftClient.getInstance();
             ClientCutscene clientCutscene = (ClientCutscene) cutscene;
-            float playerX = (float) client.player.x;
-            float playerY = (float) client.player.y;
-            float playerZ = (float) client.player.z;
+            float playerX = (float) client.player.getPos().x;
+            float playerY = (float) client.player.getPos().y;
+            float playerZ = (float) client.player.getPos().z;
             clientCutscene.setCameraPath(SplinePath.builder()
                     .with(playerX - 40, playerY + 35, playerZ)
                     .with(playerX + 70, playerY + 10, playerZ)
@@ -69,9 +69,9 @@ public class CutsceneAPIClient implements ClientModInitializer {
         {
             MinecraftClient client = MinecraftClient.getInstance();
             ClientCutscene clientCutscene = (ClientCutscene) cutscene;
-            float playerX = (float) client.player.x;
-            float playerY = (float) client.player.y;
-            float playerZ = (float) client.player.z;
+            float playerX = (float) client.player.getPos().x;
+            float playerY = (float) client.player.getPos().y;
+            float playerZ = (float) client.player.getPos().z;
             clientCutscene.setCameraPath(SplinePath.builder()
                     .with(playerX - 30, playerY + 40, playerZ + 30)
                     .with(playerX + 20, playerY + 10, playerZ + -20)
@@ -87,9 +87,9 @@ public class CutsceneAPIClient implements ClientModInitializer {
         {
             MinecraftClient client = MinecraftClient.getInstance();
             ClientCutscene clientCutscene = (ClientCutscene) cutscene;
-            float playerX = (float) client.player.x;
-            float playerY = (float) client.player.y;
-            float playerZ = (float) client.player.z;
+            float playerX = (float) client.player.getPos().x;
+            float playerY = (float) client.player.getPos().y;
+            float playerZ = (float) client.player.getPos().z;
             clientCutscene.setCameraPath(SplinePath.builder()
                     .with(playerX - 30, playerY + 20, playerZ - 10)
                     .with(playerX + 30, playerY + 5, playerZ + 30)
@@ -127,7 +127,7 @@ public class CutsceneAPIClient implements ClientModInitializer {
                     .with(40, 50, 0)
                     .build());
             CutsceneWorld world = clientCutscene.getWorld();
-            Random rand = new Random(world.getSeed());
+            Random rand = new Random(world.random.nextLong());
             for (int x = -10; x < 10; x++) {
                 for (int y = 30; y <= 40; y++) {
                     for (int z = -10; z < 10; z++) {

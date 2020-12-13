@@ -102,7 +102,7 @@ public class RecordedPath implements Path {
         int length = tag.getInt("Length");
         RecordedPath.Builder builder = builder();
         for (int i = 0; i < length; i++) {
-            CompoundTag entry = (CompoundTag) tag.getTag("Entry" + i);
+            CompoundTag entry = (CompoundTag) tag.get("Entry" + i);
             if (entry == null) continue;
             builder.with(new Vector3f(entry.getFloat("PosX"), entry.getFloat("PosY"), entry.getFloat("PosZ")), entry.getFloat("Pitch"), entry.getFloat("Yaw"));
         }

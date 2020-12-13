@@ -70,7 +70,7 @@ public class PathRecorder {
                 CutsceneAPI.log(Level.ERROR, "Tried to a cutscene path record without a valid path builder!");
                 recording = false;
             } else {
-                buildingPath.with(new Vector3f((float) client.player.x, (float) client.player.y, (float) client.player.z), client.player.pitch, client.player.yaw);
+                buildingPath.with(new Vector3f((float) client.player.getPos().x, (float) client.player.getPos().y, (float) client.player.getPos().z), client.player.pitch, client.player.yaw);
             }
         }
     }

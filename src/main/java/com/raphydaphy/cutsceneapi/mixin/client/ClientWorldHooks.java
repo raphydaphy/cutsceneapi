@@ -22,9 +22,7 @@ public interface ClientWorldHooks {
     @Accessor("worldRenderer")
     void setWorldRenderer(WorldRenderer renderer);
 
-    @Accessor("globalEntities")
     List<Entity> getCutsceneEntities();
 
-    @Invoker("tickCaveAmbientSound")
     void updateCutsceneLighting();
 }
