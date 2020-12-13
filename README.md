@@ -3,8 +3,9 @@ Tools to help developers add CutScenes to their mods.
 
 Updated to 1.16.4 by Relin
 
-TODO: api, command, cutscene, fakeworld
-Done: Mixins, Util, path, networking.
+## TODO: api, command, cutscene, fakeworld
+
+## Done: Mixins, Util, path, networking.
 
 
 ## Getting Started
