@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "cutsceneapi",
+  "name": "Cutscene API",
+  "version": "${version}",
+
+  "description": "Tools to create and play cutscenes",
+  "authors": [
+    "raphydaphy"
+  ],
+  "contact": {
+    "homepage": "https://github.com/raphydaphy/CutsceneAPI",
+    "sources": "https://github.com/raphydaphy/CutsceneAPI"
+  },
+
+  "license": "MIT",
+  "icon": "assets/cutsceneapi/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.raphydaphy.cutsceneapi.CutsceneAPI"
+    ],
+    "client": [
+      "com.raphydaphy.cutsceneapi.CutsceneAPIClient"
+    ]
+  },
+  "mixins": [
+    "cutsceneapi.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "fabric": "*",
+    "minecraft": ">=1.17-alpha.21.7.a"
+  }
+}
