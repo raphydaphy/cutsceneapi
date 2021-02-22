@@ -1,6 +1,7 @@
 package com.raphydaphy.cutsceneapi;
 
 import com.raphydaphy.cutsceneapi.command.ModCommands;
+import com.raphydaphy.cutsceneapi.entity.ModEntities;
 import com.raphydaphy.cutsceneapi.network.ModPackets;
 import net.fabricmc.api.ModInitializer;
 import org.apache.logging.log4j.LogManager;
@@ -12,7 +13,8 @@ public class CutsceneAPI implements ModInitializer {
 
   @Override
   public void onInitialize() {
-    ModCommands.register();
+    ModEntities.register();
     ModPackets.register();
+    ModCommands.register();
   }
 }

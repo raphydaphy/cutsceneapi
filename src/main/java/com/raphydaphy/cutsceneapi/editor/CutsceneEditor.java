@@ -1,69 +1,80 @@
 package com.raphydaphy.cutsceneapi.editor;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
+
+import com.raphydaphy.breakoutapi.BreakoutAPIClient;
+import com.raphydaphy.cutsceneapi.CutsceneAPI;
+import com.raphydaphy.cutsceneapi.editor.breakout.properties.PropertiesBreakout;
+import com.raphydaphy.cutsceneapi.editor.breakout.timeline.TimelineBreakout;
+import com.raphydaphy.cutsceneapi.editor.input.MouseTracker;
+import com.raphydaphy.cutsceneapi.entity.CutsceneCameraEntity;
+import com.raphydaphy.cutsceneapi.hooks.GameRendererHooks;
+import com.raphydaphy.cutsceneapi.hooks.MinecraftClientHooks;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.entity.MovementType;
 import net.minecraft.util.Identifier;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL30;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
+import org.joml.Matrix3f;
+import org.joml.Vector3f;
 
 public class CutsceneEditor {
-  private CutsceneEditorWindow window;
+  private static final Identifier PROPERTIES = new Identifier(CutsceneAPI.MODID, "properties");
+  private static final Identifier TIMELINE = new Identifier(CutsceneAPI.MODID, "timeline");
 
+  private MinecraftClient client;
+  private CutsceneCameraEntity camera;
+  private MouseTracker mouseTracker;
 
-  public CutsceneEditor() {
-    this.window = new CutsceneEditorWindow();
+  public CutsceneEditor() throws IllegalStateException {
+    this.client = MinecraftClient.getInstance();
+
+    if (this.client.player == null || this.client.world == null) {
+      throw new IllegalStateException("Tried to open the cutscene editor before entering a world");
+    }
+
+    ((MinecraftClientHooks)this.client).setPaused(true);
+    this.client.mouse.unlockCursor();
+
+    ((GameRendererHooks)this.client.gameRenderer).setRenderHand(false);
+
+    assert this.client.player != null;
+    this.camera = new CutsceneCameraEntity(this.client.world, this.client.player.getX(), this.client.player.getY(), this.client.player.getZ());
+    this.client.setCameraEntity(this.camera);
+
+    this.mouseTracker = new MouseTracker(this.client.mouse.getX(), this.client.mouse.getY());
+
+    BreakoutAPIClient.openBreakout(PROPERTIES, new PropertiesBreakout(PROPERTIES));
+    BreakoutAPIClient.openBreakout(TIMELINE, new TimelineBreakout(TIMELINE));
   }
 
-  private static Identifier LEAVES_TEXTURE = new Identifier("textures/block/azalea_leaves.png");
+  public void update() {
+    float orbitSpeed = 0.2f;
+    if (this.mouseTracker.isRightButtonDown()) {
+      this.camera.yaw = MathHelper.wrapDegrees(this.camera.yaw - (float)this.mouseTracker.getCursorDeltaX() * orbitSpeed);
+      this.camera.pitch = MathHelper.wrapDegrees(this.camera.pitch - (float) this.mouseTracker.getCursorDeltaY() * orbitSpeed);
+    }
 
-  public void render() {
-    if (window.shouldClose()) return;
+    if (this.mouseTracker.getVerticalScrollDelta() != 0) {
+      Vec3d vec = this.camera.getRotationVec(this.client.getTickDelta()).multiply(this.mouseTracker.getVerticalScrollDelta());
+      this.camera.move(MovementType.SELF, vec);
+    }
 
-    GLFW.glfwMakeContextCurrent(window.getHandle());
-
-    RenderSystem.pushMatrix();
-
-    RenderSystem.enableTexture();
-    RenderSystem.clear(GL30.GL_COLOR_BUFFER_BIT, MinecraftClient.IS_SYSTEM_MAC);
-
-    GlStateManager.clearColor(1, 1, 0, 1);
-
-    /*
-    float width = (float) window.getWidth();
-    float height = (float) window.getHeight();
-    float scale = (float) window.getScaleFactor();
-
-    RenderSystem.loadIdentity();
-    RenderSystem.ortho(0.0D, (double)width / scale, (double)height / scale, 0.0D, 1000.0D, 3000.0D);
-    */
-
-    /*
-    MinecraftClient client = MinecraftClient.getInstance();
-    MatrixStack stack = new MatrixStack();
-
-    client.getTextureManager().bindTexture(LEAVES_TEXTURE);
-    DrawableHelper.drawTexture(stack, 0, 0, 0, 0, 0, 180, 180, 16, 16);
-    */
-
-    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1F);
-
-    Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder bufferBuilder = tessellator.getBuffer();
-
-    bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-    bufferBuilder.vertex(100, 0, 0).color(1, 1, 1, 1).next();
-    bufferBuilder.vertex(100, 100, 0).color(1, 0, 1, 1).next();
-    bufferBuilder.vertex(0, 100, 0).color(1, 1, 0, 1).next();
-    bufferBuilder.vertex(0, 0, 0).color(0, 1, 1, 1).next();
-    tessellator.draw();
-
-    GLFW.glfwSwapBuffers(window.getHandle());
-
-    RenderSystem.popMatrix();
+    this.camera.update();
+    this.mouseTracker.update();
   }
+
+  public MouseTracker getMouseTracker() {
+    return this.mouseTracker;
+  }
+
+  public void close() {
+    this.client.setCameraEntity(this.client.player);
+
+    ((GameRendererHooks)this.client.gameRenderer).setRenderHand(true);
+
+    BreakoutAPIClient.closeBreakout(PROPERTIES);
+    BreakoutAPIClient.closeBreakout(TIMELINE);
+  }
+
 }

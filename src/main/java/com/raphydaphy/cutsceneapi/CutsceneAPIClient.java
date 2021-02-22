@@ -11,4 +11,8 @@ public class CutsceneAPIClient implements ClientModInitializer {
   public void onInitializeClient() {
     ClientModPackets.register();
   }
+
+  public static boolean isEditorOpen() {
+    return EDITOR != null;
+  }
 }

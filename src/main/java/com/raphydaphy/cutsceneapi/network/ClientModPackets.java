@@ -10,13 +10,14 @@ public class ClientModPackets {
   public static void register() {
     ClientPlayNetworking.registerGlobalReceiver(ModPackets.CUTSCENE_EDITOR_PACKET, (client, handler, buf, responseSender) -> {
       client.execute(() -> {
-        CutsceneAPI.LOGGER.info("Cutscene editor triggered on client");
         if (CutsceneAPIClient.EDITOR != null) {
-          CutsceneAPI.LOGGER.warn("Tried to open cutscene editor when it was already open");
+          CutsceneAPI.LOGGER.info("Closing Cutscene Editor");
+          CutsceneAPIClient.EDITOR.close();;
+          CutsceneAPIClient.EDITOR = null;
           return;
         }
 
-        MinecraftClient.getInstance().openPauseMenu(true);
+        CutsceneAPI.LOGGER.info("Opening Cutscene Editor");
         CutsceneAPIClient.EDITOR = new CutsceneEditor();
       });
     });
