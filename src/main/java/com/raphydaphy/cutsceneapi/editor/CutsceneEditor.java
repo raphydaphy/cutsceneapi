@@ -1,8 +1,8 @@
 package com.raphydaphy.cutsceneapi.editor;
 
 
+import com.raphydaphy.breakoutapi.BreakoutAPI;
 import com.raphydaphy.breakoutapi.BreakoutAPIClient;
-import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.editor.breakout.properties.PropertiesBreakout;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.TimelineBreakout;
 import com.raphydaphy.cutsceneapi.editor.input.MouseTracker;
@@ -11,16 +11,12 @@ import com.raphydaphy.cutsceneapi.hooks.GameRendererHooks;
 import com.raphydaphy.cutsceneapi.hooks.MinecraftClientHooks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.MovementType;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import org.joml.Matrix3f;
-import org.joml.Vector3f;
 
 public class CutsceneEditor {
-  private static final Identifier PROPERTIES = new Identifier(CutsceneAPI.MODID, "properties");
-  private static final Identifier TIMELINE = new Identifier(CutsceneAPI.MODID, "timeline");
+  private PropertiesBreakout propertiesBreakout;
+  private TimelineBreakout timelineBreakout;
 
   private MinecraftClient client;
   private CutsceneCameraEntity camera;
@@ -44,8 +40,20 @@ public class CutsceneEditor {
 
     this.mouseTracker = new MouseTracker(this.client.mouse.getX(), this.client.mouse.getY());
 
-    BreakoutAPIClient.openBreakout(PROPERTIES, new PropertiesBreakout(PROPERTIES));
-    BreakoutAPIClient.openBreakout(TIMELINE, new TimelineBreakout(TIMELINE));
+    this.propertiesBreakout = new PropertiesBreakout(this);
+    BreakoutAPIClient.openBreakout(this.propertiesBreakout);
+
+    new Thread(() -> {
+      try {
+        Thread.sleep(1000);
+        this.client.execute(() -> {
+          this.timelineBreakout = new TimelineBreakout(this);
+          BreakoutAPIClient.openBreakout(this.timelineBreakout);
+        });
+      } catch (InterruptedException e) {
+        BreakoutAPI.LOGGER.warn("Failed to open cutscene timeline with delay", e);
+      }
+    }).start();
   }
 
   public void update() {
@@ -62,10 +70,16 @@ public class CutsceneEditor {
 
     this.camera.update();
     this.mouseTracker.update();
+
+    if (this.propertiesBreakout != null) this.propertiesBreakout.update();
   }
 
   public MouseTracker getMouseTracker() {
     return this.mouseTracker;
+  }
+
+  public CutsceneCameraEntity getCamera() {
+    return this.camera;
   }
 
   public void close() {
@@ -73,8 +87,8 @@ public class CutsceneEditor {
 
     ((GameRendererHooks)this.client.gameRenderer).setRenderHand(true);
 
-    BreakoutAPIClient.closeBreakout(PROPERTIES);
-    BreakoutAPIClient.closeBreakout(TIMELINE);
+    BreakoutAPIClient.closeBreakout(PropertiesBreakout.IDENTIFIER);
+    BreakoutAPIClient.closeBreakout(TimelineBreakout.IDENTIFIER);
   }
 
 }

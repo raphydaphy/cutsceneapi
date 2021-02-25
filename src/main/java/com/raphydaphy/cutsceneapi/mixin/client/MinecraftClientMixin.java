@@ -28,10 +28,11 @@ public class MinecraftClientMixin implements MinecraftClientHooks {
     }
   }
 
-  @Inject(method = "tick", at = @At("HEAD"))
+  @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
   public void tick(CallbackInfo info) {
     if (CutsceneAPIClient.isEditorOpen()) {
       CutsceneAPIClient.EDITOR.update();
+      info.cancel();
     }
   }
 }
