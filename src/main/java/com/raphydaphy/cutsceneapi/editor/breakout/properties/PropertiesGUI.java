@@ -73,7 +73,6 @@ public class PropertiesGUI extends Panel {
       this.scrollArea.setHorizontalScrollBarVisible(false);
 
       float scrollBarWidth = (float)this.scrollArea.getVerticalScrollBar().getStyle().getWidth().get();
-      CutsceneAPI.LOGGER.info("Scrollbar width: " + scrollBarWidth);
 
       Component container = this.scrollArea.getContainer();
       container.setSize(400 - scrollBarWidth, 0);

@@ -43,16 +43,13 @@ public class TimelinePanelRenderer extends NvgDefaultComponentRenderer<TimelineP
     Style style = component.getStyle();
     TimelineStyle timelineStyle = component.getTimelineStyle();
 
-    float scale = component.getScale();
-
     float topHeight = timelineStyle.getTopHeight();
     float baselineSize = timelineStyle.getBaselineSize();
 
     Vector2f pos = component.getAbsolutePosition();
     Vector2f size = component.getSize();
 
-    float length = size.x * scale;
-    float frameWidth = length / cutscene.getLength();
+    float frameWidth = TimelinePanelHelper.getFrameWidth(component);
 
     NvgShapes.drawRect(
       nanovg,
@@ -63,7 +60,7 @@ public class TimelinePanelRenderer extends NvgDefaultComponentRenderer<TimelineP
 
     Vector2f mousePosition = Mouse.getCursorPosition();
 
-    if (TimelinePanelHelper.isMouseOver(component, mousePosition)) {
+    if (TimelinePanelHelper.isMouseOverComponent(component, mousePosition)) {
       float hoverX = mousePosition.x;
 
       if (TimelinePanelHelper.isMouseOverTop(component, mousePosition)) {
@@ -82,7 +79,6 @@ public class TimelinePanelRenderer extends NvgDefaultComponentRenderer<TimelineP
     String font = getStyle(component, Style::getFont, FontRegistry.getDefaultFont());
     float fontSize = getStyle(component, Style::getFontSize, 16f);
     float headSize = timelineStyle.getHeadSize();
-
 
     int renderFrame = 0;
     while (renderFrame <= cutscene.getLength()) {

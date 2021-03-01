@@ -15,31 +15,56 @@ import org.liquidengine.legui.listener.processor.EventProcessorProvider;
 import org.liquidengine.legui.system.renderer.nvg.NvgRendererProvider;
 
 public class TimelinePanel extends Panel {
-  private MutableCutscene currentScene;
+  private MutableCutscene currentScene = null;
   private int currentFrame = 0;
   private float scale = 1f;
   private float offset = 0f;
 
+  private boolean draggingHead = false;
+
   private TimelineStyle timelineStyle = new TimelineStyle();
 
   public TimelinePanel() {
-    this(null);
+    this.initialize();
   }
 
-  public TimelinePanel(MutableCutscene currentScene) {
-    this.currentScene = currentScene;
-
-    this.getListenerMap().addListener(MouseClickEvent.class, this::snapHeadToCursor);
-    this.getListenerMap().addListener(MouseDragEvent.class, (e) -> {
-      if (Mouse.MouseButton.MOUSE_BUTTON_LEFT.isPressed()) this.snapHeadToCursor(e);
-    });
+  public TimelinePanel(float x, float y, float width, float height) {
+    this.initialize();
+    this.setPosition(x, y).setSize(width, height);
   }
 
-  private void snapHeadToCursor(Event event) {
+  private void initialize() {
+    this.getStyle().setFocusedStrokeColor(null);
+
+    this.getListenerMap().addListener(MouseClickEvent.class, this::handleClick);
+    this.getListenerMap().addListener(MouseDragEvent.class, this::handleDrag);
+  }
+
+  private void handleClick(MouseClickEvent event) {
+    if (event.getAction() == MouseClickEvent.MouseClickAction.RELEASE) {
+      this.draggingHead = false;
+      return;
+    }
+
     Vector2f cursorPosition = Mouse.getCursorPosition();
     if (!TimelinePanelHelper.isMouseOverTop(this, cursorPosition)) return;
 
     int frame = TimelinePanelHelper.getHoveredFrame(this, cursorPosition);
+    this.snapToFrame(event, frame);
+
+    if (event.getAction() == MouseClickEvent.MouseClickAction.PRESS) {
+      this.draggingHead = true;
+    }
+  }
+
+  private void handleDrag(MouseDragEvent event) {
+    if (Mouse.MouseButton.MOUSE_BUTTON_LEFT.isPressed() && this.draggingHead) {
+      int frame = TimelinePanelHelper.getHoveredFrame(this, Mouse.getCursorPosition());
+      this.snapToFrame(event, frame);
+    }
+  }
+
+  private void snapToFrame(Event event, int frame) {
     int oldFrame = this.getCurrentFrame();
     this.setCurrentFrame(frame);
 

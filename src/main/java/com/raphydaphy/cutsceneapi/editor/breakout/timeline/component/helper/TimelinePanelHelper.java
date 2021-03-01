@@ -1,18 +1,13 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.helper;
 
-import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.TimelinePanel;
 import com.raphydaphy.shaded.org.joml.Vector2f;
+import org.liquidengine.legui.component.Component;
 
 public class TimelinePanelHelper {
 
-  public static boolean isMouseOverTop(TimelinePanel timeline, Vector2f mousePosition) {
-    if (!isMouseOver(timeline, mousePosition)) return false;
-    return mousePosition.y < timeline.getAbsolutePosition().y + timeline.getTimelineStyle().getTopHeight();
-  }
-
-  public static boolean isMouseOver(TimelinePanel timeline, Vector2f mousePosition) {
+  public static boolean isMouseOverComponent(Component timeline, Vector2f mousePosition) {
     Vector2f pos = timeline.getAbsolutePosition();
     Vector2f size = timeline.getSize();
 
@@ -20,6 +15,11 @@ public class TimelinePanelHelper {
     if (mousePosition.x >= pos.x + size.x || mousePosition.y >= pos.y + size.y) return false;
 
     return true;
+  }
+
+  public static boolean isMouseOverTop(TimelinePanel timeline, Vector2f mousePosition) {
+    if (!isMouseOverComponent(timeline, mousePosition)) return false;
+    return mousePosition.y < timeline.getAbsolutePosition().y + timeline.getTimelineStyle().getTopHeight();
   }
 
   public static int getHoveredFrame(TimelinePanel panel, Vector2f mousePosition) {
@@ -40,5 +40,15 @@ public class TimelinePanelHelper {
     else if (value > cutscene.getLength()) return cutscene.getLength();
 
     return Math.round(value);
+  }
+
+  public static float getFrameWidth(TimelinePanel panel) {
+    MutableCutscene cutscene = panel.getCurrentScene();
+    if (cutscene == null) return 0;
+
+    Vector2f size = panel.getSize();
+
+    float length = size.x * panel.getScale();
+    return length / cutscene.getLength();
   }
 }
