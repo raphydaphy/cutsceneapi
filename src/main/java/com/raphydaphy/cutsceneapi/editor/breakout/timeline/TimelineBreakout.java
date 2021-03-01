@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 
 public class TimelineBreakout extends EditorBreakout {
   public static final Identifier IDENTIFIER = new Identifier(CutsceneAPI.MODID, "timeline");
-  private CutsceneEditor editor;
+  protected CutsceneEditor editor;
 
   public TimelineBreakout(CutsceneEditor editor) {
     super(IDENTIFIER, new BreakoutWindow("Cutscene Timeline", 200, 200));
@@ -18,6 +18,9 @@ public class TimelineBreakout extends EditorBreakout {
     Window window = this.client.getWindow();
     this.window.setSize(window.getWidth(), 200);
     this.window.setRelativePos(0, window.getHeight() + 55);
+
+    TimelineGUI gui = (TimelineGUI)this.gui;
+    gui.getTimelinePanel().setCurrentScene(this.editor.getCurrentScene());
   }
 
   @Override

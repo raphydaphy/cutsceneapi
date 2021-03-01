@@ -3,14 +3,18 @@ package com.raphydaphy.cutsceneapi.editor.breakout.properties;
 import com.raphydaphy.breakoutapi.BreakoutAPI;
 import com.raphydaphy.breakoutapi.breakout.window.BreakoutWindow;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
+import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
 import com.raphydaphy.cutsceneapi.editor.CutsceneEditor;
 import com.raphydaphy.cutsceneapi.editor.breakout.EditorBreakout;
 import com.raphydaphy.cutsceneapi.entity.CutsceneCameraEntity;
 import net.minecraft.util.Identifier;
+import org.liquidengine.legui.event.FocusEvent;
+import org.liquidengine.legui.event.MouseClickEvent;
 import org.liquidengine.legui.style.color.ColorConstants;
 import org.liquidengine.legui.style.font.FontRegistry;
 import org.liquidengine.legui.theme.Themes;
 import org.liquidengine.legui.theme.colored.FlatColoredTheme;
+import org.lwjgl.glfw.GLFW;
 
 import java.text.DecimalFormat;
 
@@ -27,6 +31,8 @@ public class PropertiesBreakout extends EditorBreakout {
 
     this.window.setSize(400, this.client.getWindow().getHeight());
     this.window.setRelativePos(-420, 0);
+
+    GLFW.glfwSetWindowSizeLimits(this.window.getHandle(), 400, GLFW.GLFW_DONT_CARE, GLFW.GLFW_DONT_CARE, GLFW.GLFW_DONT_CARE);
 
     Themes.setDefaultTheme(new FlatColoredTheme(
       fromInt(245, 245, 245, 1), // backgroundColor
@@ -45,6 +51,12 @@ public class PropertiesBreakout extends EditorBreakout {
     CutsceneCameraEntity camera = this.editor.getCamera();
 
     // TODO: clean up listeners
+
+    gui.addObjectButton.getListenerMap().addListener(MouseClickEvent.class, (e) -> {
+      if (e.getAction() == MouseClickEvent.MouseClickAction.CLICK) {
+        this.createObject(gui.objectSelector.getSelection());
+      }
+    });
 
     gui.positionInput.getField(0).addTextInputContentChangeEventListener((event) -> {
       try {
@@ -88,11 +100,57 @@ public class PropertiesBreakout extends EditorBreakout {
         BreakoutAPI.LOGGER.warn("Invalid property input:" + event.getNewValue());
       }
     });
+
+    gui.framerateInput.getInput().getListenerMap().addListener(FocusEvent.class, (event) -> {
+      if (event.isFocused()) return;
+      MutableCutscene cutscene = this.editor.getCurrentScene();
+      String value = gui.framerateInput.getInput().getTextState().getText();
+      boolean rollback = false;
+      try {
+        int framerate = Integer.parseInt(value);
+        if (framerate == cutscene.getFramerate()) return;
+        else if (framerate > 0) cutscene.setFramerate(framerate);
+        else {
+          CutsceneAPI.LOGGER.warn("Invalid cutscene framerate: " + framerate);
+          rollback = true;
+        }
+      } catch (NumberFormatException e) {
+        BreakoutAPI.LOGGER.warn("Invalid framerate input: " + value);
+        rollback = true;
+      }
+
+      if (rollback) {
+        gui.framerateInput.getInput().getTextState().setText(Integer.toString(cutscene.getFramerate()));
+      }
+    });
+
+    gui.lengthInput.getInput().getListenerMap().addListener(FocusEvent.class, (event) -> {
+      if (event.isFocused()) return;
+      MutableCutscene cutscene = this.editor.getCurrentScene();
+      String value = gui.lengthInput.getInput().getTextState().getText();
+      boolean rollback = false;
+      try {
+        int length = Integer.parseInt(value);
+        if (length == cutscene.getLength()) return;
+        else if (length > 0) cutscene.setLength(length);
+        else {
+          CutsceneAPI.LOGGER.warn("Invalid cutscene length: " + length);
+          rollback = true;
+        }
+      } catch (NumberFormatException e) {
+        BreakoutAPI.LOGGER.warn("Invalid length input: " + value);
+        rollback = true;
+      }
+
+      if (rollback) {
+        gui.lengthInput.getInput().getTextState().setText(Integer.toString(cutscene.getLength()));
+      }
+    });
   }
 
   @Override
   protected PropertiesGUI createGUI(int width, int height) {
-    return new PropertiesGUI(height);
+    return new PropertiesGUI(this.getContext(), height);
   }
 
   public void update() {
@@ -110,6 +168,14 @@ public class PropertiesBreakout extends EditorBreakout {
     if (!gui.rotationInput.isFocussed()) {
       gui.rotationInput.getField(0).getTextState().setText(df.format(camera.pitch));
       gui.rotationInput.getField(1).getTextState().setText(df.format(camera.yaw));
+    }
+  }
+
+  private void createObject(String type) {
+    PropertiesGUI gui = (PropertiesGUI)this.gui;
+
+    if (type.equals(PropertiesGUI.ObjectType.PARTICLE_SOURCE.getName())) {
+      gui.addParticleSource();
     }
   }
 }

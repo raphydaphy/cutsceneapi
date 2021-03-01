@@ -1,35 +1,48 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.timeline;
 
+import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.TimelinePanel;
 import org.liquidengine.legui.component.*;
-import static org.liquidengine.legui.style.Style.*;
-import static org.liquidengine.legui.style.flex.FlexStyle.*;
 
-import org.liquidengine.legui.style.font.FontRegistry;
+import static org.liquidengine.legui.style.Style.*;
 
 public class TimelineGUI extends Panel {
+
+  private TimelinePanel timelinePanel;
 
   public TimelineGUI(int width, int height) {
     super(0, 0, width, height);
 
-    this.getStyle().setDisplay(DisplayType.FLEX).setPosition(PositionType.RELATIVE);
-    this.getStyle().getBackground().setColor(1, 0, 0, 1);
-    this.getStyle().getFlexStyle().setFlexDirection(FlexDirection.COLUMN).setAlignSelf(AlignSelf.STRETCH);
+    this.getStyle().setDisplay(DisplayType.FLEX).enableFlex();
+    this.getStyle().setMaxWidth(Float.MAX_VALUE).setHeights(height);
+    this.getStyle().getBackground().setColor(0, 1, 0, 0.2f);
 
-    Label title = new Label("Cutscene Timeline");
-    title.getStyle().setTextColor(0.5f, 1, 0, 1).setFontSize(30f).setFont(FontRegistry.ROBOTO_BOLD);
-    title.getStyle().setDisplay(DisplayType.FLEX).setPosition(PositionType.RELATIVE).setWidth(200).setHeight(80);
-    this.add(title);
-
+    FlexPanel left = new FlexPanel();
     {
-      Label desc = new Label("This is the timeline :)");
-      desc.getStyle().setDisplay(DisplayType.FLEX).setPosition(PositionType.RELATIVE).setWidth(200).setHeight(20);
-      this.add(desc);
+      left.getStyle().setWidths(150).setHeights(300);
+      left.getStyle().getBackground().setColor(1, 0, 0, 0.2f);
+
+      this.add(left);
     }
 
+    FlexPanel right = new FlexPanel();
     {
-      Label desc = new Label("here is more text");
-      desc.getStyle().setDisplay(DisplayType.FLEX).setPosition(PositionType.RELATIVE).setWidth(200).setHeight(20).setTextColor(0, 1, 0, 1);
-      this.add(desc);
+      right.getStyle().setDisplay(DisplayType.MANUAL);
+      right.getStyle().getBackground().setColor(0, 0, 1, 0.2f);
+
+      right.setSize(500, 300);
+      right.getStyle().setWidths(500).setHeights(300);
+
+      this.timelinePanel = new TimelinePanel();
+      this.timelinePanel.setPosition(0, 0);
+      this.timelinePanel.setSize(400, 250);
+
+      right.add(this.timelinePanel);
+      this.add(right);
     }
+
+  }
+
+  public TimelinePanel getTimelinePanel() {
+    return this.timelinePanel;
   }
 }

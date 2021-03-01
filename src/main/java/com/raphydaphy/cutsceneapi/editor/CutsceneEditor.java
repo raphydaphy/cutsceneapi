@@ -3,6 +3,7 @@ package com.raphydaphy.cutsceneapi.editor;
 
 import com.raphydaphy.breakoutapi.BreakoutAPI;
 import com.raphydaphy.breakoutapi.BreakoutAPIClient;
+import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
 import com.raphydaphy.cutsceneapi.editor.breakout.properties.PropertiesBreakout;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.TimelineBreakout;
 import com.raphydaphy.cutsceneapi.editor.input.MouseTracker;
@@ -22,6 +23,8 @@ public class CutsceneEditor {
   private CutsceneCameraEntity camera;
   private MouseTracker mouseTracker;
 
+  private MutableCutscene currentScene;
+
   public CutsceneEditor() throws IllegalStateException {
     this.client = MinecraftClient.getInstance();
 
@@ -30,9 +33,10 @@ public class CutsceneEditor {
     }
 
     ((MinecraftClientHooks)this.client).setPaused(true);
+    ((GameRendererHooks)this.client.gameRenderer).setRenderHand(false);
     this.client.mouse.unlockCursor();
 
-    ((GameRendererHooks)this.client.gameRenderer).setRenderHand(false);
+    this.currentScene = new MutableCutscene();
 
     assert this.client.player != null;
     this.camera = new CutsceneCameraEntity(this.client.world, this.client.player.getX(), this.client.player.getY(), this.client.player.getZ());
@@ -80,6 +84,10 @@ public class CutsceneEditor {
 
   public CutsceneCameraEntity getCamera() {
     return this.camera;
+  }
+
+  public MutableCutscene getCurrentScene() {
+    return this.currentScene;
   }
 
   public void close() {
