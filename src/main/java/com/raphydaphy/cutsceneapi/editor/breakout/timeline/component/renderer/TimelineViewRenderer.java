@@ -1,7 +1,9 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.renderer;
 
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
-import com.raphydaphy.cutsceneapi.cutscene.track.CutsceneTrack;
+import com.raphydaphy.cutsceneapi.cutscene.clip.CutsceneClip;
+import com.raphydaphy.cutsceneapi.cutscene.clip.MutableCutsceneClip;
+import com.raphydaphy.cutsceneapi.cutscene.track.MutableCutsceneTrack;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.TimelineView;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.helper.TimelineViewHelper;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.style.TimelineStyle;
@@ -26,7 +28,7 @@ import static org.liquidengine.legui.system.renderer.nvg.util.NvgRenderUtils.*;
 
 public class TimelineViewRenderer extends NvgDefaultComponentRenderer<TimelineView> {
   private static final int FRAMES_BETWEEN_MARKS = 5;
-  private static final float FRAMES_BETWEEN_LARGE_MARKS = 10 * FRAMES_BETWEEN_MARKS;
+  private static final float FRAMES_BETWEEN_LARGE_MARKS = 12 * FRAMES_BETWEEN_MARKS;
   private static final float MARKER_LABEL_WIDTH = 60;
   private static final boolean DEBUG_RENDER = false;
 
@@ -116,10 +118,13 @@ public class TimelineViewRenderer extends NvgDefaultComponentRenderer<TimelineVi
           pos.y + topHeight - markerHeight - fontSize,
           MARKER_LABEL_WIDTH, fontSize
         );
+
         if (DEBUG_RENDER) NvgShapes.drawRect(nanovg, rect, ColorConstants.red(), 0);
+        String formattedTime = TimelineViewHelper.formatFrameTime(renderFrame, cutscene.getFramerate());
+
         NvgText.drawTextLineToRect(
           nanovg, rect,
-          false, HorizontalAlign.CENTER, VerticalAlign.MIDDLE, fontSize, font, Integer.toString(renderFrame),
+          false, HorizontalAlign.CENTER, VerticalAlign.MIDDLE, fontSize, font, formattedTime,
           timelineStyle.getMarkerLabelColor(), TextDirection.HORIZONTAL
         );
       }
@@ -129,16 +134,40 @@ public class TimelineViewRenderer extends NvgDefaultComponentRenderer<TimelineVi
   }
 
   private void renderTracks(TimelineView component, long nanovg, MutableCutscene cutscene) {
+    Style style = component.getStyle();
     TimelineStyle timelineStyle = component.getTimeline().getTimelineStyle();
 
-    List<CutsceneTrack> tracks = cutscene.getTracks();
+    List<MutableCutsceneTrack> tracks = cutscene.getTracks();
 
     Vector2f pos = component.getOffsetPosition();
     Vector2f size = component.getScaledSize();
 
     float trackY = pos.y + timelineStyle.getTopHeight() + timelineStyle.getBaselineSize();
+    float frameWidth = TimelineViewHelper.getFrameWidth(component);
 
-    for (CutsceneTrack track : tracks) {
+    for (MutableCutsceneTrack track : tracks) {
+
+      List<MutableCutsceneClip> clips = track.getClips();
+      for (MutableCutsceneClip clip : clips) {
+        Vector4f trackRect = new Vector4f(
+          pos.x + clip.getStartTime() * frameWidth, trackY,
+          clip.getLength() * frameWidth, timelineStyle.getTrackHeight()
+        );
+
+        NvgShapes.drawRect(nanovg, trackRect, timelineStyle.getClipBackgroundColor(), 0);
+        NvgShapes.drawRectStroke(
+          nanovg, trackRect,
+          clip.isSelected() ? timelineStyle.getSelectedClipOutlineColor() : timelineStyle.getClipOutlineColor(),
+          clip.isSelected() ? timelineStyle.getSelectedClipOutlineWidth() : timelineStyle.getClipOutlineWidth()
+        );
+
+        NvgText.drawTextLineToRect(
+          nanovg, trackRect,
+          false, HorizontalAlign.CENTER, VerticalAlign.MIDDLE,
+          timelineStyle.getClipLabelFontSize(), style.getFont(), clip.getName(),
+          timelineStyle.getClipLabelColor(), TextDirection.HORIZONTAL
+        );
+      }
 
       trackY += timelineStyle.getTrackHeight();
       NvgShapes.drawRect(

@@ -19,9 +19,18 @@ public class TimelineStyle {
   private Vector4f hoveredMarkerColor = ColorUtil.fromInt(120, 120, 120, 1f);
   private Vector4f headColor = ColorUtil.fromInt(94, 162, 230, 1f);
 
-  private float trackHeight = 60;
+  private float trackHeight = 40;
   private float trackSeparatorSize = 1;
   private Vector4f trackSeparatorColor = new Vector4f(markerColor);
+
+  private Vector4f clipBackgroundColor = ColorUtil.fromInt(209, 125, 201, 1f);
+  private Vector4f clipLabelColor = new Vector4f(markerLabelColor);
+  private float clipLabelFontSize = 20f;
+
+  private Vector4f clipOutlineColor = new Vector4f(markerLabelColor);
+  private Vector4f selectedClipOutlineColor = ColorUtil.fromInt(31, 31, 31, 1f);
+  private float clipOutlineWidth = 1f;
+  private float selectedClipOutlineWidth = 3f;
 
   private Vector2f controlButtonSize = new Vector2f(30f, 20f);
   private Vector2f controlButtonIconSize = new Vector2f(controlButtonSize.y).mul(2 / 3f);
@@ -130,6 +139,70 @@ public class TimelineStyle {
 
   public TimelineStyle setTrackSeparatorColor(Vector4f trackSeparatorColor) {
     this.trackSeparatorColor = trackSeparatorColor;
+    return this;
+  }
+
+  public Vector4f getClipBackgroundColor() {
+    return this.clipBackgroundColor;
+  }
+
+  public TimelineStyle setClipBackgroundColor(Vector4f clipBackgroundColor) {
+    this.clipBackgroundColor = clipBackgroundColor;
+    return this;
+  }
+
+  public Vector4f getClipLabelColor() {
+    return this.clipLabelColor;
+  }
+
+  public TimelineStyle setClipLabelColor(Vector4f clipLabelColor) {
+    this.clipLabelColor = clipLabelColor;
+    return this;
+  }
+
+  public float getClipLabelFontSize() {
+    return this.clipLabelFontSize;
+  }
+
+  public TimelineStyle setClipLabelFontSize(float clipLabelFontSize) {
+    this.clipLabelFontSize = clipLabelFontSize;
+    return this;
+  }
+
+  public Vector4f getClipOutlineColor() {
+    return this.clipOutlineColor;
+  }
+
+  public TimelineStyle setClipOutlineColor(Vector4f clipOutlineColor) {
+    this.clipOutlineColor = clipOutlineColor;
+    return this;
+  }
+
+  public Vector4f getSelectedClipOutlineColor() {
+    return this.selectedClipOutlineColor;
+  }
+
+  public TimelineStyle setSelectedClipOutlineColor(Vector4f selectedClipOutlineColor) {
+    this.selectedClipOutlineColor = selectedClipOutlineColor;
+    return this;
+  }
+
+
+  public float getClipOutlineWidth() {
+    return this.clipOutlineWidth;
+  }
+
+  public TimelineStyle setClipOutlineWidth(float clipOutlineWidth) {
+    this.clipOutlineWidth = clipOutlineWidth;
+    return this;
+  }
+
+  public float getSelectedClipOutlineWidth() {
+    return this.selectedClipOutlineWidth;
+  }
+
+  public TimelineStyle setSelectedClipOutlineWidth(float selectedClipOutlineWidth) {
+    this.selectedClipOutlineWidth = selectedClipOutlineWidth;
     return this;
   }
 

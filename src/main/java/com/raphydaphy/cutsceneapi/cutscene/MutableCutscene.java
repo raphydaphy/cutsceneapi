@@ -1,14 +1,17 @@
 package com.raphydaphy.cutsceneapi.cutscene;
 
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
+import com.raphydaphy.cutsceneapi.cutscene.clip.CutsceneClip;
+import com.raphydaphy.cutsceneapi.cutscene.clip.MutableCutsceneClip;
 import com.raphydaphy.cutsceneapi.cutscene.track.CutsceneTrack;
+import com.raphydaphy.cutsceneapi.cutscene.track.MutableCutsceneTrack;
 import net.minecraft.client.MinecraftClient;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MutableCutscene implements Cutscene {
-  private List<CutsceneTrack> tracks;
+  private List<MutableCutsceneTrack> tracks;
   private int framerate, length, currentFrame;
   private boolean playing;
 
@@ -20,7 +23,11 @@ public class MutableCutscene implements Cutscene {
     this.setFramerate(framerate).setLength(length);
 
     this.tracks = new ArrayList<>();
-    this.addTrack(new CutsceneTrack("Camera"));
+
+    MutableCutsceneTrack cameraTrack = new MutableCutsceneTrack("Camera");
+    cameraTrack.addClip(new MutableCutsceneClip("Pan", 0, 45));
+    cameraTrack.addClip(new MutableCutsceneClip("Wide", 50, 30));
+    this.addTrack(cameraTrack);
   }
 
   @Override
@@ -34,12 +41,12 @@ public class MutableCutscene implements Cutscene {
     }
   }
 
-  public void addTrack(CutsceneTrack track) {
+  public void addTrack(MutableCutsceneTrack track) {
     this.tracks.add(track);
   }
 
-  public void addTrack(CutsceneTrack track, int index) {
-    List<CutsceneTrack> newTracks = new ArrayList<>();
+  public void addTrack(MutableCutsceneTrack track, int index) {
+    List<MutableCutsceneTrack> newTracks = new ArrayList<>();
     int length = this.tracks.size();
 
     if (index < 0) index = 0;
@@ -82,7 +89,7 @@ public class MutableCutscene implements Cutscene {
   }
 
   @Override
-  public List<CutsceneTrack> getTracks() {
+  public List<MutableCutsceneTrack> getTracks() {
     return this.tracks;
   }
 

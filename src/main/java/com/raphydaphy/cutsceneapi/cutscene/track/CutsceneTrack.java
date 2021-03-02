@@ -1,18 +1,10 @@
 package com.raphydaphy.cutsceneapi.cutscene.track;
 
-public class CutsceneTrack {
-  private String name;
+import com.raphydaphy.cutsceneapi.cutscene.clip.CutsceneClip;
 
-  public CutsceneTrack(String name) {
-    this.name = name;
-  }
+import java.util.List;
 
-  public String getName() {
-    return this.name;
-  }
-
-  public CutsceneTrack setName(String name) {
-    this.name = name;
-    return this;
-  }
+public interface CutsceneTrack {
+  String getName();
+  List<? extends CutsceneClip> getClips();
 }
