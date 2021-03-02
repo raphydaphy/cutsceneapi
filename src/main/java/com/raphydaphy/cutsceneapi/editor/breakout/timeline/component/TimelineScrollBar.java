@@ -125,7 +125,7 @@ public class TimelineScrollBar extends TimelineComponent {
     }
   }
 
-  private boolean isDragging() {
+  public boolean isDragging() {
     return this.currentDrag != null;
   }
 

@@ -2,6 +2,8 @@ package com.raphydaphy.cutsceneapi.editor.breakout.timeline.component;
 
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.TimelineGUI;
+import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.button.TimelineButton;
+import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.button.TimelinePlayButton;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.helper.TimelineViewHelper;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.style.TimelineStyle;
 import org.liquidengine.legui.component.FlexPanel;
@@ -14,9 +16,6 @@ import org.liquidengine.legui.system.context.Context;
 
 public class TimelineControls extends TimelineComponent {
   // https://fontawesome.com/cheatsheet/free/solid
-  private static final char PLAY_ICON = 0xf04b;
-  private static final char PAUSE_ICON = 0xf04c;
-
   private static final char STEP_BACK_ICON = 0xf104;
   private static final char STEP_FORWARD_ICON = 0xf105;
 
@@ -27,7 +26,7 @@ public class TimelineControls extends TimelineComponent {
 
   private TimelineButton goToStartButton;
   private TimelineButton stepBackButton;
-  private TimelineButton pauseButton;
+  private TimelineButton playButton;
   private TimelineButton stepForwardButton;
   private TimelineButton goToEndButton;
 
@@ -63,11 +62,11 @@ public class TimelineControls extends TimelineComponent {
 
       this.goToStartButton = new TimelineButton(GO_TO_START_ICON, timelineStyle);
       this.stepBackButton = new TimelineButton(STEP_BACK_ICON, timelineStyle);
-      this.pauseButton = new TimelineButton(PAUSE_ICON, timelineStyle);
+      this.playButton = new TimelinePlayButton(this.getTimeline(), timelineStyle);
       this.stepForwardButton = new TimelineButton(STEP_FORWARD_ICON, timelineStyle);
       this.goToEndButton = new TimelineButton(GO_TO_END_ICON, timelineStyle);
 
-      buttons.add(goToStartButton).add(stepBackButton).add(this.pauseButton).add(stepForwardButton).add(goToEndButton);
+      buttons.add(goToStartButton).add(stepBackButton).add(this.playButton).add(stepForwardButton).add(goToEndButton);
 
       this.add(buttons);
     }
@@ -76,10 +75,9 @@ public class TimelineControls extends TimelineComponent {
   @Override
   public void update(Context context, Frame frame) {
     MutableCutscene cutscene = this.getTimeline().getCurrentScene();
-    TimelineView timelineView = this.getTimeline().getTimelineView();
-    if (cutscene == null || timelineView == null) return;
+    if (cutscene == null) return;
 
-    String formattedTime = TimelineViewHelper.formatFrameTime(timelineView.getCurrentFrame(), cutscene.getFramerate());
+    String formattedTime = TimelineViewHelper.formatFrameTime(cutscene.getCurrentFrame(), cutscene.getFramerate());
     this.timeLabel.getTextState().setText(formattedTime);
   }
 
@@ -91,8 +89,8 @@ public class TimelineControls extends TimelineComponent {
     return this.stepBackButton;
   }
 
-  public TimelineButton getPauseButton() {
-    return this.pauseButton;
+  public TimelineButton getPlayButton() {
+    return this.playButton;
   }
 
   public TimelineButton getStepForwardButton() {

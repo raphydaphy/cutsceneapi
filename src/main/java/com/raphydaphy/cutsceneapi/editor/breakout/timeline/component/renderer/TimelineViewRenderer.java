@@ -46,7 +46,7 @@ public class TimelineViewRenderer extends NvgDefaultComponentRenderer<TimelineVi
     this.renderBaseline(component, nanovg);
     this.renderMarkers(component, nanovg, cutscene);
     this.renderTracks(component, nanovg, cutscene);
-    this.renderHead(component, nanovg);
+    this.renderHead(component, nanovg, cutscene);
   }
 
   private void renderBaseline(TimelineView component, long nanovg) {
@@ -151,7 +151,7 @@ public class TimelineViewRenderer extends NvgDefaultComponentRenderer<TimelineVi
     }
   }
 
-  private void renderHead(TimelineView component, long nanovg) {
+  private void renderHead(TimelineView component, long nanovg, MutableCutscene cutscene) {
     TimelineStyle timelineStyle = component.getTimeline().getTimelineStyle();
 
     Vector2f pos = component.getOffsetPosition();
@@ -162,7 +162,7 @@ public class TimelineViewRenderer extends NvgDefaultComponentRenderer<TimelineVi
     float baselineSize = timelineStyle.getBaselineSize();
 
     float frameWidth = TimelineViewHelper.getFrameWidth(component);
-    int currentFrame = component.getCurrentFrame();
+    int currentFrame = cutscene.getCurrentFrame();
     int headMarkerHeight = Math.round(headSize / 3f);
     int headX = Math.round(currentFrame * frameWidth);
 

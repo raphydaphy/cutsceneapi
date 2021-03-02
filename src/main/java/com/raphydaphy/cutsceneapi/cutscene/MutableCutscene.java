@@ -8,19 +8,53 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MutableCutscene implements Cutscene {
-  private int framerate, length;
   private List<CutsceneTrack> tracks;
+  private int framerate, length, currentFrame;
+  private boolean playing;
 
   public MutableCutscene() {
     this(30, 30 * 10);
   }
 
   public MutableCutscene(int framerate, int length) {
-    this.setFramerate(framerate);
-    this.setLength(length);
+    this.setFramerate(framerate).setLength(length);
 
     this.tracks = new ArrayList<>();
     this.addTrack(new CutsceneTrack("Camera"));
+  }
+
+  @Override
+  public void update() {
+    if (this.isPlaying()) {
+      if (this.currentFrame < this.length) {
+        this.setCurrentFrame(this.getCurrentFrame() + 1);
+      } else {
+        this.setPlaying(false);
+      }
+    }
+  }
+
+  public void addTrack(CutsceneTrack track) {
+    this.tracks.add(track);
+  }
+
+  public void addTrack(CutsceneTrack track, int index) {
+    List<CutsceneTrack> newTracks = new ArrayList<>();
+    int length = this.tracks.size();
+
+    if (index < 0) index = 0;
+    else if (index > length) index = length;
+
+    for (int i = 0; i < length; i++) {
+      if (i == index) newTracks.add(track);
+      newTracks.add(this.tracks.get(i));
+    }
+
+    this.tracks = newTracks;
+  }
+
+  public void removeTrack(CutsceneTrack track) {
+    this.tracks.remove(track);
   }
 
   public MutableCutscene setFramerate(int framerate) {
@@ -36,30 +70,20 @@ public class MutableCutscene implements Cutscene {
     return this;
   }
 
-  public MutableCutscene addTrack(CutsceneTrack track) {
-    this.tracks.add(track);
-    return this;
+  public void setCurrentFrame(int currentFrame) {
+    if (currentFrame < 0) currentFrame = 0;
+    else if (currentFrame > this.length) currentFrame = this.length;
+    this.currentFrame = currentFrame;
   }
 
-  public MutableCutscene addTrack(CutsceneTrack track, int index) {
-    List<CutsceneTrack> newTracks = new ArrayList<>();
-    int length = this.tracks.size();
-
-    if (index < 0) index = 0;
-    else if (index > length) index = length;
-
-    for (int i = 0; i < length; i++) {
-      if (i == index) newTracks.add(track);
-      newTracks.add(this.tracks.get(i));
-    }
-
-    this.tracks = newTracks;
-    return this;
+  @Override
+  public void setPlaying(boolean playing) {
+    this.playing = playing;
   }
 
-  public MutableCutscene removeTrack(CutsceneTrack track) {
-    this.tracks.remove(track);
-    return this;
+  @Override
+  public List<CutsceneTrack> getTracks() {
+    return this.tracks;
   }
 
   @Override
@@ -73,7 +97,12 @@ public class MutableCutscene implements Cutscene {
   }
 
   @Override
-  public List<CutsceneTrack> getTracks() {
-    return this.tracks;
+  public int getCurrentFrame() {
+    return this.currentFrame;
+  }
+
+  @Override
+  public boolean isPlaying() {
+    return this.playing;
   }
 }

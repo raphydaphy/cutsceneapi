@@ -15,7 +15,6 @@ import org.liquidengine.legui.system.context.Context;
 import org.liquidengine.legui.system.renderer.nvg.NvgRendererProvider;
 
 public class TimelineView extends TimelineComponent {
-  private int currentFrame = 0;
   private float scale = 1f;
   private float offset = 0f;
 
@@ -40,6 +39,10 @@ public class TimelineView extends TimelineComponent {
 
   private void handleDrag(MouseDragEvent event) {
     if (Mouse.MouseButton.MOUSE_BUTTON_LEFT.isPressed() && this.isDraggingHead()) {
+      MutableCutscene cutscene = this.getTimeline().getCurrentScene();
+      if (cutscene == null) return;
+      else if (cutscene.isPlaying()) cutscene.setPlaying(false);
+
       int frame = TimelineViewHelper.getHoveredFrame(this, Mouse.getCursorPosition());
       this.snapToFrame(event.getContext(), frame);
     }
@@ -50,6 +53,10 @@ public class TimelineView extends TimelineComponent {
       this.draggingHead = false;
       return;
     }
+
+    MutableCutscene cutscene = this.getTimeline().getCurrentScene();
+    if (cutscene == null) return;
+    else if (cutscene.isPlaying()) cutscene.setPlaying(false);
 
     Vector2f cursorPosition = Mouse.getCursorPosition();
     if (!TimelineViewHelper.isMouseOverTop(this, cursorPosition)) return;
@@ -63,24 +70,16 @@ public class TimelineView extends TimelineComponent {
   }
 
   public void snapToFrame(Context context, int frame) {
-    int oldFrame = this.getCurrentFrame();
-    this.setCurrentFrame(frame);
+    MutableCutscene cutscene = this.getTimeline().getCurrentScene();
+    if (cutscene == null) return;
+
+    int oldFrame = cutscene.getCurrentFrame();
+    cutscene.setCurrentFrame(frame);
 
     EventProcessorProvider.getInstance().pushEvent(new TimelineHeadMovedEvent<>(
       this, context, this.getFrame(),
-      oldFrame, this.getCurrentFrame()
+      oldFrame, cutscene.getCurrentFrame()
     ));
-  }
-
-  public TimelineView setCurrentFrame(int currentFrame) {
-    MutableCutscene cutscene = this.getTimeline().getCurrentScene();
-    if (cutscene == null) return this;
-
-    if (currentFrame < 0) currentFrame = 0;
-    else if (currentFrame > cutscene.getLength()) currentFrame = cutscene.getLength();
-
-    this.currentFrame = currentFrame;
-    return this;
   }
 
   public TimelineView setScale(float scale) {
@@ -96,10 +95,6 @@ public class TimelineView extends TimelineComponent {
 
     this.offset = offset;
     return this;
-  }
-
-  public int getCurrentFrame() {
-    return this.currentFrame;
   }
 
   public float getScale() {

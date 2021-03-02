@@ -78,6 +78,14 @@ public class CutsceneEditor {
     if (this.propertiesBreakout != null) this.propertiesBreakout.update();
   }
 
+  public void startFrame() {
+    if (this.currentScene == null) return;
+
+    if (this.currentScene.isPlaying()) {
+      this.currentScene.update();
+    }
+  }
+
   public MouseTracker getMouseTracker() {
     return this.mouseTracker;
   }

@@ -35,4 +35,11 @@ public class MinecraftClientMixin implements MinecraftClientHooks {
       info.cancel();
     }
   }
+
+  @Inject(method = "render", at = @At(value = "INVOKE_STRING", args = "ldc=sound", target = "Lnet/minecraft/util/profiler/Profiler;push(Ljava/lang/String;)V"))
+  public void beforeRender(CallbackInfo info) {
+    if (CutsceneAPIClient.isEditorOpen()) {
+      CutsceneAPIClient.EDITOR.startFrame();
+    }
+  }
 }

@@ -2,6 +2,7 @@ package com.raphydaphy.cutsceneapi.editor.breakout.timeline;
 
 import com.raphydaphy.breakoutapi.breakout.window.BreakoutWindow;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
+import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
 import com.raphydaphy.cutsceneapi.editor.CutsceneEditor;
 import com.raphydaphy.cutsceneapi.editor.breakout.EditorBreakout;
 import net.minecraft.client.util.Window;

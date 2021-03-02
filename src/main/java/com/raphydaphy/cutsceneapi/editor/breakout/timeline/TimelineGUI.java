@@ -1,5 +1,6 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.timeline;
 
+import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.TimelineControls;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.TimelineView;
@@ -8,9 +9,11 @@ import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.event.Timel
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.helper.TimelineViewHelper;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.helper.TimelineScrollBarHelper;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.style.TimelineStyle;
+import com.raphydaphy.shaded.org.joml.Vector2f;
 import com.raphydaphy.shaded.org.joml.Vector2i;
 import org.liquidengine.legui.component.*;
 import org.liquidengine.legui.component.optional.Orientation;
+import org.liquidengine.legui.event.Event;
 import org.liquidengine.legui.event.MouseClickEvent;
 import org.liquidengine.legui.event.WindowSizeEvent;
 import org.liquidengine.legui.input.Mouse;
@@ -80,19 +83,26 @@ public class TimelineGUI extends Panel {
     this.scrollBar = new TimelineScrollBar(this);
     {
       this.scrollBar.getStyle().setHeights(initialScrollBarHeight).enableFlexGrow(FlexDirection.ROW);
+
       this.scrollBar.setRightPercentForcefully(0.5f);
+      this.onScrollbarMoved(null);
 
       this.scrollBar.getListenerMap().addListener(TimelineScrollBarMovedEvent.class, this::onScrollbarMoved);
       this.add(this.scrollBar);
     }
 
+    this.addListeners();
+  }
+
+  private void addListeners() {
+    this.timelineControls.getStepBackButton().addClickListener(this::onStepBackBtn);
+    this.timelineControls.getStepForwardButton().addClickListener(this::onStepForwardBtn);
+    this.timelineControls.getPlayButton().addClickListener(this::togglePlay);
+
     this.timelineControls.getGoToStartButton().addClickListener((e) -> {
       this.scrollBar.scrollTo(e.getContext(), 0);
       this.timelineView.snapToFrame(e.getContext(), 0);
     });
-
-    this.timelineControls.getStepBackButton().addClickListener(this::stepBack);
-    this.timelineControls.getStepForwardButton().addClickListener(this::stepForward);
 
     this.timelineControls.getGoToEndButton().addClickListener((e) -> {
       if (this.currentScene == null) return;
@@ -103,8 +113,10 @@ public class TimelineGUI extends Panel {
 
   @Override
   public void update(Context context, Frame frame) {
-    if (Mouse.MouseButton.MOUSE_BUTTON_LEFT.isPressed() && this.timelineView.isDraggingHead()) {
+    MutableCutscene cutscene = this.getCurrentScene();
+    if (cutscene == null) return;
 
+    if (Mouse.MouseButton.MOUSE_BUTTON_LEFT.isPressed() && this.timelineView.isDraggingHead()) {
       int hoveredFrame = TimelineViewHelper.getHoveredFrame(this.timelineView, Mouse.getCursorPosition());
       Vector2i visibleFrames = TimelineViewHelper.getVisibleFrameRange(this.timelineView);
 
@@ -119,6 +131,8 @@ public class TimelineGUI extends Panel {
         this.scrollBar.scrollBy(context, scrubSpeed);
         this.timelineView.snapToFrame(context, visibleFrames.y + scrubbedFrames);
       }
+    } else if (cutscene.isPlaying()) {
+      if (!this.scrollBar.isDragging()) this.centerCurrentFrameIfHidden(context);
     }
   }
 
@@ -127,24 +141,56 @@ public class TimelineGUI extends Panel {
     this.timelineView.setOffset(this.scrollBar.getLeftPercent());
   }
 
-  private void stepBack(MouseClickEvent e) {
-    this.timelineView.snapToFrame(e.getContext(), this.timelineView.getCurrentFrame() - 1);
-    int frameDist = this.timelineView.getCurrentFrame() - TimelineViewHelper.getVisibleFrameRange(this.timelineView).x;
-    if (frameDist < 0) {
-      float absDist = frameDist * TimelineViewHelper.getFrameWidth(this.timelineView);
-      float percent = TimelineScrollBarHelper.distanceToPercent(this.scrollBar, absDist);
-      this.scrollBar.scrollBy(e.getContext(), percent);
+  public void centerCurrentFrameIfHidden(Context context) {
+    MutableCutscene cutscene = this.getCurrentScene();
+    if (cutscene == null) return;
+
+    Vector2i visibleRange = TimelineViewHelper.getVisibleFrameRange(this.timelineView);
+
+    int visibleLength = visibleRange.y - visibleRange.x;
+    int currentFrame = cutscene.getCurrentFrame();
+
+    if (currentFrame < visibleRange.x) {
+      int extraFrames = currentFrame - visibleRange.x;
+      this.scrollByFrames(extraFrames - visibleLength, context);
+    } else if (currentFrame > visibleRange.y) {
+      int extraFrames = currentFrame - visibleRange.y;
+      this.scrollByFrames(extraFrames + visibleLength, context);
     }
   }
 
-  private void stepForward(MouseClickEvent e) {
-    this.timelineView.snapToFrame(e.getContext(), this.timelineView.getCurrentFrame() + 1);
-    int frameDist = TimelineViewHelper.getVisibleFrameRange(this.timelineView).y - this.timelineView.getCurrentFrame();
-    if (frameDist < 0) {
-      float absDist = frameDist * TimelineViewHelper.getFrameWidth(this.timelineView);
-      float percent = TimelineScrollBarHelper.distanceToPercent(this.scrollBar, absDist);
-      this.scrollBar.scrollBy(e.getContext(), -percent);
+  public void scrollByFrames(int frames, Context context) {
+    float absDist = (frames * TimelineViewHelper.getFrameWidth(this.timelineView)) / this.scrollBar.getScale();
+    float percent = TimelineScrollBarHelper.distanceToPercent(this.scrollBar, absDist);
+    this.scrollBar.scrollBy(context, percent);
+  }
+
+  private void onStepBackBtn(MouseClickEvent e) {
+    MutableCutscene cutscene = this.getCurrentScene();
+    if (cutscene == null) return;
+
+    this.timelineView.snapToFrame(e.getContext(), cutscene.getCurrentFrame() - 1);
+    this.centerCurrentFrameIfHidden(e.getContext());
+  }
+
+  private void onStepForwardBtn(MouseClickEvent e) {
+    MutableCutscene cutscene = this.getCurrentScene();
+    if (cutscene == null) return;
+
+    this.timelineView.snapToFrame(e.getContext(), cutscene.getCurrentFrame() + 1);
+    this.centerCurrentFrameIfHidden(e.getContext());
+  }
+
+  private void togglePlay(Event event) {
+    MutableCutscene cutscene = this.getCurrentScene();
+    if (cutscene == null) return;
+
+    if (!cutscene.isPlaying() && cutscene.getCurrentFrame() >= cutscene.getLength()) {
+      this.timelineView.snapToFrame(event.getContext(), 0);
+      this.scrollBar.scrollTo(event.getContext(), 0);
     }
+
+    cutscene.setPlaying(!cutscene.isPlaying());
   }
 
   public TimelineGUI setCurrentScene(MutableCutscene cutscene) {
