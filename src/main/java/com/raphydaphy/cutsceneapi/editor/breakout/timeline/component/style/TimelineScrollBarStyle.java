@@ -12,23 +12,26 @@ public class TimelineScrollBarStyle {
     return barColor;
   }
 
-  public void setBarColor(Vector4f barColor) {
+  public TimelineScrollBarStyle setBarColor(Vector4f barColor) {
     this.barColor = barColor;
+    return this;
   }
 
   public Vector4f getHandleColor() {
     return handleColor;
   }
 
-  public void setHandleColor(Vector4f handleColor) {
+  public TimelineScrollBarStyle setHandleColor(Vector4f handleColor) {
     this.handleColor = handleColor;
+    return this;
   }
 
   public Vector4f getHandleHoverColor() {
     return handleHoverColor;
   }
 
-  public void setHandleHoverColor(Vector4f handleHoverColor) {
+  public TimelineScrollBarStyle setHandleHoverColor(Vector4f handleHoverColor) {
     this.handleHoverColor = handleHoverColor;
+    return this;
   }
 }

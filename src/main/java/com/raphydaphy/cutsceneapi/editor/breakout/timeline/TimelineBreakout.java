@@ -4,7 +4,6 @@ import com.raphydaphy.breakoutapi.breakout.window.BreakoutWindow;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.editor.CutsceneEditor;
 import com.raphydaphy.cutsceneapi.editor.breakout.EditorBreakout;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.Window;
 import net.minecraft.util.Identifier;
 
@@ -20,7 +19,7 @@ public class TimelineBreakout extends EditorBreakout {
     this.window.setRelativePos(0, window.getHeight() + 55);
 
     TimelineGUI gui = (TimelineGUI)this.gui;
-    gui.getTimelinePanel().setCurrentScene(this.editor.getCurrentScene());
+    gui.setCurrentScene(this.editor.getCurrentScene());
   }
 
   @Override

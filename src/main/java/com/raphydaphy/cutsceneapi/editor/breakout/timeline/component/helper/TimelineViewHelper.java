@@ -1,14 +1,12 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.helper;
 
-import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
-import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.TimelinePanel;
+import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.TimelineView;
 import com.raphydaphy.shaded.org.joml.Vector2f;
 import com.raphydaphy.shaded.org.joml.Vector2i;
-import com.sun.jna.platform.win32.Sspi;
 import org.liquidengine.legui.component.Component;
 
-public class TimelinePanelHelper {
+public class TimelineViewHelper {
 
   public static boolean isMouseOverComponent(Component timeline, Vector2f mousePosition) {
     Vector2f pos = timeline.getAbsolutePosition();
@@ -20,17 +18,17 @@ public class TimelinePanelHelper {
     return true;
   }
 
-  public static boolean isMouseOverTop(TimelinePanel timeline, Vector2f mousePosition) {
+  public static boolean isMouseOverTop(TimelineView timeline, Vector2f mousePosition) {
     if (!isMouseOverComponent(timeline, mousePosition)) return false;
-    return mousePosition.y < timeline.getAbsolutePosition().y + timeline.getTimelineStyle().getTopHeight();
+    return mousePosition.y < timeline.getAbsolutePosition().y + timeline.getTimeline().getTimelineStyle().getTopHeight();
   }
 
-  public static int getHoveredFrame(TimelinePanel panel, Vector2f mousePosition) {
-    MutableCutscene cutscene = panel.getCurrentScene();
+  public static int getHoveredFrame(TimelineView panel, Vector2f mousePosition) {
+    MutableCutscene cutscene = panel.getTimeline().getCurrentScene();
     if (cutscene == null) return 0;
 
     Vector2f offsetPos = panel.getOffsetPosition();
-    float headSize = panel.getTimelineStyle().getHeadSize();
+    float headSize = panel.getTimeline().getTimelineStyle().getHeadSize();
     int length = cutscene.getLength();
 
     float percentage = (mousePosition.x - offsetPos.x - headSize / 2f) / (panel.getScaledSize().x - headSize);
@@ -42,15 +40,15 @@ public class TimelinePanelHelper {
     return Math.round(value);
   }
 
-  public static float getFrameWidth(TimelinePanel panel) {
-    MutableCutscene cutscene = panel.getCurrentScene();
+  public static float getFrameWidth(TimelineView panel) {
+    MutableCutscene cutscene = panel.getTimeline().getCurrentScene();
     if (cutscene == null) return 0;
 
     return panel.getScaledSize().x / cutscene.getLength();
   }
 
-  public static Vector2i getVisibleFrameRange(TimelinePanel panel) {
-    MutableCutscene cutscene = panel.getCurrentScene();
+  public static Vector2i getVisibleFrameRange(TimelineView panel) {
+    MutableCutscene cutscene = panel.getTimeline().getCurrentScene();
     if (cutscene == null) return new Vector2i(0, 0);
 
     float lengthBefore = panel.getAbsolutePosition().x - panel.getOffsetPosition().x;
@@ -61,5 +59,17 @@ public class TimelinePanelHelper {
     int lastFrame = cutscene.getLength() - (int)Math.ceil(lengthAfter / frameWidth);
 
     return new Vector2i(firstFrame, lastFrame);
+  }
+
+  public static String formatFrameTime(int totalFrames, int framerate) {
+    if (totalFrames == 0) return "00:00:00:00";
+    else if (framerate == 0) return Integer.toString(totalFrames);
+
+    int frames = totalFrames % framerate;
+    int seconds = totalFrames / framerate;
+    int minutes = seconds / 60;
+    int hours = minutes / 60;
+
+    return String.format("%02d:%02d:%02d:%02d", hours, minutes, seconds, frames);
   }
 }

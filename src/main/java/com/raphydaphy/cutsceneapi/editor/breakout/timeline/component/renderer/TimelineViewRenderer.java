@@ -1,8 +1,9 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.renderer;
 
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
-import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.TimelinePanel;
-import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.helper.TimelinePanelHelper;
+import com.raphydaphy.cutsceneapi.cutscene.track.CutsceneTrack;
+import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.TimelineView;
+import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.helper.TimelineViewHelper;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.style.TimelineStyle;
 import com.raphydaphy.shaded.org.joml.Vector2f;
 import com.raphydaphy.shaded.org.joml.Vector4f;
@@ -18,37 +19,41 @@ import org.liquidengine.legui.system.renderer.nvg.component.NvgDefaultComponentR
 import org.liquidengine.legui.system.renderer.nvg.util.NvgShapes;
 import org.liquidengine.legui.system.renderer.nvg.util.NvgText;
 
+import java.util.List;
+
 import static org.liquidengine.legui.style.util.StyleUtilities.getStyle;
 import static org.liquidengine.legui.system.renderer.nvg.util.NvgRenderUtils.*;
 
-public class TimelinePanelRenderer extends NvgDefaultComponentRenderer<TimelinePanel> {
+public class TimelineViewRenderer extends NvgDefaultComponentRenderer<TimelineView> {
   private static final int FRAMES_BETWEEN_MARKS = 5;
   private static final float FRAMES_BETWEEN_LARGE_MARKS = 10 * FRAMES_BETWEEN_MARKS;
   private static final float MARKER_LABEL_WIDTH = 60;
   private static final boolean DEBUG_RENDER = false;
 
   @Override
-  public void renderSelf(TimelinePanel component, Context context, long nanovg) {
+  public void renderSelf(TimelineView component, Context context, long nanovg) {
     createScissorByParent(nanovg, component);
     {
       renderBackground(component, context, nanovg);
 
-      MutableCutscene cutscene = component.getCurrentScene();
-      if (cutscene != null) this.renderTimeline(cutscene, component, context, nanovg);
+      MutableCutscene cutscene = component.getTimeline().getCurrentScene();
+      if (cutscene != null) this.renderTimeline(component, nanovg, cutscene);
     }
     resetScissor(nanovg);
   }
 
-  private void renderTimeline(MutableCutscene cutscene, TimelinePanel component, Context context, long nanovg) {
-    Style style = component.getStyle();
-    TimelineStyle timelineStyle = component.getTimelineStyle();
+  private void renderTimeline(TimelineView component, long nanovg, MutableCutscene cutscene) {
+    this.renderBaseline(component, nanovg);
+    this.renderMarkers(component, nanovg, cutscene);
+    this.renderTracks(component, nanovg, cutscene);
+    this.renderHead(component, nanovg);
+  }
+
+  private void renderBaseline(TimelineView component, long nanovg) {
+    TimelineStyle timelineStyle = component.getTimeline().getTimelineStyle();
 
     float topHeight = timelineStyle.getTopHeight();
     float baselineSize = timelineStyle.getBaselineSize();
-
-    float scale = component.getScale();
-    float offset = component.getOffset();
-    float frameWidth = TimelinePanelHelper.getFrameWidth(component);
 
     Vector2f pos = component.getOffsetPosition();
     Vector2f size = component.getScaledSize();
@@ -59,14 +64,22 @@ public class TimelinePanelRenderer extends NvgDefaultComponentRenderer<TimelineP
       new Vector2f(size.x, baselineSize),
       timelineStyle.getBaselineColor(), 0f
     );
+  }
 
+  private void renderMarkers(TimelineView component, long nanovg, MutableCutscene cutscene) {
+    TimelineStyle timelineStyle = component.getTimeline().getTimelineStyle();
+    float topHeight = timelineStyle.getTopHeight();
+
+    float frameWidth = TimelineViewHelper.getFrameWidth(component);
+
+    Vector2f pos = component.getOffsetPosition();
     Vector2f mousePosition = Mouse.getCursorPosition();
 
-    if (TimelinePanelHelper.isMouseOverComponent(component, mousePosition)) {
+    if (TimelineViewHelper.isMouseOverComponent(component, mousePosition)) {
       float hoverX = mousePosition.x;
 
-      if (TimelinePanelHelper.isMouseOverTop(component, mousePosition)) {
-        int hoveredFrame = TimelinePanelHelper.getHoveredFrame(component, mousePosition);
+      if (TimelineViewHelper.isMouseOverTop(component, mousePosition)) {
+        int hoveredFrame = TimelineViewHelper.getHoveredFrame(component, mousePosition);
         hoverX = Math.round(pos.x + hoveredFrame * frameWidth);
       }
 
@@ -113,7 +126,42 @@ public class TimelinePanelRenderer extends NvgDefaultComponentRenderer<TimelineP
 
       renderFrame += FRAMES_BETWEEN_MARKS;
     }
+  }
 
+  private void renderTracks(TimelineView component, long nanovg, MutableCutscene cutscene) {
+    TimelineStyle timelineStyle = component.getTimeline().getTimelineStyle();
+
+    List<CutsceneTrack> tracks = cutscene.getTracks();
+
+    Vector2f pos = component.getOffsetPosition();
+    Vector2f size = component.getScaledSize();
+
+    float trackY = pos.y + timelineStyle.getTopHeight() + timelineStyle.getBaselineSize();
+
+    for (CutsceneTrack track : tracks) {
+
+      trackY += timelineStyle.getTrackHeight();
+      NvgShapes.drawRect(
+        nanovg,
+        new Vector2f(pos.x, trackY),
+        new Vector2f(size.x, timelineStyle.getTrackSeparatorSize()),
+        timelineStyle.getTrackSeparatorColor(), 0
+      );
+      trackY += timelineStyle.getTrackSeparatorSize();
+    }
+  }
+
+  private void renderHead(TimelineView component, long nanovg) {
+    TimelineStyle timelineStyle = component.getTimeline().getTimelineStyle();
+
+    Vector2f pos = component.getOffsetPosition();
+    Vector2f size = component.getScaledSize();
+
+    float topHeight = timelineStyle.getTopHeight();
+    float headSize = timelineStyle.getHeadSize();
+    float baselineSize = timelineStyle.getBaselineSize();
+
+    float frameWidth = TimelineViewHelper.getFrameWidth(component);
     int currentFrame = component.getCurrentFrame();
     int headMarkerHeight = Math.round(headSize / 3f);
     int headX = Math.round(currentFrame * frameWidth);

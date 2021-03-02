@@ -1,6 +1,6 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.event;
 
-import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.TimelinePanel;
+import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.TimelineView;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -8,7 +8,7 @@ import org.liquidengine.legui.component.Frame;
 import org.liquidengine.legui.event.Event;
 import org.liquidengine.legui.system.context.Context;
 
-public class TimelineHeadMovedEvent<T extends TimelinePanel> extends Event<T> {
+public class TimelineHeadMovedEvent<T extends TimelineView> extends Event<T> {
 
   private final int oldFrame, newFrame;
 

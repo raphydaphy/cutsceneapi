@@ -1,15 +1,12 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.timeline.component;
 
-import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
+import com.raphydaphy.cutsceneapi.editor.breakout.timeline.TimelineGUI;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.event.TimelineHeadMovedEvent;
-import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.helper.TimelinePanelHelper;
-import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.renderer.TimelinePanelRenderer;
+import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.helper.TimelineViewHelper;
+import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.renderer.TimelineViewRenderer;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.style.TimelineStyle;
 import com.raphydaphy.shaded.org.joml.Vector2f;
-import com.raphydaphy.shaded.org.joml.Vector2i;
-import org.liquidengine.legui.component.Panel;
-import org.liquidengine.legui.event.Event;
 import org.liquidengine.legui.event.MouseClickEvent;
 import org.liquidengine.legui.event.MouseDragEvent;
 import org.liquidengine.legui.input.Mouse;
@@ -17,23 +14,21 @@ import org.liquidengine.legui.listener.processor.EventProcessorProvider;
 import org.liquidengine.legui.system.context.Context;
 import org.liquidengine.legui.system.renderer.nvg.NvgRendererProvider;
 
-public class TimelinePanel extends Panel {
-  private MutableCutscene currentScene = null;
+public class TimelineView extends TimelineComponent {
   private int currentFrame = 0;
   private float scale = 1f;
   private float offset = 0f;
 
   private boolean draggingHead = false;
 
-  private TimelineStyle timelineStyle = new TimelineStyle();
-
-  public TimelinePanel() {
+  public TimelineView(TimelineGUI timeline) {
+    super(timeline);
     this.initialize();
   }
 
-  public TimelinePanel(float x, float y, float width, float height) {
+  public TimelineView(TimelineGUI timeline, float x, float y, float width, float height) {
+    super(timeline, x, y, width, height);
     this.initialize();
-    this.setPosition(x, y).setSize(width, height);
   }
 
   private void initialize() {
@@ -45,7 +40,7 @@ public class TimelinePanel extends Panel {
 
   private void handleDrag(MouseDragEvent event) {
     if (Mouse.MouseButton.MOUSE_BUTTON_LEFT.isPressed() && this.isDraggingHead()) {
-      int frame = TimelinePanelHelper.getHoveredFrame(this, Mouse.getCursorPosition());
+      int frame = TimelineViewHelper.getHoveredFrame(this, Mouse.getCursorPosition());
       this.snapToFrame(event.getContext(), frame);
     }
   }
@@ -57,9 +52,9 @@ public class TimelinePanel extends Panel {
     }
 
     Vector2f cursorPosition = Mouse.getCursorPosition();
-    if (!TimelinePanelHelper.isMouseOverTop(this, cursorPosition)) return;
+    if (!TimelineViewHelper.isMouseOverTop(this, cursorPosition)) return;
 
-    int frame = TimelinePanelHelper.getHoveredFrame(this, cursorPosition);
+    int frame = TimelineViewHelper.getHoveredFrame(this, cursorPosition);
     this.snapToFrame(event.getContext(), frame);
 
     if (event.getAction() == MouseClickEvent.MouseClickAction.PRESS) {
@@ -77,38 +72,30 @@ public class TimelinePanel extends Panel {
     ));
   }
 
-  public TimelinePanel setCurrentScene(MutableCutscene cutscene) {
-    this.currentScene = cutscene;
-    return this;
-  }
-
-  public TimelinePanel setCurrentFrame(int currentFrame) {
-    if (this.currentScene == null) return this;
+  public TimelineView setCurrentFrame(int currentFrame) {
+    MutableCutscene cutscene = this.getTimeline().getCurrentScene();
+    if (cutscene == null) return this;
 
     if (currentFrame < 0) currentFrame = 0;
-    else if (currentFrame > this.currentScene.getLength()) currentFrame = this.currentScene.getLength();
+    else if (currentFrame > cutscene.getLength()) currentFrame = cutscene.getLength();
 
     this.currentFrame = currentFrame;
     return this;
   }
 
-  public TimelinePanel setScale(float scale) {
+  public TimelineView setScale(float scale) {
     if (scale < 1) scale = 1;
 
     this.scale = scale;
     return this;
   }
 
-  public TimelinePanel setOffset(float offset) {
+  public TimelineView setOffset(float offset) {
     if (offset < 0) offset = 0;
     else if (offset > 1) offset = 1;
 
     this.offset = offset;
     return this;
-  }
-
-  public MutableCutscene getCurrentScene() {
-    return this.currentScene;
   }
 
   public int getCurrentFrame() {
@@ -121,10 +108,6 @@ public class TimelinePanel extends Panel {
 
   public float getOffset() {
     return this.offset;
-  }
-
-  public TimelineStyle getTimelineStyle() {
-    return this.timelineStyle;
   }
 
   public Vector2f getOffsetPosition() {
@@ -140,6 +123,6 @@ public class TimelinePanel extends Panel {
   }
 
   static {
-    NvgRendererProvider.getInstance().addComponentRenderer(TimelinePanel.class, new TimelinePanelRenderer());
+    NvgRendererProvider.getInstance().addComponentRenderer(TimelineView.class, new TimelineViewRenderer());
   }
 }

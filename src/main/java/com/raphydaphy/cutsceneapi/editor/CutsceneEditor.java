@@ -94,6 +94,7 @@ public class CutsceneEditor {
     this.client.setCameraEntity(this.client.player);
 
     ((GameRendererHooks)this.client.gameRenderer).setRenderHand(true);
+    this.client.getWindow().setFramerateLimit(this.client.options.maxFps);
 
     BreakoutAPIClient.closeBreakout(PropertiesBreakout.IDENTIFIER);
     BreakoutAPIClient.closeBreakout(TimelineBreakout.IDENTIFIER);

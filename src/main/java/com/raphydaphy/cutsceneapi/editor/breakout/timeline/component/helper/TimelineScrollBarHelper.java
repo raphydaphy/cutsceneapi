@@ -6,14 +6,14 @@ import com.raphydaphy.shaded.org.joml.Vector2f;
 public class TimelineScrollBarHelper {
 
   public static boolean isMouseOverBar(TimelineScrollBar component, Vector2f mousePosition) {
-    if (!TimelinePanelHelper.isMouseOverComponent(component, mousePosition)) return false;
+    if (!TimelineViewHelper.isMouseOverComponent(component, mousePosition)) return false;
 
     float percent = getHoveredPercent(component, mousePosition);
     return percent >= component.getLeftPercent() && percent <= component.getRightPercent();
   }
 
   public static boolean isMouseOverHandle(TimelineScrollBar component, Vector2f mousePosition, float handlePercent) {
-    if (!TimelinePanelHelper.isMouseOverComponent(component, mousePosition)) return false;
+    if (!TimelineViewHelper.isMouseOverComponent(component, mousePosition)) return false;
 
     Vector2f pos = component.getAbsolutePosition();
     Vector2f size = component.getSize();
