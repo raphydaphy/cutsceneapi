@@ -19,7 +19,6 @@ public class TimelineScrollBarHelper {
     Vector2f size = component.getSize();
 
     float handleSize = size.y;
-    float halfHandleSize = handleSize / 2f;
 
     float handlePos = pos.x + (size.x - handleSize) * handlePercent;
 
@@ -45,5 +44,13 @@ public class TimelineScrollBarHelper {
 
   public static float distanceToPercent(TimelineScrollBar component, float distance) {
     return (distance) / (component.getSize().x);
+  }
+
+  public static float percentToDistance(TimelineScrollBar component, float percent) {
+    return component.getSize().x * percent;
+  }
+
+  public static float percentToAbsolutePos(TimelineScrollBar component, float percent) {
+    return component.getAbsolutePosition().x + percentToDistance(component, percent);
   }
 }

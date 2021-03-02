@@ -46,10 +46,12 @@ public class TimelinePanelRenderer extends NvgDefaultComponentRenderer<TimelineP
     float topHeight = timelineStyle.getTopHeight();
     float baselineSize = timelineStyle.getBaselineSize();
 
-    Vector2f pos = component.getAbsolutePosition();
-    Vector2f size = component.getSize();
-
+    float scale = component.getScale();
+    float offset = component.getOffset();
     float frameWidth = TimelinePanelHelper.getFrameWidth(component);
+
+    Vector2f pos = component.getOffsetPosition();
+    Vector2f size = component.getScaledSize();
 
     NvgShapes.drawRect(
       nanovg,

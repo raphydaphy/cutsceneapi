@@ -1,17 +1,20 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.timeline.component;
 
+import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.event.TimelineHeadMovedEvent;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.helper.TimelinePanelHelper;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.renderer.TimelinePanelRenderer;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.style.TimelineStyle;
 import com.raphydaphy.shaded.org.joml.Vector2f;
+import com.raphydaphy.shaded.org.joml.Vector2i;
 import org.liquidengine.legui.component.Panel;
 import org.liquidengine.legui.event.Event;
 import org.liquidengine.legui.event.MouseClickEvent;
 import org.liquidengine.legui.event.MouseDragEvent;
 import org.liquidengine.legui.input.Mouse;
 import org.liquidengine.legui.listener.processor.EventProcessorProvider;
+import org.liquidengine.legui.system.context.Context;
 import org.liquidengine.legui.system.renderer.nvg.NvgRendererProvider;
 
 public class TimelinePanel extends Panel {
@@ -36,8 +39,15 @@ public class TimelinePanel extends Panel {
   private void initialize() {
     this.getStyle().setFocusedStrokeColor(null);
 
-    this.getListenerMap().addListener(MouseClickEvent.class, this::handleClick);
     this.getListenerMap().addListener(MouseDragEvent.class, this::handleDrag);
+    this.getListenerMap().addListener(MouseClickEvent.class, this::handleClick);
+  }
+
+  private void handleDrag(MouseDragEvent event) {
+    if (Mouse.MouseButton.MOUSE_BUTTON_LEFT.isPressed() && this.isDraggingHead()) {
+      int frame = TimelinePanelHelper.getHoveredFrame(this, Mouse.getCursorPosition());
+      this.snapToFrame(event.getContext(), frame);
+    }
   }
 
   private void handleClick(MouseClickEvent event) {
@@ -50,26 +60,19 @@ public class TimelinePanel extends Panel {
     if (!TimelinePanelHelper.isMouseOverTop(this, cursorPosition)) return;
 
     int frame = TimelinePanelHelper.getHoveredFrame(this, cursorPosition);
-    this.snapToFrame(event, frame);
+    this.snapToFrame(event.getContext(), frame);
 
     if (event.getAction() == MouseClickEvent.MouseClickAction.PRESS) {
       this.draggingHead = true;
     }
   }
 
-  private void handleDrag(MouseDragEvent event) {
-    if (Mouse.MouseButton.MOUSE_BUTTON_LEFT.isPressed() && this.draggingHead) {
-      int frame = TimelinePanelHelper.getHoveredFrame(this, Mouse.getCursorPosition());
-      this.snapToFrame(event, frame);
-    }
-  }
-
-  private void snapToFrame(Event event, int frame) {
+  public void snapToFrame(Context context, int frame) {
     int oldFrame = this.getCurrentFrame();
     this.setCurrentFrame(frame);
 
     EventProcessorProvider.getInstance().pushEvent(new TimelineHeadMovedEvent<>(
-      this, event.getContext(), event.getFrame(),
+      this, context, this.getFrame(),
       oldFrame, this.getCurrentFrame()
     ));
   }
@@ -86,6 +89,21 @@ public class TimelinePanel extends Panel {
     else if (currentFrame > this.currentScene.getLength()) currentFrame = this.currentScene.getLength();
 
     this.currentFrame = currentFrame;
+    return this;
+  }
+
+  public TimelinePanel setScale(float scale) {
+    if (scale < 1) scale = 1;
+
+    this.scale = scale;
+    return this;
+  }
+
+  public TimelinePanel setOffset(float offset) {
+    if (offset < 0) offset = 0;
+    else if (offset > 1) offset = 1;
+
+    this.offset = offset;
     return this;
   }
 
@@ -107,6 +125,18 @@ public class TimelinePanel extends Panel {
 
   public TimelineStyle getTimelineStyle() {
     return this.timelineStyle;
+  }
+
+  public Vector2f getOffsetPosition() {
+    return new Vector2f(this.getAbsolutePosition()).sub(this.getOffset() * this.getScale() * this.getSize().x, 0);
+  }
+
+  public Vector2f getScaledSize() {
+    return new Vector2f(this.getSize()).mul(this.getScale(), 1);
+  }
+
+  public boolean isDraggingHead() {
+    return this.draggingHead;
   }
 
   static {

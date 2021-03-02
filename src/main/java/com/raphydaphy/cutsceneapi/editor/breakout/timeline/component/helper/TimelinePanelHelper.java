@@ -1,8 +1,11 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.helper;
 
+import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.TimelinePanel;
 import com.raphydaphy.shaded.org.joml.Vector2f;
+import com.raphydaphy.shaded.org.joml.Vector2i;
+import com.sun.jna.platform.win32.Sspi;
 import org.liquidengine.legui.component.Component;
 
 public class TimelinePanelHelper {
@@ -26,15 +29,12 @@ public class TimelinePanelHelper {
     MutableCutscene cutscene = panel.getCurrentScene();
     if (cutscene == null) return 0;
 
-    Vector2f pos = panel.getAbsolutePosition();
+    Vector2f offsetPos = panel.getOffsetPosition();
     float headSize = panel.getTimelineStyle().getHeadSize();
+    int length = cutscene.getLength();
 
-    float min = 0;
-    float max = min + cutscene.getLength();
-    float difference = max - min;
-
-    float percentage = (mousePosition.x - pos.x - headSize / 2f) / (panel.getSize().x - headSize);
-    float value = difference * percentage + min;
+    float percentage = (mousePosition.x - offsetPos.x - headSize / 2f) / (panel.getScaledSize().x - headSize);
+    float value = length * percentage;
 
     if (value < 0) value = 0;
     else if (value > cutscene.getLength()) return cutscene.getLength();
@@ -46,9 +46,20 @@ public class TimelinePanelHelper {
     MutableCutscene cutscene = panel.getCurrentScene();
     if (cutscene == null) return 0;
 
-    Vector2f size = panel.getSize();
+    return panel.getScaledSize().x / cutscene.getLength();
+  }
 
-    float length = size.x * panel.getScale();
-    return length / cutscene.getLength();
+  public static Vector2i getVisibleFrameRange(TimelinePanel panel) {
+    MutableCutscene cutscene = panel.getCurrentScene();
+    if (cutscene == null) return new Vector2i(0, 0);
+
+    float lengthBefore = panel.getAbsolutePosition().x - panel.getOffsetPosition().x;
+    float lengthAfter = panel.getScaledSize().x - panel.getSize().x - lengthBefore;
+    float frameWidth = getFrameWidth(panel);
+
+    int firstFrame = (int)Math.ceil(lengthBefore / frameWidth);
+    int lastFrame = cutscene.getLength() - (int)Math.ceil(lengthAfter / frameWidth);
+
+    return new Vector2i(firstFrame, lastFrame);
   }
 }
