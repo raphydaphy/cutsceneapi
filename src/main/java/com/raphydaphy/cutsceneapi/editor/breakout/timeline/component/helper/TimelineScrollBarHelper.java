@@ -25,6 +25,17 @@ public class TimelineScrollBarHelper {
     return mousePosition.x >= handlePos && mousePosition.x <= handlePos + handleSize;
   }
 
+  public static boolean isMouseOverEitherHandle(TimelineScrollBar component, Vector2f mousePosition) {
+    float[] percents = new float[] {component.getLeftPercent(), component.getRightPercent()};
+
+    for (float percent : percents) {
+      boolean overHandle = TimelineScrollBarHelper.isMouseOverHandle(component, mousePosition, percent);
+      if (overHandle) return true;
+    }
+
+    return false;
+  }
+
   public static float getHoveredPercent(TimelineScrollBar component, Vector2f mousePosition) {
     Vector2f pos = component.getAbsolutePosition();
     float headSize = component.getSize().y;

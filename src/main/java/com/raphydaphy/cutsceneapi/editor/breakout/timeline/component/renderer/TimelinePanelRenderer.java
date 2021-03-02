@@ -29,7 +29,7 @@ public class TimelinePanelRenderer extends NvgDefaultComponentRenderer<TimelineP
 
   @Override
   public void renderSelf(TimelinePanel component, Context context, long nanovg) {
-    createScissor(nanovg, component);
+    createScissorByParent(nanovg, component);
     {
       renderBackground(component, context, nanovg);
 

@@ -6,6 +6,9 @@ import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.renderer.Ti
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.style.TimelineScrollBarStyle;
 import com.raphydaphy.shaded.org.joml.Vector2f;
 import org.liquidengine.legui.component.Component;
+import org.liquidengine.legui.component.Frame;
+import org.liquidengine.legui.cursor.StandardCursor;
+import org.liquidengine.legui.event.CursorEnterEvent;
 import org.liquidengine.legui.event.MouseClickEvent;
 import org.liquidengine.legui.event.MouseDragEvent;
 import org.liquidengine.legui.input.Mouse;
@@ -39,22 +42,26 @@ public class TimelineScrollBar extends Component {
 
     this.getListenerMap().addListener(MouseClickEvent.class, this::handleClick);
     this.getListenerMap().addListener(MouseDragEvent.class, this::handleDrag);
+    this.getListenerMap().addListener(CursorEnterEvent.class, this::onCursorEnter);
   }
 
   private void handleClick(MouseClickEvent event) {
     Vector2f cursorPosition = Mouse.getCursorPosition();
 
-    if (event.getAction() == MouseClickEvent.MouseClickAction.RELEASE) this.currentDrag = null;
-    else if (event.getAction() != MouseClickEvent.MouseClickAction.PRESS) return;
+    if (event.getAction() == MouseClickEvent.MouseClickAction.RELEASE) {
+      this.setCursor(event.getContext(), null);
+      this.currentDrag = null;
+      return;
+    } else if (event.getAction() != MouseClickEvent.MouseClickAction.PRESS) return;
 
     if (TimelineScrollBarHelper.isMouseOverHandle(this, cursorPosition, this.leftPercent)) {
-      this.currentDrag = DragType.LEFT_HANDLE;
+      this.startDragging(event.getContext(), DragType.LEFT_HANDLE);
       return;
     } else if (TimelineScrollBarHelper.isMouseOverHandle(this, cursorPosition, this.rightPercent)) {
-      this.currentDrag = DragType.RIGHT_HANDLE;
+      this.startDragging(event.getContext(), DragType.RIGHT_HANDLE);
       return;
     } else if (TimelineScrollBarHelper.isMouseOverBar(this, cursorPosition)) {
-      this.currentDrag = DragType.BAR;
+      this.startDragging(event.getContext(), DragType.BAR);
       this.leftDragStart = this.getLeftPercent();
       this.exactDragStart = TimelineScrollBarHelper.getHoveredPercent(this, cursorPosition);
       return;
@@ -68,6 +75,11 @@ public class TimelineScrollBar extends Component {
     } else if (cursorPosition.x > rightPos) {
       this.scrollBy(event.getContext(), this.scrubSpeed);
     }
+  }
+
+  private void startDragging(Context context, DragType type) {
+    this.currentDrag = type;
+    this.setCursor(context, type == DragType.BAR ? StandardCursor.HAND : StandardCursor.H_RESIZE);
   }
 
   private void handleDrag(MouseDragEvent event) {
@@ -90,6 +102,30 @@ public class TimelineScrollBar extends Component {
         this.updatePos(event.getContext(), oldLeftPercent, oldRightPercent);
       }
     }
+  }
+
+
+
+  @Override
+  public void update(Context context, Frame frame) {
+    if (this.isDragging() || !this.isHovered()) return;
+    Vector2f mousePosition = Mouse.getCursorPosition();
+
+    if (TimelineScrollBarHelper.isMouseOverEitherHandle(this, mousePosition)) {
+      this.setCursor(context, StandardCursor.H_RESIZE);
+    } else if (TimelineScrollBarHelper.isMouseOverBar(this, mousePosition)) {
+      this.setCursor(context, StandardCursor.HAND);
+    } else this.setCursor(context, null);
+  }
+
+  private void onCursorEnter(CursorEnterEvent event) {
+    if (!event.isEntered() && !this.isDragging()) {
+      this.setCursor(event.getContext(), null);
+    }
+  }
+
+  private boolean isDragging() {
+    return this.currentDrag != null;
   }
 
   public void scrollTo(Context context, float newLeftPercent) {
@@ -129,8 +165,7 @@ public class TimelineScrollBar extends Component {
     }
   }
 
-  // TODO: on change event
-  public TimelineScrollBar setLeftPercent(float leftPercent) {
+  private TimelineScrollBar setLeftPercent(float leftPercent) {
     if (leftPercent < 0) leftPercent = 0;
     else if (leftPercent >= rightPercent - minSize) leftPercent = rightPercent - minSize;
 
@@ -138,8 +173,7 @@ public class TimelineScrollBar extends Component {
     return this;
   }
 
-  // TODO: on change event
-  public TimelineScrollBar setRightPercent(float rightPercent) {
+  private TimelineScrollBar setRightPercent(float rightPercent) {
     if (rightPercent > 1) rightPercent = 1;
     else if (rightPercent <= leftPercent + minSize) rightPercent = leftPercent + minSize;
 
