@@ -3,7 +3,11 @@ package com.raphydaphy.cutsceneapi.editor;
 
 import com.raphydaphy.breakoutapi.BreakoutAPI;
 import com.raphydaphy.breakoutapi.BreakoutAPIClient;
+import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
+import com.raphydaphy.cutsceneapi.cutscene.track.MutableCutsceneTrack;
+import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.TransformKeyframe;
+import com.raphydaphy.cutsceneapi.cutscene.track.property.TransformProperty;
 import com.raphydaphy.cutsceneapi.editor.breakout.properties.PropertiesBreakout;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.TimelineBreakout;
 import com.raphydaphy.cutsceneapi.editor.input.MouseTracker;
@@ -80,10 +84,39 @@ public class CutsceneEditor {
 
   public void startFrame() {
     if (this.currentScene == null) return;
+    this.currentScene.update();
 
-    if (this.currentScene.isPlaying()) {
-      this.currentScene.update();
+    int currentFrame = this.currentScene.getCurrentFrame();
+    if (currentFrame != this.currentScene.getPreviousFrame()) {
+      this.onFrameChanged(currentFrame);
     }
+
+    this.currentScene.updateDelta();
+  }
+
+  private void onFrameChanged(int currentFrame) {
+    CutsceneAPI.LOGGER.info("Frame changed from " + this.currentScene.getPreviousFrame() + " to " + currentFrame);
+
+    MutableCutsceneTrack<TransformKeyframe> cameraTrack = this.currentScene.getCameraTrack();
+
+    TransformKeyframe prevKeyframe = cameraTrack.getPrevKeyframe(currentFrame);
+    if (prevKeyframe == null) return;
+
+    TransformKeyframe nextKeyframe = cameraTrack.getNextKeyframe(currentFrame);
+    if (nextKeyframe == null) {
+      this.camera.setTransform(prevKeyframe.getProperty());
+      return;
+    }
+
+
+    int diff = nextKeyframe.getFrame() - prevKeyframe.getFrame();
+    int progress = currentFrame - prevKeyframe.getFrame();
+    float delta = (float)progress / diff;
+
+    CutsceneAPI.LOGGER.info("Previous pos: " + prevKeyframe.getProperty().getPos() + " Next pos: " + nextKeyframe.getProperty().getPos() + " delta " + delta);
+
+    TransformProperty interp = prevKeyframe.interpolate(nextKeyframe, delta);
+    this.camera.setTransform(interp);
   }
 
   public MouseTracker getMouseTracker() {

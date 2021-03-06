@@ -1,13 +1,11 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.timeline.component;
 
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
-import com.raphydaphy.cutsceneapi.cutscene.clip.MutableCutsceneClip;
 import com.raphydaphy.cutsceneapi.cutscene.track.MutableCutsceneTrack;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.TimelineGUI;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.event.TimelineHeadMovedEvent;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.helper.TimelineViewHelper;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.renderer.TimelineViewRenderer;
-import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.style.TimelineStyle;
 import com.raphydaphy.shaded.org.joml.Vector2f;
 import com.raphydaphy.shaded.org.joml.Vector4f;
 import org.liquidengine.legui.event.MouseClickEvent;
@@ -71,19 +69,6 @@ public class TimelineView extends TimelineComponent {
 
       if (event.getAction() == MouseClickEvent.MouseClickAction.PRESS) {
         this.draggingHead = true;
-      }
-    } else {
-      List<MutableCutsceneTrack> tracks = cutscene.getTracks();
-      for (MutableCutsceneTrack track : tracks) {
-        List<MutableCutsceneClip> clips = track.getClips();
-        for (MutableCutsceneClip clip : clips) {
-          Vector4f clipArea = TimelineViewHelper.getClipArea(this, clip);
-          if (TimelineViewHelper.isMouseOverArea(clipArea, cursorPosition)) {
-            clip.setSelected(true);
-          } else {
-            clip.setSelected(false);
-          }
-        }
       }
     }
   }

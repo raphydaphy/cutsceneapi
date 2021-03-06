@@ -1,18 +1,21 @@
 package com.raphydaphy.cutsceneapi.cutscene;
 
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
-import com.raphydaphy.cutsceneapi.cutscene.clip.CutsceneClip;
-import com.raphydaphy.cutsceneapi.cutscene.clip.MutableCutsceneClip;
 import com.raphydaphy.cutsceneapi.cutscene.track.CutsceneTrack;
 import com.raphydaphy.cutsceneapi.cutscene.track.MutableCutsceneTrack;
+import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.TransformKeyframe;
 import net.minecraft.client.MinecraftClient;
 
+import javax.xml.crypto.dsig.Transform;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MutableCutscene implements Cutscene {
   private List<MutableCutsceneTrack> tracks;
-  private int framerate, length, currentFrame;
+  private MutableCutsceneTrack<TransformKeyframe> cameraTrack;
+
+  private int framerate, length;
+  private int currentFrame, previousFrame;
   private boolean playing;
 
   public MutableCutscene() {
@@ -20,14 +23,12 @@ public class MutableCutscene implements Cutscene {
   }
 
   public MutableCutscene(int framerate, int length) {
-    this.setFramerate(framerate).setLength(length);
-
     this.tracks = new ArrayList<>();
 
-    MutableCutsceneTrack cameraTrack = new MutableCutsceneTrack("Camera");
-    cameraTrack.addClip(new MutableCutsceneClip("Pan", 0, 45));
-    cameraTrack.addClip(new MutableCutsceneClip("Wide", 50, 30));
-    this.addTrack(cameraTrack);
+    this.cameraTrack = new MutableCutsceneTrack<>("Camera", length);
+    this.addTrack(this.cameraTrack);
+
+    this.setFramerate(framerate).setLength(length);
   }
 
   @Override
@@ -39,6 +40,16 @@ public class MutableCutscene implements Cutscene {
         this.setPlaying(false);
       }
     }
+  }
+
+  @Override
+  public void updateDelta() {
+    this.previousFrame = this.currentFrame;
+  }
+
+  @Override
+  public MutableCutsceneTrack<TransformKeyframe> getCameraTrack() {
+    return this.cameraTrack;
   }
 
   public void addTrack(MutableCutsceneTrack track) {
@@ -74,6 +85,9 @@ public class MutableCutscene implements Cutscene {
   public MutableCutscene setLength(int length) {
     CutsceneAPI.LOGGER.info("Set cutscene length to " + length + " frames");
     this.length = length;
+    for (MutableCutsceneTrack track : this.tracks) {
+      track.setLength(length);
+    }
     return this;
   }
 
@@ -106,6 +120,11 @@ public class MutableCutscene implements Cutscene {
   @Override
   public int getCurrentFrame() {
     return this.currentFrame;
+  }
+
+  @Override
+  public int getPreviousFrame() {
+    return this.previousFrame;
   }
 
   @Override

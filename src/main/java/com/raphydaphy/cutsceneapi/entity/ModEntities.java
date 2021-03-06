@@ -1,6 +1,7 @@
 package com.raphydaphy.cutsceneapi.entity;
 
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
+import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -20,5 +21,11 @@ public class ModEntities {
         (t, w) -> new CutsceneCameraEntity(w)
       ).dimensions(new EntityDimensions(1, 1, true)).build()
     );
+  }
+
+  public static void registerRenderers() {
+    EntityRendererRegistry.INSTANCE.register(CUTSCENE_CAMERA_ENTITY, (dispatcher, context) -> {
+      return null;
+    });
   }
 }

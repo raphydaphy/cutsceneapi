@@ -13,11 +13,14 @@ import com.raphydaphy.shaded.org.joml.Vector2f;
 import com.raphydaphy.shaded.org.joml.Vector2i;
 import org.liquidengine.legui.component.*;
 import org.liquidengine.legui.component.optional.Orientation;
+import org.liquidengine.legui.component.optional.align.HorizontalAlign;
+import org.liquidengine.legui.component.optional.align.VerticalAlign;
 import org.liquidengine.legui.event.Event;
 import org.liquidengine.legui.event.MouseClickEvent;
 import org.liquidengine.legui.event.WindowSizeEvent;
 import org.liquidengine.legui.input.Mouse;
 import org.liquidengine.legui.style.color.ColorConstants;
+import org.liquidengine.legui.style.font.FontRegistry;
 import org.liquidengine.legui.system.context.Context;
 
 import static org.liquidengine.legui.style.Style.*;
@@ -49,7 +52,9 @@ public class TimelineGUI extends Panel {
       this.splitPanel.setRatio(25f);
       this.splitPanel.getStyle().setHeights(initialSplitPanelHeight).enableFlexGrow(FlexDirection.ROW);
 
-      this.splitPanel.getTopLeft().getStyle().setDisplay(DisplayType.FLEX).getFlexStyle().setFlexDirection(FlexDirection.COLUMN);
+      this.splitPanel.getTopLeft().getStyle().setDisplay(DisplayType.FLEX).getBackground().setColor(0.95f, 0.95f, 0.95f, 1);
+      this.splitPanel.getTopLeft().getFlexStyle().setFlexDirection(FlexDirection.COLUMN);
+
       this.splitPanel.getBottomRight().getStyle().setDisplay(DisplayType.FLEX);
 
       this.timelineControls = new TimelineControls(this);
@@ -57,10 +62,32 @@ public class TimelineGUI extends Panel {
         this.timelineControls.getStyle().enableFlexGrow(FlexDirection.ROW);
         this.splitPanel.getTopLeft().add(this.timelineControls);
 
-        FlexPanel divider = new FlexPanel();
-        divider.getStyle().enableFlexGrow(FlexDirection.ROW).setHeights(timelineStyle.getBaselineSize());
-        divider.getStyle().getBackground().setColor(timelineStyle.getBaselineColor());
-        this.splitPanel.getTopLeft().add(divider);
+        {
+          FlexPanel divider = new FlexPanel();
+          divider.getStyle().enableFlexGrow(FlexDirection.ROW).setHeights(timelineStyle.getBaselineSize());
+          divider.getStyle().getBackground().setColor(timelineStyle.getBaselineColor());
+          this.splitPanel.getTopLeft().add(divider);
+        }
+
+        // TODO: proper track list
+        FlexPanel cameraTrack = new FlexPanel();
+        cameraTrack.getStyle().enableFlexGrow(FlexDirection.ROW).setHeights(timelineStyle.getTrackHeight());
+        cameraTrack.getStyle().getBackground().setColor(1, 1, 1, 0);
+
+        Label cameraTrackName = new Label("Camera");
+        cameraTrackName.getStyle().enableFlexGrow(FlexDirection.ROW).setHeights(timelineStyle.getTrackHeight());
+        cameraTrackName.getStyle().setVerticalAlign(VerticalAlign.MIDDLE).setPadding(0, 10);
+        cameraTrackName.getStyle().setFont(FontRegistry.ROBOTO_BOLD).setFontSize(18f);
+
+        cameraTrack.add(cameraTrackName);
+        this.splitPanel.getTopLeft().add(cameraTrack);
+
+        {
+          FlexPanel divider = new FlexPanel();
+          divider.getStyle().enableFlexGrow(FlexDirection.ROW).setHeights(timelineStyle.getTrackSeparatorSize());
+          divider.getStyle().getBackground().setColor(timelineStyle.getTrackSeparatorColor());
+          this.splitPanel.getTopLeft().add(divider);
+        }
       }
 
       this.timelineView = new TimelineView(this);

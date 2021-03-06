@@ -22,7 +22,8 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	//modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:0.31.0+1.16"
 	modCompile "com.github.raphydaphy:breakoutapi:${project.breakoutapi_version}"
 
 	implementation "org.lwjgl:lwjgl-nanovg:${project.lwjgl_version}"

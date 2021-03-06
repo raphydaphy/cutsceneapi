@@ -10,6 +10,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.liquidengine.legui.component.*;
 import org.liquidengine.legui.component.optional.align.HorizontalAlign;
+import org.liquidengine.legui.component.optional.align.VerticalAlign;
 import org.liquidengine.legui.event.WindowSizeEvent;
 import org.liquidengine.legui.style.font.FontRegistry;
 import org.liquidengine.legui.system.context.Context;
@@ -31,6 +32,8 @@ public class PropertiesGUI extends Panel {
 
   public final MultiNumericInlineProp positionInput;
   public final MultiNumericInlineProp rotationInput;
+
+  public final Button cameraKeyframeButton;
 
   public PropertiesGUI(Context context, int height) {
     super(0, 0, 400, height);
@@ -107,13 +110,18 @@ public class PropertiesGUI extends Panel {
       this.widgetList.addWidget(cutsceneProps);
     }
 
-    FixedWidget camera = new FixedWidget("Camera", 90);
+    FixedWidget camera = new FixedWidget("Camera", 130);
     {
       camera.setCloseable(false);
 
       this.positionInput = new MultiNumericInlineProp("Position", 60,"X", "Y", "Z");
       this.rotationInput = new MultiNumericInlineProp("Rotation",80,"Pitch", "Yaw");
       camera.getContainer().add(this.positionInput).add(this.rotationInput);
+
+      this.cameraKeyframeButton = new Button("Add/Update Keyframe");
+      this.cameraKeyframeButton.getStyle().enableFlexGrow(FlexDirection.ROW).setHeights(30).setMargin(5, 5);
+      this.cameraKeyframeButton.getStyle().setHorizontalAlign(HorizontalAlign.CENTER).setVerticalAlign(VerticalAlign.MIDDLE);
+      camera.getContainer().add(this.cameraKeyframeButton);
 
       this.widgetList.addWidget(camera);
     }

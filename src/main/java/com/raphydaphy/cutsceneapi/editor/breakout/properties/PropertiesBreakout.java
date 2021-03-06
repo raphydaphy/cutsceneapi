@@ -4,9 +4,14 @@ import com.raphydaphy.breakoutapi.BreakoutAPI;
 import com.raphydaphy.breakoutapi.breakout.window.BreakoutWindow;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
+import com.raphydaphy.cutsceneapi.cutscene.track.MutableCutsceneTrack;
+import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.TransformKeyframe;
+import com.raphydaphy.cutsceneapi.cutscene.track.property.TransformProperty;
 import com.raphydaphy.cutsceneapi.editor.CutsceneEditor;
 import com.raphydaphy.cutsceneapi.editor.breakout.EditorBreakout;
 import com.raphydaphy.cutsceneapi.entity.CutsceneCameraEntity;
+import com.raphydaphy.shaded.org.joml.Vector2f;
+import com.raphydaphy.shaded.org.joml.Vector3d;
 import net.minecraft.util.Identifier;
 import org.liquidengine.legui.event.FocusEvent;
 import org.liquidengine.legui.event.MouseClickEvent;
@@ -58,49 +63,6 @@ public class PropertiesBreakout extends EditorBreakout {
       }
     });
 
-    gui.positionInput.getField(0).addTextInputContentChangeEventListener((event) -> {
-      try {
-        double value = Double.parseDouble(event.getNewValue());
-        this.editor.getCamera().setPos(value, camera.getY(), camera.getZ());
-      } catch (NumberFormatException e) {
-        BreakoutAPI.LOGGER.warn("Invalid property input:" + event.getNewValue());
-      }
-    });
-
-    gui.positionInput.getField(1).addTextInputContentChangeEventListener((event) -> {
-      try {
-        double value = Double.parseDouble(event.getNewValue());
-        camera.setPos(camera.getX(), value, camera.getZ());
-      } catch (NumberFormatException e) {
-        BreakoutAPI.LOGGER.warn("Invalid property input:" + event.getNewValue());
-      }
-    });
-
-    gui.positionInput.getField(2).addTextInputContentChangeEventListener((event) -> {
-      try {
-        double value = Double.parseDouble(event.getNewValue());
-        camera.setPos(camera.getX(), camera.getY(), value);
-      } catch (NumberFormatException e) {
-        BreakoutAPI.LOGGER.warn("Invalid property input:" + event.getNewValue());
-      }
-    });
-
-    gui.rotationInput.getField(0).addTextInputContentChangeEventListener((event) -> {
-      try {
-        camera.pitch = Float.parseFloat(event.getNewValue());
-      } catch (NumberFormatException e) {
-        BreakoutAPI.LOGGER.warn("Invalid property input:" + event.getNewValue());
-      }
-    });
-
-    gui.rotationInput.getField(1).addTextInputContentChangeEventListener((event) -> {
-      try {
-        camera.yaw = Float.parseFloat(event.getNewValue());
-      } catch (NumberFormatException e) {
-        BreakoutAPI.LOGGER.warn("Invalid property input:" + event.getNewValue());
-      }
-    });
-
     gui.framerateInput.getInput().getListenerMap().addListener(FocusEvent.class, (event) -> {
       if (event.isFocused()) return;
       MutableCutscene cutscene = this.editor.getCurrentScene();
@@ -144,6 +106,69 @@ public class PropertiesBreakout extends EditorBreakout {
 
       if (rollback) {
         gui.lengthInput.getInput().getTextState().setText(Integer.toString(cutscene.getLength()));
+      }
+    });
+
+    gui.positionInput.getField(0).addTextInputContentChangeEventListener((event) -> {
+      try {
+        double value = Double.parseDouble(event.getNewValue());
+        this.editor.getCamera().setPos(value, camera.getY(), camera.getZ());
+      } catch (NumberFormatException e) {
+        BreakoutAPI.LOGGER.warn("Invalid property input:" + event.getNewValue());
+      }
+    });
+
+    gui.positionInput.getField(1).addTextInputContentChangeEventListener((event) -> {
+      try {
+        double value = Double.parseDouble(event.getNewValue());
+        camera.setPos(camera.getX(), value, camera.getZ());
+      } catch (NumberFormatException e) {
+        BreakoutAPI.LOGGER.warn("Invalid property input:" + event.getNewValue());
+      }
+    });
+
+    gui.positionInput.getField(2).addTextInputContentChangeEventListener((event) -> {
+      try {
+        double value = Double.parseDouble(event.getNewValue());
+        camera.setPos(camera.getX(), camera.getY(), value);
+      } catch (NumberFormatException e) {
+        BreakoutAPI.LOGGER.warn("Invalid property input:" + event.getNewValue());
+      }
+    });
+
+    gui.rotationInput.getField(0).addTextInputContentChangeEventListener((event) -> {
+      try {
+        camera.pitch = Float.parseFloat(event.getNewValue());
+      } catch (NumberFormatException e) {
+        BreakoutAPI.LOGGER.warn("Invalid property input:" + event.getNewValue());
+      }
+    });
+
+    gui.rotationInput.getField(1).addTextInputContentChangeEventListener((event) -> {
+      try {
+        camera.yaw = Float.parseFloat(event.getNewValue());
+      } catch (NumberFormatException e) {
+        BreakoutAPI.LOGGER.warn("Invalid property input:" + event.getNewValue());
+      }
+    });
+
+    gui.cameraKeyframeButton.getListenerMap().addListener(MouseClickEvent.class, (e) -> {
+      if (e.getAction() != MouseClickEvent.MouseClickAction.CLICK) return;
+
+      MutableCutscene cutscene = this.editor.getCurrentScene();
+      if (cutscene == null) return;
+
+      MutableCutsceneTrack<TransformKeyframe> cameraTrack = cutscene.getCameraTrack();
+      int frame = cutscene.getCurrentFrame();
+
+      Vector3d keyframePos = new Vector3d(camera.getX(), camera.getY(), camera.getZ());
+      Vector2f keyframeRot = new Vector2f(camera.pitch, camera.yaw);
+
+      TransformKeyframe existingKeyframe = cameraTrack.getKeyframe(frame);
+      if (existingKeyframe != null) {
+        existingKeyframe.getProperty().setPos(keyframePos).setRot(keyframeRot);
+      } else {
+        cameraTrack.setKeyframe(frame, new TransformKeyframe(frame, new TransformProperty(keyframePos, keyframeRot)));
       }
     });
   }

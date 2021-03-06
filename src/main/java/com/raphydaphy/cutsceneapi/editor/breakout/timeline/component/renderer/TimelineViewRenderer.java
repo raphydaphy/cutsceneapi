@@ -1,9 +1,8 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.renderer;
 
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
-import com.raphydaphy.cutsceneapi.cutscene.clip.CutsceneClip;
-import com.raphydaphy.cutsceneapi.cutscene.clip.MutableCutsceneClip;
 import com.raphydaphy.cutsceneapi.cutscene.track.MutableCutsceneTrack;
+import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.Keyframe;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.TimelineView;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.helper.TimelineViewHelper;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.style.TimelineStyle;
@@ -22,6 +21,8 @@ import org.liquidengine.legui.system.renderer.nvg.util.NvgShapes;
 import org.liquidengine.legui.system.renderer.nvg.util.NvgText;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.liquidengine.legui.style.util.StyleUtilities.getStyle;
 import static org.liquidengine.legui.system.renderer.nvg.util.NvgRenderUtils.*;
@@ -145,28 +146,16 @@ public class TimelineViewRenderer extends NvgDefaultComponentRenderer<TimelineVi
     float trackY = pos.y + timelineStyle.getTopHeight() + timelineStyle.getBaselineSize();
     float frameWidth = TimelineViewHelper.getFrameWidth(component);
 
+    Vector2f keyframeSize = timelineStyle.getKeyframeSize();
+
     for (MutableCutsceneTrack track : tracks) {
+      Set<Integer> keyframes = track.getKeyframes().keySet();
+      float keyframeY = trackY + timelineStyle.getTrackHeight() / 2 - keyframeSize.y / 2;
+      for (int keyframe : keyframes) {
+        Vector2f keyframePos = new Vector2f(pos.x + keyframe * frameWidth - keyframeSize.x / 2, keyframeY);
 
-      List<MutableCutsceneClip> clips = track.getClips();
-      for (MutableCutsceneClip clip : clips) {
-        Vector4f trackRect = new Vector4f(
-          pos.x + clip.getStartTime() * frameWidth, trackY,
-          clip.getLength() * frameWidth, timelineStyle.getTrackHeight()
-        );
-
-        NvgShapes.drawRect(nanovg, trackRect, timelineStyle.getClipBackgroundColor(), 0);
-        NvgShapes.drawRectStroke(
-          nanovg, trackRect,
-          clip.isSelected() ? timelineStyle.getSelectedClipOutlineColor() : timelineStyle.getClipOutlineColor(),
-          clip.isSelected() ? timelineStyle.getSelectedClipOutlineWidth() : timelineStyle.getClipOutlineWidth()
-        );
-
-        NvgText.drawTextLineToRect(
-          nanovg, trackRect,
-          false, HorizontalAlign.CENTER, VerticalAlign.MIDDLE,
-          timelineStyle.getClipLabelFontSize(), style.getFont(), clip.getName(),
-          timelineStyle.getClipLabelColor(), TextDirection.HORIZONTAL
-        );
+        NvgShapes.drawRect(nanovg, keyframePos, keyframeSize, timelineStyle.getClipBackgroundColor(), 100);
+        NvgShapes.drawRectStroke(nanovg, keyframePos, keyframeSize, timelineStyle.getKeyframeColor(), 1f, 100);
       }
 
       trackY += timelineStyle.getTrackHeight();

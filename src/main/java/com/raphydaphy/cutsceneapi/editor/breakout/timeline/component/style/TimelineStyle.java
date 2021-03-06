@@ -23,6 +23,9 @@ public class TimelineStyle {
   private float trackSeparatorSize = 1;
   private Vector4f trackSeparatorColor = new Vector4f(markerColor);
 
+  private Vector2f keyframeSize = new Vector2f(12, 12);
+  private Vector4f keyframeColor = ColorUtil.fromInt(127, 194, 126, 1);
+
   private Vector4f clipBackgroundColor = ColorUtil.fromInt(209, 125, 201, 1f);
   private Vector4f clipLabelColor = new Vector4f(markerLabelColor);
   private float clipLabelFontSize = 20f;
@@ -139,6 +142,24 @@ public class TimelineStyle {
 
   public TimelineStyle setTrackSeparatorColor(Vector4f trackSeparatorColor) {
     this.trackSeparatorColor = trackSeparatorColor;
+    return this;
+  }
+
+  public Vector2f getKeyframeSize() {
+    return this.keyframeSize;
+  }
+
+  public TimelineStyle setKeyframeSize(Vector2f keyframeSize) {
+    this.keyframeSize = keyframeSize;
+    return this;
+  }
+
+  public Vector4f getKeyframeColor() {
+    return this.keyframeColor;
+  }
+
+  public TimelineStyle setKeyframeColor(Vector4f keyframeColor) {
+    this.keyframeColor = keyframeColor;
     return this;
   }
 

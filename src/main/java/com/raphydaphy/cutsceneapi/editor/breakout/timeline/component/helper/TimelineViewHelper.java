@@ -1,17 +1,13 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.helper;
 
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
-import com.raphydaphy.cutsceneapi.cutscene.clip.CutsceneClip;
-import com.raphydaphy.cutsceneapi.cutscene.track.CutsceneTrack;
+import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.Keyframe;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.TimelineView;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.component.style.TimelineStyle;
 import com.raphydaphy.shaded.org.joml.Vector2f;
 import com.raphydaphy.shaded.org.joml.Vector2i;
 import com.raphydaphy.shaded.org.joml.Vector4f;
-import com.raphydaphy.shaded.org.joml.Vector4i;
 import org.liquidengine.legui.component.Component;
-
-import java.util.List;
 
 public class TimelineViewHelper {
 
@@ -82,21 +78,5 @@ public class TimelineViewHelper {
     int hours = minutes / 60;
 
     return String.format("%02d:%02d:%02d:%02d", hours, minutes, seconds, frames);
-  }
-
-  public static Vector4f getClipArea(TimelineView component, CutsceneClip clip) {
-    MutableCutscene cutscene = component.getTimeline().getCurrentScene();
-    if (cutscene == null) return new Vector4f(0, 0, 0, 0);
-
-    TimelineStyle style = component.getTimeline().getTimelineStyle();
-    Vector2f pos = component.getOffsetPosition();
-
-    float trackY = pos.y + style.getTopHeight() + style.getBaselineSize();
-    float frameWidth = getFrameWidth(component);
-
-    return new Vector4f(
-      pos.x + clip.getStartTime() * frameWidth, trackY,
-      clip.getLength() * frameWidth, style.getTrackHeight()
-    );
   }
 }
