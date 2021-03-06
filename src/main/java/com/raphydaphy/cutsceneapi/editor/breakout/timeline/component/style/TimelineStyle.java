@@ -25,6 +25,7 @@ public class TimelineStyle {
 
   private Vector2f keyframeSize = new Vector2f(12, 12);
   private Vector4f keyframeColor = ColorUtil.fromInt(127, 194, 126, 1);
+  private Vector4f hoveredKeyframeColor = ColorUtil.fromInt(95, 217, 93, 1);
 
   private Vector4f clipBackgroundColor = ColorUtil.fromInt(209, 125, 201, 1f);
   private Vector4f clipLabelColor = new Vector4f(markerLabelColor);
@@ -160,6 +161,15 @@ public class TimelineStyle {
 
   public TimelineStyle setKeyframeColor(Vector4f keyframeColor) {
     this.keyframeColor = keyframeColor;
+    return this;
+  }
+
+  public Vector4f getHoveredKeyframeColor() {
+    return this.hoveredKeyframeColor;
+  }
+
+  public TimelineStyle setHoveredKeyframeColor(Vector4f hoveredKeyframeColor) {
+    this.hoveredKeyframeColor = hoveredKeyframeColor;
     return this;
   }
 

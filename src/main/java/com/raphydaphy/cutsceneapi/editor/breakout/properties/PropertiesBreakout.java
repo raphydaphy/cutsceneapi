@@ -5,6 +5,7 @@ import com.raphydaphy.breakoutapi.breakout.window.BreakoutWindow;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
 import com.raphydaphy.cutsceneapi.cutscene.track.MutableCutsceneTrack;
+import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.MutableTransformKeyframe;
 import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.TransformKeyframe;
 import com.raphydaphy.cutsceneapi.cutscene.track.property.TransformProperty;
 import com.raphydaphy.cutsceneapi.editor.CutsceneEditor;
@@ -158,17 +159,17 @@ public class PropertiesBreakout extends EditorBreakout {
       MutableCutscene cutscene = this.editor.getCurrentScene();
       if (cutscene == null) return;
 
-      MutableCutsceneTrack<TransformKeyframe> cameraTrack = cutscene.getCameraTrack();
+      MutableCutsceneTrack<MutableTransformKeyframe> cameraTrack = cutscene.getCameraTrack();
       int frame = cutscene.getCurrentFrame();
 
       Vector3d keyframePos = new Vector3d(camera.getX(), camera.getY(), camera.getZ());
       Vector2f keyframeRot = new Vector2f(camera.pitch, camera.yaw);
 
-      TransformKeyframe existingKeyframe = cameraTrack.getKeyframe(frame);
+      MutableTransformKeyframe existingKeyframe = cameraTrack.getKeyframe(frame);
       if (existingKeyframe != null) {
         existingKeyframe.getProperty().setPos(keyframePos).setRot(keyframeRot);
       } else {
-        cameraTrack.setKeyframe(frame, new TransformKeyframe(frame, new TransformProperty(keyframePos, keyframeRot)));
+        cameraTrack.setKeyframe(frame, new MutableTransformKeyframe(cameraTrack, frame, new TransformProperty(keyframePos, keyframeRot)));
       }
     });
   }

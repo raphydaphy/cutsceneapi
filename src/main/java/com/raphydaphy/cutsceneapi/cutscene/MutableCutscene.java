@@ -3,6 +3,8 @@ package com.raphydaphy.cutsceneapi.cutscene;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.track.CutsceneTrack;
 import com.raphydaphy.cutsceneapi.cutscene.track.MutableCutsceneTrack;
+import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.Keyframe;
+import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.MutableTransformKeyframe;
 import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.TransformKeyframe;
 import net.minecraft.client.MinecraftClient;
 
@@ -12,7 +14,7 @@ import java.util.List;
 
 public class MutableCutscene implements Cutscene {
   private List<MutableCutsceneTrack> tracks;
-  private MutableCutsceneTrack<TransformKeyframe> cameraTrack;
+  private MutableCutsceneTrack<MutableTransformKeyframe> cameraTrack;
 
   private int framerate, length;
   private int currentFrame, previousFrame;
@@ -48,7 +50,7 @@ public class MutableCutscene implements Cutscene {
   }
 
   @Override
-  public MutableCutsceneTrack<TransformKeyframe> getCameraTrack() {
+  public MutableCutsceneTrack<MutableTransformKeyframe> getCameraTrack() {
     return this.cameraTrack;
   }
 

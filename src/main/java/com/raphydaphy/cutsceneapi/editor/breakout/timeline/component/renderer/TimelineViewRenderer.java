@@ -135,7 +135,6 @@ public class TimelineViewRenderer extends NvgDefaultComponentRenderer<TimelineVi
   }
 
   private void renderTracks(TimelineView component, long nanovg, MutableCutscene cutscene) {
-    Style style = component.getStyle();
     TimelineStyle timelineStyle = component.getTimeline().getTimelineStyle();
 
     List<MutableCutsceneTrack> tracks = cutscene.getTracks();
@@ -147,6 +146,9 @@ public class TimelineViewRenderer extends NvgDefaultComponentRenderer<TimelineVi
     float frameWidth = TimelineViewHelper.getFrameWidth(component);
 
     Vector2f keyframeSize = timelineStyle.getKeyframeSize();
+    Vector2f mousePosition = Mouse.getCursorPosition();
+
+    boolean mouseOver = TimelineViewHelper.isMouseOverComponent(component, mousePosition);
 
     for (MutableCutsceneTrack track : tracks) {
       Set<Integer> keyframes = track.getKeyframes().keySet();
@@ -154,8 +156,13 @@ public class TimelineViewRenderer extends NvgDefaultComponentRenderer<TimelineVi
       for (int keyframe : keyframes) {
         Vector2f keyframePos = new Vector2f(pos.x + keyframe * frameWidth - keyframeSize.x / 2, keyframeY);
 
-        NvgShapes.drawRect(nanovg, keyframePos, keyframeSize, timelineStyle.getClipBackgroundColor(), 100);
-        NvgShapes.drawRectStroke(nanovg, keyframePos, keyframeSize, timelineStyle.getKeyframeColor(), 1f, 100);
+        boolean hovered = false;
+        if (mouseOver && TimelineViewHelper.isMouseOverArea(keyframePos, keyframeSize, mousePosition)) hovered = true;
+
+        boolean selected = component.isKeyframeSelected(track.getKeyframe(keyframe));
+
+        NvgShapes.drawRect(nanovg, keyframePos, keyframeSize, hovered ? timelineStyle.getHoveredKeyframeColor() : timelineStyle.getKeyframeColor(), 100);
+        NvgShapes.drawRectStroke(nanovg, keyframePos, keyframeSize, selected ? timelineStyle.getBaselineColor() : timelineStyle.getTrackSeparatorColor(), selected ? 2f : 1f, 100);
       }
 
       trackY += timelineStyle.getTrackHeight();

@@ -1,12 +1,12 @@
 package com.raphydaphy.cutsceneapi.cutscene.track;
 
-import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.Keyframe;
+import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.MutableKeyframe;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class MutableCutsceneTrack<T extends Keyframe> implements CutsceneTrack {
+public class MutableCutsceneTrack<T extends MutableKeyframe> implements CutsceneTrack {
   private String name;
   private int length;
   private Map<Integer, T> keyframes = new ConcurrentHashMap<>();
@@ -64,5 +64,18 @@ public class MutableCutsceneTrack<T extends Keyframe> implements CutsceneTrack {
 
   public void setKeyframe(int frame, T keyframe) {
     this.keyframes.put(frame, keyframe);
+  }
+
+  public void deleteKeyframe(T keyframe) {
+    this.keyframes.remove(keyframe.getFrame());
+  }
+
+  public void moveKeyframe(T keyframe, int newFrame) {
+    if (newFrame < 0) newFrame = 0;
+    else if (newFrame > this.getLength()) newFrame = this.getLength();
+
+    this.deleteKeyframe(keyframe);
+    keyframe.setFrame(newFrame);
+    this.setKeyframe(newFrame, keyframe);
   }
 }

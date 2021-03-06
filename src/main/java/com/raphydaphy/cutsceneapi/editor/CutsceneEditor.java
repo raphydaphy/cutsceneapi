@@ -6,6 +6,7 @@ import com.raphydaphy.breakoutapi.BreakoutAPIClient;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
 import com.raphydaphy.cutsceneapi.cutscene.track.MutableCutsceneTrack;
+import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.MutableTransformKeyframe;
 import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.TransformKeyframe;
 import com.raphydaphy.cutsceneapi.cutscene.track.property.TransformProperty;
 import com.raphydaphy.cutsceneapi.editor.breakout.properties.PropertiesBreakout;
@@ -95,25 +96,20 @@ public class CutsceneEditor {
   }
 
   private void onFrameChanged(int currentFrame) {
-    CutsceneAPI.LOGGER.info("Frame changed from " + this.currentScene.getPreviousFrame() + " to " + currentFrame);
+    MutableCutsceneTrack<MutableTransformKeyframe> cameraTrack = this.currentScene.getCameraTrack();
 
-    MutableCutsceneTrack<TransformKeyframe> cameraTrack = this.currentScene.getCameraTrack();
-
-    TransformKeyframe prevKeyframe = cameraTrack.getPrevKeyframe(currentFrame);
+    MutableTransformKeyframe prevKeyframe = cameraTrack.getPrevKeyframe(currentFrame);
     if (prevKeyframe == null) return;
 
-    TransformKeyframe nextKeyframe = cameraTrack.getNextKeyframe(currentFrame);
+    MutableTransformKeyframe nextKeyframe = cameraTrack.getNextKeyframe(currentFrame);
     if (nextKeyframe == null) {
       this.camera.setTransform(prevKeyframe.getProperty());
       return;
     }
 
-
     int diff = nextKeyframe.getFrame() - prevKeyframe.getFrame();
     int progress = currentFrame - prevKeyframe.getFrame();
     float delta = (float)progress / diff;
-
-    CutsceneAPI.LOGGER.info("Previous pos: " + prevKeyframe.getProperty().getPos() + " Next pos: " + nextKeyframe.getProperty().getPos() + " delta " + delta);
 
     TransformProperty interp = prevKeyframe.interpolate(nextKeyframe, delta);
     this.camera.setTransform(interp);

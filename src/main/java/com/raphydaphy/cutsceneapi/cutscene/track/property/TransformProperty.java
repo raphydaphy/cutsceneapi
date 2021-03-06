@@ -51,4 +51,11 @@ public class TransformProperty implements Property {
     this.rot = rot;
     return this;
   }
+
+  public TransformProperty interpolate(TransformProperty other, float delta) {
+    return new TransformProperty(
+      new Vector3d(this.getPos()).lerp(other.getPos(), delta),
+      new Vector2f(this.getRot()).lerp(other.getRot(), delta)
+    );
+  }
 }
