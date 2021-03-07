@@ -66,8 +66,28 @@ public class CutsceneEditor {
     }).start();
   }
 
+  // movementInput = (left, up, forward)
+  private static Vec3d movementInputToVelocity(Vec3d movementInput, float speed, float yaw) {
+    double d = movementInput.lengthSquared();
+    if (d < 1.0E-7D) {
+      return Vec3d.ZERO;
+    } else {
+      Vec3d vec3d = (d > 1.0D ? movementInput.normalize() : movementInput).multiply(speed);
+      float f = MathHelper.sin(yaw * 0.017453292F);
+      float g = MathHelper.cos(yaw * 0.017453292F);
+      return new Vec3d(vec3d.x * (double)g - vec3d.z * (double)f, vec3d.y, vec3d.z * (double)g + vec3d.x * (double)f);
+    }
+  }
+
   public void update() {
     float orbitSpeed = 0.2f;
+    if (this.mouseTracker.isLeftButtonDown()) {
+      Vec3d movement = new Vec3d(this.mouseTracker.getCursorDeltaX() * 1000, this.mouseTracker.getCursorDeltaY() * 1000, 0);
+      Vec3d velocity = movementInputToVelocity(movement, 1f, this.camera.yaw);
+
+      this.camera.move(MovementType.SELF, velocity.multiply(1 / 5f));
+    }
+
     if (this.mouseTracker.isRightButtonDown()) {
       this.camera.yaw = MathHelper.wrapDegrees(this.camera.yaw - (float) this.mouseTracker.getCursorDeltaX() * orbitSpeed);
       this.camera.pitch = MathHelper.wrapDegrees(this.camera.pitch - (float) this.mouseTracker.getCursorDeltaY() * orbitSpeed);

@@ -28,11 +28,11 @@ public class PropertiesGUI extends Panel {
   public final ScrollablePanel scrollArea;
   public final FixedWidgetList widgetList;
 
-  public final NumericInlineProp framerateInput;
-  public final NumericInlineProp lengthInput;
+  public final NumericInlineProp<Integer> framerateInput;
+  public final NumericInlineProp<Integer> lengthInput;
 
-  public final MultiNumericInlineProp positionInput;
-  public final MultiNumericInlineProp rotationInput;
+  public final MultiNumericInlineProp<Double> positionInput;
+  public final MultiNumericInlineProp<Float> rotationInput;
 
   public final Button cameraKeyframeButton;
 
@@ -104,8 +104,8 @@ public class PropertiesGUI extends Panel {
     {
       cutsceneProps.setCloseable(false);
 
-      this.lengthInput = new NumericInlineProp("Length (Frames)", 1200);
-      this.framerateInput = new NumericInlineProp("Frames Per Second", 30);
+      this.lengthInput = new NumericInlineProp<>("Length (Frames)", 1200);
+      this.framerateInput = new NumericInlineProp<>("Frames Per Second", 30);
 
       cutsceneProps.getContainer().add(lengthInput).add(framerateInput);
       this.widgetList.addWidget(cutsceneProps);
@@ -115,8 +115,8 @@ public class PropertiesGUI extends Panel {
     {
       camera.setCloseable(false);
 
-      this.positionInput = new MultiNumericInlineProp("Position", 60,"X", "Y", "Z");
-      this.rotationInput = new MultiNumericInlineProp("Rotation",80,"Pitch", "Yaw");
+      this.positionInput = new MultiNumericInlineProp<>("Position", 60,0d, "X", "Y", "Z");
+      this.rotationInput = new MultiNumericInlineProp<>("Rotation",80,0f,"Pitch", "Yaw");
       camera.getContainer().add(this.positionInput).add(this.rotationInput);
 
       this.cameraKeyframeButton = new Button("Add/Update Keyframe");
@@ -153,15 +153,15 @@ public class PropertiesGUI extends Panel {
     typeProp.getValueContainer().add(typeSelector);
     particleSource.getContainer().add(typeProp);
 
-    MultiNumericInlineProp positionInput = new MultiNumericInlineProp("Position",60, "X", "Y", "Z");
-    positionInput.getField(0).getTextState().setText(Double.toString(source.getPos().x));
-    positionInput.getField(1).getTextState().setText(Double.toString(source.getPos().y));
-    positionInput.getField(2).getTextState().setText(Double.toString(source.getPos().z));
+    MultiNumericInlineProp<Double> positionInput = new MultiNumericInlineProp<>("Position",60, 0d, "X", "Y", "Z");
+    positionInput.getField(0).getTextState().setValue(source.getPos().x);
+    positionInput.getField(1).getTextState().setValue(source.getPos().y);
+    positionInput.getField(2).getTextState().setValue(source.getPos().z);
 
-    MultiNumericInlineProp velocityMultiplierInput = new MultiNumericInlineProp("Velocity Multiplier",60, "X", "Y", "Z");
-    velocityMultiplierInput.getField(0).getTextState().setText(Double.toString(source.getVelocityMultiplier().x));
-    velocityMultiplierInput.getField(1).getTextState().setText(Double.toString(source.getVelocityMultiplier().y));
-    velocityMultiplierInput.getField(2).getTextState().setText(Double.toString(source.getVelocityMultiplier().z));
+    MultiNumericInlineProp<Double> velocityMultiplierInput = new MultiNumericInlineProp<>("Velocity Multiplier",60, 0d, "X", "Y", "Z");
+    velocityMultiplierInput.getField(0).getTextState().setValue(source.getVelocityMultiplier().x);
+    velocityMultiplierInput.getField(1).getTextState().setValue(source.getVelocityMultiplier().y);
+    velocityMultiplierInput.getField(2).getTextState().setValue(source.getVelocityMultiplier().z);
 
     particleSource.getContainer().add(positionInput).add(velocityMultiplierInput);
 
@@ -178,60 +178,13 @@ public class PropertiesGUI extends Panel {
       source.setParticleType(type);
     });
 
-    positionInput.getField(0).addTextInputContentChangeEventListener((e) -> {
-      try {
-        source.getPos().x = Double.parseDouble(e.getNewValue());
-      } catch (NumberFormatException ex) {
-        CutsceneAPI.LOGGER.warn("Invalid position value: " + e.getNewValue());
-        ((TextInput)e.getTargetComponent()).getTextState().setText(e.getOldValue());
-      }
-    });
+    positionInput.addChangeListener(0, (e) -> source.getPos().x = e.getNewValue());
+    positionInput.addChangeListener(1, (e) -> source.getPos().y = e.getNewValue());
+    positionInput.addChangeListener(2, (e) -> source.getPos().z = e.getNewValue());
 
-    positionInput.getField(1).addTextInputContentChangeEventListener((e) -> {
-      try {
-        source.getPos().y = Double.parseDouble(e.getNewValue());
-      } catch (NumberFormatException ex) {
-        CutsceneAPI.LOGGER.warn("Invalid position value: " + e.getNewValue());
-        ((TextInput)e.getTargetComponent()).getTextState().setText(e.getOldValue());
-      }
-    });
-
-    positionInput.getField(2).addTextInputContentChangeEventListener((e) -> {
-      try {
-        source.getPos().z = Double.parseDouble(e.getNewValue());
-      } catch (NumberFormatException ex) {
-        CutsceneAPI.LOGGER.warn("Invalid position value: " + e.getNewValue());
-        ((TextInput)e.getTargetComponent()).getTextState().setText(e.getOldValue());
-      }
-    });
-
-
-    velocityMultiplierInput.getField(0).addTextInputContentChangeEventListener((e) -> {
-      try {
-        source.getVelocityMultiplier().x = Double.parseDouble(e.getNewValue());
-      } catch (NumberFormatException ex) {
-        CutsceneAPI.LOGGER.warn("Invalid velocity multiplier value: " + e.getNewValue());
-        ((TextInput)e.getTargetComponent()).getTextState().setText(e.getOldValue());
-      }
-    });
-
-    velocityMultiplierInput.getField(1).addTextInputContentChangeEventListener((e) -> {
-      try {
-        source.getVelocityMultiplier().y = Double.parseDouble(e.getNewValue());
-      } catch (NumberFormatException ex) {
-        CutsceneAPI.LOGGER.warn("Invalid velocity multiplier value: " + e.getNewValue());
-        ((TextInput)e.getTargetComponent()).getTextState().setText(e.getOldValue());
-      }
-    });
-
-    velocityMultiplierInput.getField(2).addTextInputContentChangeEventListener((e) -> {
-      try {
-        source.getVelocityMultiplier().z = Double.parseDouble(e.getNewValue());
-      } catch (NumberFormatException ex) {
-        CutsceneAPI.LOGGER.warn("Invalid velocity multiplier value: " + e.getNewValue());
-        ((TextInput)e.getTargetComponent()).getTextState().setText(e.getOldValue());
-      }
-    });
+    velocityMultiplierInput.addChangeListener(0, (e) -> source.getVelocityMultiplier().x = e.getNewValue());
+    velocityMultiplierInput.addChangeListener(1, (e) -> source.getVelocityMultiplier().y = e.getNewValue());
+    velocityMultiplierInput.addChangeListener(2, (e) -> source.getVelocityMultiplier().z = e.getNewValue());
 
     return particleSource;
   }
@@ -239,7 +192,7 @@ public class PropertiesGUI extends Panel {
   public enum ObjectType {
     MOB("Mob"), PARTICLE_SOURCE("Particle Source");
 
-    private String name;
+    private final String name;
 
     ObjectType(String name) {
       this.name = name;

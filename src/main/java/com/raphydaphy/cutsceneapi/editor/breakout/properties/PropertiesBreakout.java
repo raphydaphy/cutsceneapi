@@ -1,6 +1,5 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.properties;
 
-import com.raphydaphy.breakoutapi.BreakoutAPI;
 import com.raphydaphy.breakoutapi.breakout.window.BreakoutWindow;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
@@ -31,7 +30,7 @@ import static org.liquidengine.legui.style.color.ColorUtil.fromInt;
 public class PropertiesBreakout extends EditorBreakout {
   public static final Identifier IDENTIFIER = new Identifier(CutsceneAPI.MODID, "properties");
 
-  private CutsceneEditor editor;
+  private final CutsceneEditor editor;
 
   public PropertiesBreakout(CutsceneEditor editor) {
     super(IDENTIFIER, new BreakoutWindow("Cutscene Properties", 200, 200));
@@ -58,6 +57,12 @@ public class PropertiesBreakout extends EditorBreakout {
     PropertiesGUI gui = (PropertiesGUI) this.gui;
     CutsceneCameraEntity camera = this.editor.getCamera();
 
+    MutableCutscene currentScene = this.editor.getCurrentScene();
+    if (currentScene != null) {
+      gui.lengthInput.getInput().getTextState().setValue(currentScene.getLength());
+      gui.framerateInput.getInput().getTextState().setValue(currentScene.getFramerate());
+    }
+
     // TODO: clean up listeners
 
     gui.addObjectButton.getListenerMap().addListener(MouseClickEvent.class, (e) -> {
@@ -69,91 +74,35 @@ public class PropertiesBreakout extends EditorBreakout {
     gui.framerateInput.getInput().getListenerMap().addListener(FocusEvent.class, (event) -> {
       if (event.isFocused()) return;
       MutableCutscene cutscene = this.editor.getCurrentScene();
-      String value = gui.framerateInput.getInput().getTextState().getText();
-      boolean rollback = false;
-      try {
-        int framerate = Integer.parseInt(value);
-        if (framerate == cutscene.getFramerate()) return;
-        else if (framerate > 0) cutscene.setFramerate(framerate);
+      int framerate = gui.framerateInput.getInput().getTextState().getValue();
+      if (framerate != cutscene.getFramerate()) {
+        if (framerate > 0) cutscene.setFramerate(framerate);
         else {
           CutsceneAPI.LOGGER.warn("Invalid cutscene framerate: " + framerate);
-          rollback = true;
+          gui.framerateInput.getInput().getTextState().setValue(cutscene.getFramerate());
         }
-      } catch (NumberFormatException e) {
-        BreakoutAPI.LOGGER.warn("Invalid framerate input: " + value);
-        rollback = true;
-      }
-
-      if (rollback) {
-        gui.framerateInput.getInput().getTextState().setText(Integer.toString(cutscene.getFramerate()));
       }
     });
 
     gui.lengthInput.getInput().getListenerMap().addListener(FocusEvent.class, (event) -> {
       if (event.isFocused()) return;
       MutableCutscene cutscene = this.editor.getCurrentScene();
-      String value = gui.lengthInput.getInput().getTextState().getText();
-      boolean rollback = false;
-      try {
-        int length = Integer.parseInt(value);
-        if (length == cutscene.getLength()) return;
-        else if (length > 0) cutscene.setLength(length);
+      int length = gui.lengthInput.getInput().getTextState().getValue();
+      if (length != cutscene.getLength()) {
+        if (length > 0) cutscene.setLength(length);
         else {
           CutsceneAPI.LOGGER.warn("Invalid cutscene length: " + length);
-          rollback = true;
+          gui.lengthInput.getInput().getTextState().setValue(cutscene.getLength());
         }
-      } catch (NumberFormatException e) {
-        BreakoutAPI.LOGGER.warn("Invalid length input: " + value);
-        rollback = true;
-      }
-
-      if (rollback) {
-        gui.lengthInput.getInput().getTextState().setText(Integer.toString(cutscene.getLength()));
       }
     });
 
-    gui.positionInput.getField(0).addTextInputContentChangeEventListener((event) -> {
-      try {
-        double value = Double.parseDouble(event.getNewValue());
-        this.editor.getCamera().setPos(value, camera.getY(), camera.getZ());
-      } catch (NumberFormatException e) {
-        BreakoutAPI.LOGGER.warn("Invalid property input:" + event.getNewValue());
-      }
-    });
+    gui.positionInput.addChangeListener(0, (e) -> camera.setPos(e.getNewValue(), camera.getY(), camera.getZ()));
+    gui.positionInput.addChangeListener(1, (e) -> camera.setPos(camera.getX(), e.getNewValue(), camera.getZ()));
+    gui.positionInput.addChangeListener(2, (e) -> camera.setPos(camera.getX(), camera.getY(), e.getNewValue()));
 
-    gui.positionInput.getField(1).addTextInputContentChangeEventListener((event) -> {
-      try {
-        double value = Double.parseDouble(event.getNewValue());
-        camera.setPos(camera.getX(), value, camera.getZ());
-      } catch (NumberFormatException e) {
-        BreakoutAPI.LOGGER.warn("Invalid property input:" + event.getNewValue());
-      }
-    });
-
-    gui.positionInput.getField(2).addTextInputContentChangeEventListener((event) -> {
-      try {
-        double value = Double.parseDouble(event.getNewValue());
-        camera.setPos(camera.getX(), camera.getY(), value);
-      } catch (NumberFormatException e) {
-        BreakoutAPI.LOGGER.warn("Invalid property input:" + event.getNewValue());
-      }
-    });
-
-    gui.rotationInput.getField(0).addTextInputContentChangeEventListener((event) -> {
-      try {
-        camera.pitch = Float.parseFloat(event.getNewValue());
-      } catch (NumberFormatException e) {
-        BreakoutAPI.LOGGER.warn("Invalid property input:" + event.getNewValue());
-      }
-    });
-
-    gui.rotationInput.getField(1).addTextInputContentChangeEventListener((event) -> {
-      try {
-        camera.yaw = Float.parseFloat(event.getNewValue());
-      } catch (NumberFormatException e) {
-        BreakoutAPI.LOGGER.warn("Invalid property input:" + event.getNewValue());
-      }
-    });
+    gui.rotationInput.addChangeListener(0, (e) -> camera.pitch = e.getNewValue());
+    gui.rotationInput.addChangeListener(1, (e) -> camera.yaw = e.getNewValue());
 
     gui.cameraKeyframeButton.getListenerMap().addListener(MouseClickEvent.class, (e) -> {
       if (e.getAction() != MouseClickEvent.MouseClickAction.CLICK) return;
@@ -214,9 +163,7 @@ public class PropertiesBreakout extends EditorBreakout {
       cutscene.addEntity(source);
       FixedWidget widget = gui.addParticleSource(source);
 
-      widget.addWidgetCloseEventListener((e) -> {
-        cutscene.removeEntity(source);
-      });
+      widget.addWidgetCloseEventListener((e) -> cutscene.removeEntity(source));
     }
   }
 }

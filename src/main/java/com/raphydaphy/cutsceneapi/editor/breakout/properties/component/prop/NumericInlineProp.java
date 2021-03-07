@@ -1,14 +1,14 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.properties.component.prop;
 
-import org.liquidengine.legui.component.TextInput;
+import org.liquidengine.legui.component.NumericInput;
 
-public class NumericInlineProp extends InlineProp {
-  private final TextInput input;
+public class NumericInlineProp<T extends Number> extends InlineProp {
+  private final NumericInput<T> input;
 
-  public NumericInlineProp(String name, float placeholder) {
+  public NumericInlineProp(String name, T placeholder) {
     super(name);
 
-    this.input = new TextInput("" + placeholder);
+    this.input = new NumericInput<>(placeholder);
     this.input.getStyle().enableFlex().setHeights(20).setMaxWidth(Float.MAX_VALUE).setMargin(0, 1);
     this.input.getFlexStyle().setFlexGrow(1);
 
@@ -16,7 +16,7 @@ public class NumericInlineProp extends InlineProp {
 
   }
 
-  public TextInput getInput() {
+  public NumericInput<T> getInput() {
     return this.input;
   }
 }

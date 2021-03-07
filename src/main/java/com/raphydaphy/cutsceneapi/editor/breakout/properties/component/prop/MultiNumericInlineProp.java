@@ -1,29 +1,32 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.properties.component.prop;
 
-import org.liquidengine.legui.component.FlexLabel;
-import org.liquidengine.legui.component.FlexPanel;
-import org.liquidengine.legui.component.Label;
-import org.liquidengine.legui.component.TextInput;
+import org.liquidengine.legui.component.*;
 import org.liquidengine.legui.component.event.label.LabelWidthChangeEvent;
+import org.liquidengine.legui.component.event.textinput.NumericInputContentChangeEvent;
+import org.liquidengine.legui.listener.EventListener;
 import org.liquidengine.legui.style.flex.FlexStyle;
 
-public class MultiNumericInlineProp extends InlineProp {
-  private String[] fieldNames;
-  private TextInput[] inputFields;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
 
-  public MultiNumericInlineProp(String title, float inputWidth, String... fieldNames) {
+public class MultiNumericInlineProp<T extends Number> extends InlineProp {
+  private final String[] fieldNames;
+  private final List<NumericInput<T>> inputFields;
+
+  public MultiNumericInlineProp(String title, float inputWidth, T placeholder, String... fieldNames) {
     super(title);
 
     this.fieldNames = fieldNames;
-    this.inputFields = new TextInput[fieldNames.length];
+    this.inputFields = new ArrayList<>();
 
-    for (int i = 0; i < this.fieldNames.length; i++) {
+    for (String fieldName : this.fieldNames) {
       FlexPanel control = new FlexPanel(inputWidth, 25);
       control.getFlexStyle().setAlignItems(FlexStyle.AlignItems.CENTER);
 
-      Label fieldLabel = new FlexLabel(this.fieldNames[i]);
+      Label fieldLabel = new FlexLabel(fieldName);
 
-      TextInput input = new TextInput("");
+      NumericInput<T> input = new NumericInput<>(placeholder);
       input.getStyle().enableFlex(inputWidth, 20).setMargin(2.5f);
 
       control.add(fieldLabel).add(input);
@@ -33,12 +36,12 @@ public class MultiNumericInlineProp extends InlineProp {
         control.getStyle().setWidths(e.getWidth() + inputWidth + 5);
       });
 
-      this.inputFields[i] = input;
+      this.inputFields.add(input);
     }
   }
 
-  public TextInput getField(int field) {
-    return this.inputFields[field];
+  public NumericInput<T> getField(int field) {
+    return this.inputFields.get(field);
   }
 
   public boolean isFocussed() {
@@ -46,5 +49,9 @@ public class MultiNumericInlineProp extends InlineProp {
       if (field.isFocused()) return true;
     }
     return false;
+  }
+
+  public void addChangeListener(int field, EventListener<NumericInputContentChangeEvent<T, NumericInput<T>>> eventListener) {
+    this.getField(field).addValueChangeListener(eventListener);
   }
 }
