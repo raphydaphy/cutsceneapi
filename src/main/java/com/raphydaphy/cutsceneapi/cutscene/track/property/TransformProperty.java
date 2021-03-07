@@ -7,6 +7,10 @@ public class TransformProperty implements Property {
   private Vector3d pos;
   private Vector2f rot;
 
+  public TransformProperty(Vector3d pos) {
+    this(pos, new Vector2f(0, 0));
+  }
+
   public TransformProperty(Vector3d pos, float pitch, float yaw) {
     this(pos, new Vector2f(pitch, yaw));
   }

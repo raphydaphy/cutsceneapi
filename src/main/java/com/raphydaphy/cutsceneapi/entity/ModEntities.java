@@ -24,8 +24,10 @@ public class ModEntities {
   }
 
   public static void registerRenderers() {
+    /*
     EntityRendererRegistry.INSTANCE.register(CUTSCENE_CAMERA_ENTITY, (dispatcher, context) -> {
       return null;
     });
+    */
   }
 }

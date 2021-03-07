@@ -4,16 +4,18 @@ import com.raphydaphy.breakoutapi.BreakoutAPI;
 import com.raphydaphy.breakoutapi.breakout.window.BreakoutWindow;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
+import com.raphydaphy.cutsceneapi.cutscene.entity.particle.CutsceneParticleSource;
 import com.raphydaphy.cutsceneapi.cutscene.track.MutableCutsceneTrack;
 import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.MutableTransformKeyframe;
-import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.TransformKeyframe;
 import com.raphydaphy.cutsceneapi.cutscene.track.property.TransformProperty;
 import com.raphydaphy.cutsceneapi.editor.CutsceneEditor;
 import com.raphydaphy.cutsceneapi.editor.breakout.EditorBreakout;
+import com.raphydaphy.cutsceneapi.editor.breakout.properties.component.FixedWidget;
 import com.raphydaphy.cutsceneapi.entity.CutsceneCameraEntity;
 import com.raphydaphy.shaded.org.joml.Vector2f;
 import com.raphydaphy.shaded.org.joml.Vector3d;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 import org.liquidengine.legui.event.FocusEvent;
 import org.liquidengine.legui.event.MouseClickEvent;
 import org.liquidengine.legui.style.color.ColorConstants;
@@ -53,7 +55,7 @@ public class PropertiesBreakout extends EditorBreakout {
       16f //font size
     ));
 
-    PropertiesGUI gui = (PropertiesGUI)this.gui;
+    PropertiesGUI gui = (PropertiesGUI) this.gui;
     CutsceneCameraEntity camera = this.editor.getCamera();
 
     // TODO: clean up listeners
@@ -180,7 +182,7 @@ public class PropertiesBreakout extends EditorBreakout {
   }
 
   public void update() {
-    PropertiesGUI gui = (PropertiesGUI)this.gui;
+    PropertiesGUI gui = (PropertiesGUI) this.gui;
 
     CutsceneCameraEntity camera = this.editor.getCamera();
     DecimalFormat df = new DecimalFormat("#.##");
@@ -198,10 +200,23 @@ public class PropertiesBreakout extends EditorBreakout {
   }
 
   private void createObject(String type) {
-    PropertiesGUI gui = (PropertiesGUI)this.gui;
+    MutableCutscene cutscene = this.editor.getCurrentScene();
+    if (cutscene == null) return;
+
+    PropertiesGUI gui = (PropertiesGUI) this.gui;
 
     if (type.equals(PropertiesGUI.ObjectType.PARTICLE_SOURCE.getName())) {
-      gui.addParticleSource();
+      Vec3d cameraPos = this.editor.getCamera().getPos();
+      Vector3d pos = new Vector3d(cameraPos.x, cameraPos.y, cameraPos.z);
+      Vector3d velocityMultiplier = new Vector3d(1, 1, 1);
+
+      CutsceneParticleSource source = new CutsceneParticleSource(this.editor.getParticleManager(), new Identifier("portal"), pos, velocityMultiplier);
+      cutscene.addEntity(source);
+      FixedWidget widget = gui.addParticleSource(source);
+
+      widget.addWidgetCloseEventListener((e) -> {
+        cutscene.removeEntity(source);
+      });
     }
   }
 }

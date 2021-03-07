@@ -3,11 +3,10 @@ package com.raphydaphy.cutsceneapi.editor;
 
 import com.raphydaphy.breakoutapi.BreakoutAPI;
 import com.raphydaphy.breakoutapi.BreakoutAPIClient;
-import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
+import com.raphydaphy.cutsceneapi.cutscene.entity.particle.CutsceneParticleManager;
 import com.raphydaphy.cutsceneapi.cutscene.track.MutableCutsceneTrack;
 import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.MutableTransformKeyframe;
-import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.TransformKeyframe;
 import com.raphydaphy.cutsceneapi.cutscene.track.property.TransformProperty;
 import com.raphydaphy.cutsceneapi.editor.breakout.properties.PropertiesBreakout;
 import com.raphydaphy.cutsceneapi.editor.breakout.timeline.TimelineBreakout;
@@ -24,9 +23,10 @@ public class CutsceneEditor {
   private PropertiesBreakout propertiesBreakout;
   private TimelineBreakout timelineBreakout;
 
-  private MinecraftClient client;
-  private CutsceneCameraEntity camera;
-  private MouseTracker mouseTracker;
+  private final MinecraftClient client;
+  private final CutsceneCameraEntity camera;
+  private final MouseTracker mouseTracker;
+  private final CutsceneParticleManager particleManager;
 
   private MutableCutscene currentScene;
 
@@ -37,8 +37,8 @@ public class CutsceneEditor {
       throw new IllegalStateException("Tried to open the cutscene editor before entering a world");
     }
 
-    ((MinecraftClientHooks)this.client).setPaused(true);
-    ((GameRendererHooks)this.client.gameRenderer).setRenderHand(false);
+    ((MinecraftClientHooks) this.client).setPaused(true);
+    ((GameRendererHooks) this.client.gameRenderer).setRenderHand(false);
     this.client.mouse.unlockCursor();
 
     this.currentScene = new MutableCutscene();
@@ -48,6 +48,7 @@ public class CutsceneEditor {
     this.client.setCameraEntity(this.camera);
 
     this.mouseTracker = new MouseTracker(this.client.mouse.getX(), this.client.mouse.getY());
+    this.particleManager = new CutsceneParticleManager(this.client.particleManager, this.client.world, this.client.getTextureManager());
 
     this.propertiesBreakout = new PropertiesBreakout(this);
     BreakoutAPIClient.openBreakout(this.propertiesBreakout);
@@ -68,7 +69,7 @@ public class CutsceneEditor {
   public void update() {
     float orbitSpeed = 0.2f;
     if (this.mouseTracker.isRightButtonDown()) {
-      this.camera.yaw = MathHelper.wrapDegrees(this.camera.yaw - (float)this.mouseTracker.getCursorDeltaX() * orbitSpeed);
+      this.camera.yaw = MathHelper.wrapDegrees(this.camera.yaw - (float) this.mouseTracker.getCursorDeltaX() * orbitSpeed);
       this.camera.pitch = MathHelper.wrapDegrees(this.camera.pitch - (float) this.mouseTracker.getCursorDeltaY() * orbitSpeed);
     }
 
@@ -79,6 +80,7 @@ public class CutsceneEditor {
 
     this.camera.update();
     this.mouseTracker.update();
+    this.particleManager.tick();
 
     if (this.propertiesBreakout != null) this.propertiesBreakout.update();
   }
@@ -109,7 +111,7 @@ public class CutsceneEditor {
 
     int diff = nextKeyframe.getFrame() - prevKeyframe.getFrame();
     int progress = currentFrame - prevKeyframe.getFrame();
-    float delta = (float)progress / diff;
+    float delta = (float) progress / diff;
 
     TransformProperty interp = prevKeyframe.interpolate(nextKeyframe, delta);
     this.camera.setTransform(interp);
@@ -117,6 +119,10 @@ public class CutsceneEditor {
 
   public MouseTracker getMouseTracker() {
     return this.mouseTracker;
+  }
+
+  public CutsceneParticleManager getParticleManager() {
+    return this.particleManager;
   }
 
   public CutsceneCameraEntity getCamera() {
@@ -130,7 +136,7 @@ public class CutsceneEditor {
   public void close() {
     this.client.setCameraEntity(this.client.player);
 
-    ((GameRendererHooks)this.client.gameRenderer).setRenderHand(true);
+    ((GameRendererHooks) this.client.gameRenderer).setRenderHand(true);
     this.client.getWindow().setFramerateLimit(this.client.options.maxFps);
 
     BreakoutAPIClient.closeBreakout(PropertiesBreakout.IDENTIFIER);

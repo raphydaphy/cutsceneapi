@@ -10,7 +10,9 @@
     "client.GameRendererMixin",
     "client.InGameHudMixin",
     "client.MouseMixin",
-    "client.KeyboardMixin"
+    "client.KeyboardMixin",
+    "client.ParticleManagerMixin",
+    "client.ParticleManagerInvoker"
   ],
   "injectors": {
     "defaultRequire": 1

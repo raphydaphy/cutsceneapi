@@ -1,6 +1,7 @@
 package com.raphydaphy.cutsceneapi.cutscene;
 
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
+import com.raphydaphy.cutsceneapi.cutscene.entity.CutsceneEntity;
 import com.raphydaphy.cutsceneapi.cutscene.track.CutsceneTrack;
 import com.raphydaphy.cutsceneapi.cutscene.track.MutableCutsceneTrack;
 import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.Keyframe;
@@ -13,8 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MutableCutscene implements Cutscene {
-  private List<MutableCutsceneTrack> tracks;
+  private List<MutableCutsceneTrack> tracks = new ArrayList<>();
   private MutableCutsceneTrack<MutableTransformKeyframe> cameraTrack;
+
+  private List<CutsceneEntity> entities = new ArrayList<>();;
 
   private int framerate, length;
   private int currentFrame, previousFrame;
@@ -25,8 +28,6 @@ public class MutableCutscene implements Cutscene {
   }
 
   public MutableCutscene(int framerate, int length) {
-    this.tracks = new ArrayList<>();
-
     this.cameraTrack = new MutableCutsceneTrack<>("Camera", length);
     this.addTrack(this.cameraTrack);
 
@@ -41,6 +42,10 @@ public class MutableCutscene implements Cutscene {
       } else {
         this.setPlaying(false);
       }
+    }
+
+    for (CutsceneEntity entity : this.entities) {
+      entity.update();
     }
   }
 
@@ -77,6 +82,14 @@ public class MutableCutscene implements Cutscene {
     this.tracks.remove(track);
   }
 
+  public void addEntity(CutsceneEntity entity) {
+    this.entities.add(entity);
+  }
+
+  public void removeEntity(CutsceneEntity entity) {
+    this.entities.remove(entity);
+  }
+
   public MutableCutscene setFramerate(int framerate) {
     CutsceneAPI.LOGGER.info("Set cutscene framerate to " + framerate + "fps");
     MinecraftClient.getInstance().getWindow().setFramerateLimit(framerate);
@@ -107,6 +120,11 @@ public class MutableCutscene implements Cutscene {
   @Override
   public List<MutableCutsceneTrack> getTracks() {
     return this.tracks;
+  }
+
+  @Override
+  public List<CutsceneEntity> getEntities() {
+    return this.entities;
   }
 
   @Override

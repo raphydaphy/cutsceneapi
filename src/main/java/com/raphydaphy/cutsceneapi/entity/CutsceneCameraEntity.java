@@ -43,12 +43,12 @@ public class CutsceneCameraEntity extends Entity {
   }
 
   @Override
-  protected void readCustomDataFromTag(CompoundTag tag) {
+  protected void readCustomDataFromNbt(CompoundTag tag) {
 
   }
 
   @Override
-  protected void writeCustomDataToTag(CompoundTag tag) {
+  protected void writeCustomDataToNbt(CompoundTag tag) {
 
   }
 

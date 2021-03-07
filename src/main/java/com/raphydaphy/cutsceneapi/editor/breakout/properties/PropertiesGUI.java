@@ -1,6 +1,7 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.properties;
 
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
+import com.raphydaphy.cutsceneapi.cutscene.entity.particle.CutsceneParticleSource;
 import com.raphydaphy.cutsceneapi.editor.breakout.properties.component.*;
 import com.raphydaphy.cutsceneapi.editor.breakout.properties.component.event.WidgetListHeightUpdatedEvent;
 import com.raphydaphy.cutsceneapi.editor.breakout.properties.component.prop.InlineProp;
@@ -127,7 +128,7 @@ public class PropertiesGUI extends Panel {
     }
   }
 
-  public void addParticleSource() {
+  public FixedWidget addParticleSource(CutsceneParticleSource source) {
     FixedWidget particleSource = new FixedWidget("Particle Source", 120);
 
     InlineProp typeProp = new InlineProp("Type");
@@ -140,19 +141,99 @@ public class PropertiesGUI extends Panel {
     typeSelector.setVisibleCount(12);
 
     Set<Identifier> particleTypes = Registry.PARTICLE_TYPE.getIds();
+    int id = 0;
     for (Identifier particleType : particleTypes) {
       typeSelector.addElement(particleType.toString());
+      if (particleType.equals(source.getParticleType())) {
+        typeSelector.setSelected(id, true);
+      }
+      id++;
     }
 
     typeProp.getValueContainer().add(typeSelector);
     particleSource.getContainer().add(typeProp);
 
     MultiNumericInlineProp positionInput = new MultiNumericInlineProp("Position",60, "X", "Y", "Z");
-    MultiNumericInlineProp rotationInput = new MultiNumericInlineProp("Velocity",60, "X", "Y", "Z");
+    positionInput.getField(0).getTextState().setText(Double.toString(source.getPos().x));
+    positionInput.getField(1).getTextState().setText(Double.toString(source.getPos().y));
+    positionInput.getField(2).getTextState().setText(Double.toString(source.getPos().z));
 
-    particleSource.getContainer().add(positionInput).add(rotationInput);
+    MultiNumericInlineProp velocityMultiplierInput = new MultiNumericInlineProp("Velocity Multiplier",60, "X", "Y", "Z");
+    velocityMultiplierInput.getField(0).getTextState().setText(Double.toString(source.getVelocityMultiplier().x));
+    velocityMultiplierInput.getField(1).getTextState().setText(Double.toString(source.getVelocityMultiplier().y));
+    velocityMultiplierInput.getField(2).getTextState().setText(Double.toString(source.getVelocityMultiplier().z));
+
+    particleSource.getContainer().add(positionInput).add(velocityMultiplierInput);
 
     this.widgetList.addWidget(particleSource);
+
+    // TODO: cleanup listeners
+    typeSelector.addSelectBoxChangeSelectionEventListener((e) -> {
+      Identifier type = Identifier.tryParse(e.getNewValue());
+      if (type == null) {
+        CutsceneAPI.LOGGER.warn("Failed to parse particle type identifier: " + e.getNewValue());
+        return;
+      }
+
+      source.setParticleType(type);
+    });
+
+    positionInput.getField(0).addTextInputContentChangeEventListener((e) -> {
+      try {
+        source.getPos().x = Double.parseDouble(e.getNewValue());
+      } catch (NumberFormatException ex) {
+        CutsceneAPI.LOGGER.warn("Invalid position value: " + e.getNewValue());
+        ((TextInput)e.getTargetComponent()).getTextState().setText(e.getOldValue());
+      }
+    });
+
+    positionInput.getField(1).addTextInputContentChangeEventListener((e) -> {
+      try {
+        source.getPos().y = Double.parseDouble(e.getNewValue());
+      } catch (NumberFormatException ex) {
+        CutsceneAPI.LOGGER.warn("Invalid position value: " + e.getNewValue());
+        ((TextInput)e.getTargetComponent()).getTextState().setText(e.getOldValue());
+      }
+    });
+
+    positionInput.getField(2).addTextInputContentChangeEventListener((e) -> {
+      try {
+        source.getPos().z = Double.parseDouble(e.getNewValue());
+      } catch (NumberFormatException ex) {
+        CutsceneAPI.LOGGER.warn("Invalid position value: " + e.getNewValue());
+        ((TextInput)e.getTargetComponent()).getTextState().setText(e.getOldValue());
+      }
+    });
+
+
+    velocityMultiplierInput.getField(0).addTextInputContentChangeEventListener((e) -> {
+      try {
+        source.getVelocityMultiplier().x = Double.parseDouble(e.getNewValue());
+      } catch (NumberFormatException ex) {
+        CutsceneAPI.LOGGER.warn("Invalid velocity multiplier value: " + e.getNewValue());
+        ((TextInput)e.getTargetComponent()).getTextState().setText(e.getOldValue());
+      }
+    });
+
+    velocityMultiplierInput.getField(1).addTextInputContentChangeEventListener((e) -> {
+      try {
+        source.getVelocityMultiplier().y = Double.parseDouble(e.getNewValue());
+      } catch (NumberFormatException ex) {
+        CutsceneAPI.LOGGER.warn("Invalid velocity multiplier value: " + e.getNewValue());
+        ((TextInput)e.getTargetComponent()).getTextState().setText(e.getOldValue());
+      }
+    });
+
+    velocityMultiplierInput.getField(2).addTextInputContentChangeEventListener((e) -> {
+      try {
+        source.getVelocityMultiplier().z = Double.parseDouble(e.getNewValue());
+      } catch (NumberFormatException ex) {
+        CutsceneAPI.LOGGER.warn("Invalid velocity multiplier value: " + e.getNewValue());
+        ((TextInput)e.getTargetComponent()).getTextState().setText(e.getOldValue());
+      }
+    });
+
+    return particleSource;
   }
 
   public enum ObjectType {
