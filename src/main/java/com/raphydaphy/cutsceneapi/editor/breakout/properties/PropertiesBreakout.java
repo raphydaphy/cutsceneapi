@@ -3,7 +3,8 @@ package com.raphydaphy.cutsceneapi.editor.breakout.properties;
 import com.raphydaphy.breakoutapi.breakout.window.BreakoutWindow;
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
-import com.raphydaphy.cutsceneapi.cutscene.entity.particle.CutsceneParticleSource;
+import com.raphydaphy.cutsceneapi.cutscene.object.entity.CutsceneEntity;
+import com.raphydaphy.cutsceneapi.cutscene.object.particle.CutsceneParticleSource;
 import com.raphydaphy.cutsceneapi.cutscene.track.MutableCutsceneTrack;
 import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.MutableTransformKeyframe;
 import com.raphydaphy.cutsceneapi.cutscene.track.property.TransformProperty;
@@ -13,6 +14,8 @@ import com.raphydaphy.cutsceneapi.editor.breakout.properties.component.FixedWidg
 import com.raphydaphy.cutsceneapi.entity.CutsceneCameraEntity;
 import com.raphydaphy.shaded.org.joml.Vector2f;
 import com.raphydaphy.shaded.org.joml.Vector3d;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.passive.CowEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.liquidengine.legui.event.FocusEvent;
@@ -160,10 +163,23 @@ public class PropertiesBreakout extends EditorBreakout {
       Vector3d velocityMultiplier = new Vector3d(1, 1, 1);
 
       CutsceneParticleSource source = new CutsceneParticleSource(this.editor.getParticleManager(), new Identifier("portal"), pos, velocityMultiplier);
-      cutscene.addEntity(source);
+      cutscene.addObject(source);
       FixedWidget widget = gui.addParticleSource(source);
 
-      widget.addWidgetCloseEventListener((e) -> cutscene.removeEntity(source));
+      widget.addWidgetCloseEventListener((e) -> cutscene.removeObject(source));
+    } else if (type.equals(PropertiesGUI.ObjectType.ENTITY.getName())) {
+      if (this.client.world == null) return;
+
+      Vec3d cameraPos = this.editor.getCamera().getPos();
+
+      CowEntity cow = new CowEntity(EntityType.COW, this.client.world);
+      cow.setPos(cameraPos.x, cameraPos.y, cameraPos.z);
+
+      CutsceneEntity cutsceneEntity = new CutsceneEntity(this.client.world, cow);
+      cutscene.addObject(cutsceneEntity);
+      FixedWidget widget = gui.addEntity(cutsceneEntity);
+
+      widget.addWidgetCloseEventListener((e) -> cutscene.removeObject(cutsceneEntity));
     }
   }
 }

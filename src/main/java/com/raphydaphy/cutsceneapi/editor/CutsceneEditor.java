@@ -4,7 +4,7 @@ package com.raphydaphy.cutsceneapi.editor;
 import com.raphydaphy.breakoutapi.BreakoutAPI;
 import com.raphydaphy.breakoutapi.BreakoutAPIClient;
 import com.raphydaphy.cutsceneapi.cutscene.MutableCutscene;
-import com.raphydaphy.cutsceneapi.cutscene.entity.particle.CutsceneParticleManager;
+import com.raphydaphy.cutsceneapi.cutscene.object.particle.CutsceneParticleManager;
 import com.raphydaphy.cutsceneapi.cutscene.track.MutableCutsceneTrack;
 import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.MutableTransformKeyframe;
 import com.raphydaphy.cutsceneapi.cutscene.track.property.TransformProperty;

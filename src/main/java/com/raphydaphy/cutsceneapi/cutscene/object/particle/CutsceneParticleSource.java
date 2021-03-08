@@ -1,7 +1,7 @@
-package com.raphydaphy.cutsceneapi.cutscene.entity.particle;
+package com.raphydaphy.cutsceneapi.cutscene.object.particle;
 
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
-import com.raphydaphy.cutsceneapi.cutscene.entity.CutsceneEntity;
+import com.raphydaphy.cutsceneapi.cutscene.object.CutsceneObject;
 import com.raphydaphy.shaded.org.joml.Vector3d;
 import net.minecraft.particle.DefaultParticleType;
 import net.minecraft.particle.ParticleEffect;
@@ -11,7 +11,7 @@ import net.minecraft.util.registry.Registry;
 
 import java.util.Random;
 
-public class CutsceneParticleSource implements CutsceneEntity {
+public class CutsceneParticleSource implements CutsceneObject {
   private final CutsceneParticleManager particleManager;
   private Identifier particleType;
   private Vector3d pos;
@@ -71,4 +71,7 @@ public class CutsceneParticleSource implements CutsceneEntity {
   public Identifier getParticleType() {
     return this.particleType;
   }
+
+  @Override
+  public void onRemoved() {}
 }

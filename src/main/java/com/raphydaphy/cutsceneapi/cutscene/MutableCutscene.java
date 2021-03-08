@@ -1,15 +1,12 @@
 package com.raphydaphy.cutsceneapi.cutscene;
 
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
-import com.raphydaphy.cutsceneapi.cutscene.entity.CutsceneEntity;
+import com.raphydaphy.cutsceneapi.cutscene.object.CutsceneObject;
 import com.raphydaphy.cutsceneapi.cutscene.track.CutsceneTrack;
 import com.raphydaphy.cutsceneapi.cutscene.track.MutableCutsceneTrack;
-import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.Keyframe;
 import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.MutableTransformKeyframe;
-import com.raphydaphy.cutsceneapi.cutscene.track.keyframe.TransformKeyframe;
 import net.minecraft.client.MinecraftClient;
 
-import javax.xml.crypto.dsig.Transform;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +14,7 @@ public class MutableCutscene implements Cutscene {
   private List<MutableCutsceneTrack> tracks = new ArrayList<>();
   private MutableCutsceneTrack<MutableTransformKeyframe> cameraTrack;
 
-  private List<CutsceneEntity> entities = new ArrayList<>();;
+  private List<CutsceneObject> objects = new ArrayList<>();;
 
   private int framerate, length;
   private int currentFrame, previousFrame;
@@ -44,7 +41,7 @@ public class MutableCutscene implements Cutscene {
       }
     }
 
-    for (CutsceneEntity entity : this.entities) {
+    for (CutsceneObject entity : this.objects) {
       entity.update();
     }
   }
@@ -82,12 +79,13 @@ public class MutableCutscene implements Cutscene {
     this.tracks.remove(track);
   }
 
-  public void addEntity(CutsceneEntity entity) {
-    this.entities.add(entity);
+  public void addObject(CutsceneObject entity) {
+    this.objects.add(entity);
   }
 
-  public void removeEntity(CutsceneEntity entity) {
-    this.entities.remove(entity);
+  public void removeObject(CutsceneObject object) {
+    this.objects.remove(object);
+    if (object != null) object.onRemoved();
   }
 
   public MutableCutscene setFramerate(int framerate) {
@@ -123,8 +121,8 @@ public class MutableCutscene implements Cutscene {
   }
 
   @Override
-  public List<CutsceneEntity> getEntities() {
-    return this.entities;
+  public List<CutsceneObject> getObjects() {
+    return this.objects;
   }
 
   @Override

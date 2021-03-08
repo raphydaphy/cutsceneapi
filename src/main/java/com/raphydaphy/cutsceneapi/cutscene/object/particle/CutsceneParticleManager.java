@@ -1,4 +1,4 @@
-package com.raphydaphy.cutsceneapi.cutscene.entity.particle;
+package com.raphydaphy.cutsceneapi.cutscene.object.particle;
 
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Lists;

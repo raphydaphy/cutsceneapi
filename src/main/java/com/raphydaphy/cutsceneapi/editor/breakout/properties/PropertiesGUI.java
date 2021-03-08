@@ -1,12 +1,15 @@
 package com.raphydaphy.cutsceneapi.editor.breakout.properties;
 
 import com.raphydaphy.cutsceneapi.CutsceneAPI;
-import com.raphydaphy.cutsceneapi.cutscene.entity.particle.CutsceneParticleSource;
-import com.raphydaphy.cutsceneapi.editor.breakout.properties.component.*;
+import com.raphydaphy.cutsceneapi.cutscene.object.entity.CutsceneEntity;
+import com.raphydaphy.cutsceneapi.cutscene.object.particle.CutsceneParticleSource;
+import com.raphydaphy.cutsceneapi.editor.breakout.properties.component.FixedWidget;
+import com.raphydaphy.cutsceneapi.editor.breakout.properties.component.FixedWidgetList;
 import com.raphydaphy.cutsceneapi.editor.breakout.properties.component.event.WidgetListHeightUpdatedEvent;
 import com.raphydaphy.cutsceneapi.editor.breakout.properties.component.prop.InlineProp;
 import com.raphydaphy.cutsceneapi.editor.breakout.properties.component.prop.MultiNumericInlineProp;
 import com.raphydaphy.cutsceneapi.editor.breakout.properties.component.prop.NumericInlineProp;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.liquidengine.legui.component.*;
@@ -58,7 +61,7 @@ public class PropertiesGUI extends Panel {
       this.objectSelector.setElementHeight(25);
       this.objectSelector.getSelectionButton().getStyle().setHorizontalAlign(HorizontalAlign.LEFT).setPadding(5, 15);
 
-      this.objectSelector.addElement(ObjectType.MOB.getName());
+      this.objectSelector.addElement(ObjectType.ENTITY.getName());
       this.objectSelector.addElement(ObjectType.PARTICLE_SOURCE.getName());
 
       this.addObjectButton = new Button("Add to Scene");
@@ -128,6 +131,63 @@ public class PropertiesGUI extends Panel {
     }
   }
 
+  public FixedWidget addEntity(CutsceneEntity cutsceneEntity) {
+    FixedWidget entityWidget = new FixedWidget("Entity", 95);
+    Entity entity = cutsceneEntity.getEntity();
+
+    InlineProp typeProp = new InlineProp("Type");
+
+    SelectBox<String> typeSelector = new SelectBox<>();
+    typeSelector.getStyle().enableFlex().setHeights(20).setMaxWidth(Float.MAX_VALUE).setMargin(0, 1);
+    typeSelector.getSelectionButton().getStyle().setHorizontalAlign(HorizontalAlign.LEFT);
+    typeSelector.getFlexStyle().setFlexGrow(1);
+    typeSelector.setElementHeight(20);
+    typeSelector.setVisibleCount(12);
+
+    Set<Identifier> entityTypes = Registry.ENTITY_TYPE.getIds();
+    Identifier existingType = Registry.ENTITY_TYPE.getId(entity.getType());
+
+    int id = 0;
+    for (Identifier entityType : entityTypes) {
+      typeSelector.addElement(entityType.toString());
+      if (entityType.equals(existingType)) {
+        typeSelector.setSelected(id, true);
+      }
+      id++;
+    }
+
+    typeProp.getValueContainer().add(typeSelector);
+    entityWidget.getContainer().add(typeProp);
+
+
+    MultiNumericInlineProp<Double> positionInput = new MultiNumericInlineProp<>("Position",60, 0d, "X", "Y", "Z");
+    positionInput.getField(0).getTextState().setValue(entity.getPos().x);
+    positionInput.getField(1).getTextState().setValue(entity.getPos().y);
+    positionInput.getField(2).getTextState().setValue(entity.getPos().z);
+
+    entityWidget.getContainer().add(positionInput);
+
+    this.widgetList.addWidget(entityWidget);
+
+    // TODO: cleanup listeners
+    typeSelector.addSelectBoxChangeSelectionEventListener((e) -> {
+      Identifier type = Identifier.tryParse(e.getNewValue());
+      if (type == null) {
+        CutsceneAPI.LOGGER.warn("Failed to parse entity type identifier: " + e.getNewValue());
+        return;
+      }
+
+      // TODO: set type
+      CutsceneAPI.LOGGER.info("Entity type selected: " + e.getNewValue());
+    });
+
+    positionInput.addChangeListener(0, (e) -> entity.setPos(e.getNewValue(), entity.getPos().y, entity.getPos().z));
+    positionInput.addChangeListener(1, (e) -> entity.setPos(entity.getPos().x, e.getNewValue(), entity.getPos().z));
+    positionInput.addChangeListener(2, (e) -> entity.setPos(entity.getPos().x, entity.getPos().y, e.getNewValue()));
+
+    return entityWidget;
+  }
+
   public FixedWidget addParticleSource(CutsceneParticleSource source) {
     FixedWidget particleSource = new FixedWidget("Particle Source", 120);
 
@@ -190,7 +250,7 @@ public class PropertiesGUI extends Panel {
   }
 
   public enum ObjectType {
-    MOB("Mob"), PARTICLE_SOURCE("Particle Source");
+    ENTITY("Entity"), PARTICLE_SOURCE("Particle Source");
 
     private final String name;
 
